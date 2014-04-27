@@ -14,7 +14,10 @@ package com.github.fauu.helix;
 
 import com.artemis.Entity;
 import com.artemis.World;
-import com.github.fauu.helix.components.*;
+import com.github.fauu.helix.components.OrientationComponent;
+import com.github.fauu.helix.components.PositionComponent;
+import com.github.fauu.helix.components.SpatialFormComponent;
+import com.github.fauu.helix.components.TileDataComponent;
 
 public class EntityFactory {
 

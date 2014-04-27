@@ -52,7 +52,7 @@ public class PositionComponent implements Component {
     return position.z;
   }
 
-  public void set(final Vector3 value){
+  public void set(final Vector3 value) {
     this.position.set(value);
   }
 

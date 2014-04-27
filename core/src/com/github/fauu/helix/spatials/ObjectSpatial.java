@@ -26,8 +26,6 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 
-import javax.swing.text.AttributeSet;
-
 public class ObjectSpatial extends Spatial implements RenderableProvider {
 
   ModelInstance modelInstance;

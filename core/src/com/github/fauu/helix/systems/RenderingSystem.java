@@ -18,20 +18,20 @@ import com.artemis.Filter;
 import com.artemis.systems.EntitySystem;
 import com.artemis.utils.SafeArray;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.*;
 import com.badlogic.gdx.utils.Array;
-import com.github.fauu.helix.datums.TileDatum;
 import com.github.fauu.helix.components.PositionComponent;
 import com.github.fauu.helix.components.SpatialFormComponent;
 import com.github.fauu.helix.components.TileDataComponent;
 import com.github.fauu.helix.spatials.Spatial;
-import com.github.fauu.helix.spatials.TerrainSpatial;
 
 public class RenderingSystem extends EntitySystem {
 

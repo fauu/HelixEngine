@@ -25,7 +25,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -33,7 +32,10 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.XmlReader;
 import com.github.fauu.helix.Direction;
 import com.github.fauu.helix.EntityFactory;
-import com.github.fauu.helix.components.*;
+import com.github.fauu.helix.components.OrientationComponent;
+import com.github.fauu.helix.components.PositionComponent;
+import com.github.fauu.helix.components.SpatialFormComponent;
+import com.github.fauu.helix.components.TileDataComponent;
 import com.github.fauu.helix.datums.TileDatum;
 import com.github.fauu.helix.spatials.ObjectSpatial;
 import com.github.fauu.helix.spatials.Spatial;
@@ -45,6 +47,7 @@ public class MapRegionLoader
     extends AsynchronousAssetLoader<Entity, MapRegionLoader.Parameters> {
 
   public static class Parameters extends AssetLoaderParameters<Entity> {
+
     public World world;
   }
 
@@ -62,11 +65,12 @@ public class MapRegionLoader
 
   @Override
   public void loadAsync(final AssetManager manager, final String fileName, final FileHandle hmrFile,
-      final Parameters parameters) {}
+                        final Parameters parameters) {
+  }
 
   @Override
   public Entity loadSync(final AssetManager manager, final String fileName, FileHandle hmrFile,
-      final Parameters parameters) {
+                         final Parameters parameters) {
     try {
       hmrFile = resolve(fileName);
 
@@ -81,7 +85,7 @@ public class MapRegionLoader
   }
 
   protected Entity loadMapRegion(final AssetManager manager, final XmlReader.Element root,
-      final FileHandle hmrFile, final Parameters parameters) {
+                                 final FileHandle hmrFile, final Parameters parameters) {
     final Array<TileDatum> tileData = new Array<TileDatum>();
     final Array<Mesh> geometries = getGeometries(manager);
 
@@ -118,9 +122,9 @@ public class MapRegionLoader
     final XmlReader.Element objectsElement = root.getChildByName("objects");
     for (XmlReader.Element element : objectsElement.getChildrenByName("object")) {
       final Vector3 position = new Vector3(
-        element.getIntAttribute("x", 0),
-        element.getIntAttribute("y", 0),
-        element.getIntAttribute("z", 0));
+          element.getIntAttribute("x", 0),
+          element.getIntAttribute("y", 0),
+          element.getIntAttribute("z", 0));
       final String modelName = element.getAttribute("model");
       final Model model = manager.get("models/" + modelName + ".g3db");
       final Direction orientation
@@ -149,7 +153,7 @@ public class MapRegionLoader
 
   @Override
   public Array<AssetDescriptor> getDependencies(final String fileName, final FileHandle hmrFile,
-      final Parameters parameters) {
+                                                final Parameters parameters) {
     final Array<AssetDescriptor> dependencies = new Array<AssetDescriptor>();
 
     try {

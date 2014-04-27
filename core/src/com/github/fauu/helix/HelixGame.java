@@ -18,18 +18,8 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
-import com.github.fauu.helix.components.PositionComponent;
-import com.github.fauu.helix.components.SpatialFormComponent;
-import com.github.fauu.helix.components.TileDataComponent;
-import com.github.fauu.helix.datums.TileDatum;
 import com.github.fauu.helix.loaders.MapRegionLoader;
 import com.github.fauu.helix.systems.RenderingSystem;
 
@@ -40,8 +30,8 @@ public class HelixGame extends ApplicationAdapter {
   AssetManager assetManager;
   CameraInputController cameraInputController;
 
-	@Override
-	public void create () {
+  @Override
+  public void create() {
     camera = new PerspectiveCamera(13, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     camera.near = 0.1f;
     camera.far = 300f;
@@ -68,14 +58,14 @@ public class HelixGame extends ApplicationAdapter {
     final Entity mapRegion = assetManager.get("mapregions/0.hmr");
 
     mapRegion.addToWorld();
-	}
+  }
 
-	@Override
-	public void render () {
+  @Override
+  public void render() {
     cameraInputController.update();
 
     world.setDelta(Gdx.graphics.getDeltaTime());
     world.process();
-	}
+  }
 
 }

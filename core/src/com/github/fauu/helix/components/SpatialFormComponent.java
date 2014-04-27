@@ -13,7 +13,6 @@
 package com.github.fauu.helix.components;
 
 import com.artemis.Component;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.github.fauu.helix.spatials.Spatial;
 
 public class SpatialFormComponent implements Component {

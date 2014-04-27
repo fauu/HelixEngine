@@ -18,7 +18,8 @@ public abstract class Spatial implements RenderableProvider {
 
   boolean ready;
 
-  public Spatial() {}
+  public Spatial() {
+  }
 
   public boolean isReady() {
     return ready;

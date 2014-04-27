@@ -12,20 +12,19 @@
 
 package com.github.fauu.helix.desktop;
 
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.github.fauu.helix.HelixGame;
 
 public class DesktopLauncher {
 
-	public static void main (final String[] arg) {
-		final LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+  public static void main(final String[] arg) {
+    final LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
     config.title = "helix";
     config.width = 800;
     config.height = 480;
 
-		new LwjglApplication(new HelixGame(), config);
-	}
+    new LwjglApplication(new HelixGame(), config);
+  }
 
 }
