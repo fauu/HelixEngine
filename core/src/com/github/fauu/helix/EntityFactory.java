@@ -24,7 +24,7 @@ public class EntityFactory {
   public static Entity createMapRegion(final World world) {
     final Entity mapRegion = world.createEntity();
 
-    mapRegion.addComponent(new PositionComponent());
+    mapRegion.addComponent(world.createComponent(PositionComponent.class));
 
     return mapRegion;
   }
@@ -32,9 +32,9 @@ public class EntityFactory {
   public static Entity createTerrain(final World world) {
     final Entity terrain = world.createEntity();
 
-    terrain.addComponent(new TileDataComponent());
-    terrain.addComponent(new SpatialFormComponent());
-//    terrain.addComponent(new BelongsToMapRegionComponent());
+    terrain.addComponent(world.createComponent(TileDataComponent.class));
+    terrain.addComponent(world.createComponent(SpatialFormComponent.class));
+//    terrain.addComponent(world.createComponent(BelongsToMapRegionComponent.class));
 
     return terrain;
   }
@@ -42,10 +42,10 @@ public class EntityFactory {
   public static Entity createObject(final World world) {
     final Entity object = world.createEntity();
 
-    object.addComponent(new PositionComponent());
-    object.addComponent(new SpatialFormComponent());
-    object.addComponent(new OrientationComponent());
-//    terrain.addComponent(new BelongsToMapRegionComponent());
+    object.addComponent(world.createComponent(PositionComponent.class));
+    object.addComponent(world.createComponent(SpatialFormComponent.class));
+    object.addComponent(world.createComponent(OrientationComponent.class));
+//    terrain.addComponent(world.createComponent(BelongsToMapRegionComponent.class));
 
     return object;
   }
