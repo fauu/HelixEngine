@@ -26,11 +26,15 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.utils.*;
+import com.badlogic.gdx.graphics.g3d.utils.DefaultTextureBinder;
+import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.utils.Array;
 import com.github.fauu.helix.components.PositionComponent;
 import com.github.fauu.helix.components.SpatialFormComponent;
 import com.github.fauu.helix.components.TileDataComponent;
+import com.github.fauu.helix.shaders.GeneralShaderProvider;
 import com.github.fauu.helix.spatials.Spatial;
 
 public class RenderingSystem extends EntitySystem {
@@ -54,7 +58,7 @@ public class RenderingSystem extends EntitySystem {
 
     renderContext = new RenderContext(new DefaultTextureBinder(DefaultTextureBinder.WEIGHTED, 1));
 
-    modelBatch = new ModelBatch(renderContext, new DefaultShaderProvider());
+    modelBatch = new ModelBatch(renderContext, new GeneralShaderProvider());
 
     buildAxes();
   }

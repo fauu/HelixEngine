@@ -52,7 +52,7 @@ public class ObjectSpatial extends Spatial implements RenderableProvider {
     modelInstance.getRenderables(renderables, pool);
   }
 
-  public void setTransform(Matrix4 transform) {
+  public void setTransform(final Matrix4 transform) {
     modelInstance.transform.set(transform);
   }
 

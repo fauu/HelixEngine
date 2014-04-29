@@ -19,7 +19,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
@@ -38,7 +37,7 @@ public class TerrainSpatial extends Spatial implements RenderableProvider {
   static final int NUM_MAX_VERTICES_PER_TILE = 128 * NUM_COMPONENTS;
 
   Array<TileDatum> tileData;
-  public Mesh mesh;
+  Mesh mesh;
   Renderable renderable;
   TextureAtlas textureSet;
 
@@ -61,8 +60,7 @@ public class TerrainSpatial extends Spatial implements RenderableProvider {
     renderable = new Renderable();
     renderable.mesh = mesh;
     renderable.material = new Material(
-        ColorAttribute.createDiffuse(Color.WHITE),
-        TextureAttribute.createDiffuse(textureSet.getTextures().first()));
+        new TextureAttribute(TextureAttribute.Diffuse, textureSet.getTextures().first()));
     renderable.meshPartOffset = 0;
     renderable.meshPartSize = meshSize;
     renderable.primitiveType = GL20.GL_TRIANGLES;
