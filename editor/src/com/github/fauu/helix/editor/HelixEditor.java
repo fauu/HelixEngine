@@ -13,12 +13,16 @@
 package com.github.fauu.helix.editor;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglCanvas;
+import com.github.fauu.helix.datums.TileDatum;
 import com.github.fauu.helix.editor.ui.Sidebar;
+import com.github.fauu.helix.editor.ui.StatusBar;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class HelixEditor extends JFrame {
+
+  StatusBar statusBar;
 
   public HelixEditor() {
     setTitle("helix");
@@ -30,12 +34,23 @@ public class HelixEditor extends JFrame {
     final Sidebar sidebar = new Sidebar();
     mainContainer.add(sidebar, BorderLayout.LINE_START);
 
-    final LwjglCanvas worldCanvas = new LwjglCanvas(new EditorWorld());
+    final LwjglCanvas worldCanvas = new LwjglCanvas(new EditorWorld(this));
     worldCanvas.getCanvas().setPreferredSize(new Dimension(800, 480));
     mainContainer.add(worldCanvas.getCanvas(), BorderLayout.CENTER);
 
+    statusBar = new StatusBar();
+    mainContainer.add(statusBar, BorderLayout.PAGE_END);
+
     pack();
     setVisible(true);
+  }
+
+  public void setMatchedTileInfo(final TileDatum datum) {
+    if (datum != null) {
+      statusBar.setMatchedTileInfoText("Position: " + datum.getPosition());
+    } else {
+      statusBar.resetMatchedTileInfoText();
+    }
   }
 
   public static void main(String[] args) {

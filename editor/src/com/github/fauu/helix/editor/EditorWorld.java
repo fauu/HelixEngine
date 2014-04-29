@@ -14,6 +14,7 @@ package com.github.fauu.helix.editor;
 
 import com.artemis.Entity;
 import com.artemis.World;
+import com.artemis.systems.event.BasicEventDeliverySystem;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
@@ -22,13 +23,20 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.github.fauu.helix.loaders.MapRegionLoader;
 import com.github.fauu.helix.systems.RenderingSystem;
+import com.github.fauu.helix.systems.editor.EditorInputProcessingSystem;
+import com.github.fauu.helix.systems.editor.EditorTileMatchingSystem;
 
 public class EditorWorld extends ApplicationAdapter {
 
   World world;
+  HelixEditor editor;
   PerspectiveCamera camera;
   AssetManager assetManager;
   CameraInputController cameraInputController;
+
+  public EditorWorld(final HelixEditor editor) {
+    this.editor = editor;
+  }
 
   @Override
   public void create() {
@@ -42,7 +50,10 @@ public class EditorWorld extends ApplicationAdapter {
     Gdx.input.setInputProcessor(cameraInputController);
 
     world = new World();
+    world.setEventDeliverySystem(new BasicEventDeliverySystem());
     world.setSystem(new RenderingSystem(camera));
+    world.setSystem(new EditorInputProcessingSystem());
+    world.setSystem(new EditorTileMatchingSystem(editor, camera));
     world.initialize();
 
     assetManager = new AssetManager();
@@ -58,6 +69,10 @@ public class EditorWorld extends ApplicationAdapter {
     final Entity mapRegion = assetManager.get("mapregions/0.hmr");
 
     mapRegion.addToWorld();
+  }
+
+  public void create(HelixEditor editor) {
+
   }
 
   @Override

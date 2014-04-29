@@ -10,19 +10,21 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.editor.ui;
+package com.github.fauu.helix.events;
 
-import net.miginfocom.swing.MigLayout;
+import com.artemis.Entity;
+import com.artemis.systems.event.SystemEvent;
+import com.badlogic.gdx.math.Vector2;
 
-import javax.swing.*;
-import java.awt.*;
+public class MouseMovedEvent extends SystemEvent {
 
-public class Sidebar extends JPanel {
+  public Entity bouncer;
+  public Vector2 mouseCoords;
 
-  public Sidebar() {
-    setPreferredSize(new Dimension(150, 500));
-    setLayout(new MigLayout("fillx, hidemode 3"));
-
+  @Override
+  protected void resetForPooling() {
+    bouncer = null;
+    mouseCoords = null;
   }
 
 }

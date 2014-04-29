@@ -15,14 +15,27 @@ package com.github.fauu.helix.editor.ui;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
 
-public class Sidebar extends JPanel {
+public class StatusBar extends JPanel {
 
-  public Sidebar() {
-    setPreferredSize(new Dimension(150, 500));
-    setLayout(new MigLayout("fillx, hidemode 3"));
+  public static final String MATCHED_TILE_INFO_PLACEHOLDER = " ";
 
+  JLabel matchedTileInfo;
+
+  public StatusBar() {
+    setLayout(new MigLayout("rtl"));
+
+    matchedTileInfo = new JLabel(MATCHED_TILE_INFO_PLACEHOLDER);
+
+    add(matchedTileInfo);
+  }
+
+  public void setMatchedTileInfoText(final String text) {
+    matchedTileInfo.setText(text);
+  }
+
+  public void resetMatchedTileInfoText() {
+    matchedTileInfo.setText(MATCHED_TILE_INFO_PLACEHOLDER);
   }
 
 }
