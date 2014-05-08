@@ -18,10 +18,10 @@ import com.github.fauu.helix.Direction;
 
 public class TileDatum {
 
-  Vector3 position;
-  Mesh geometry;
-  int textureId;
-  Direction orientation;
+  private Vector3 position;
+  private Mesh geometry;
+  private int textureId;
+  private Direction orientation;
 
   public TileDatum() {
     position = new Vector3(0, 0, 0);

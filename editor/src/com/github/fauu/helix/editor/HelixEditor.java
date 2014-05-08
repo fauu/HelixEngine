@@ -22,7 +22,7 @@ import java.awt.*;
 
 public class HelixEditor extends JFrame {
 
-  StatusBar statusBar;
+  private StatusBar statusBar;
 
   public HelixEditor() {
     setTitle("helix");

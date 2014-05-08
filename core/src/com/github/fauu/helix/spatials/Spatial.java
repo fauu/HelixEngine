@@ -16,7 +16,7 @@ import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 
 public abstract class Spatial implements RenderableProvider {
 
-  boolean ready;
+  protected boolean ready;
 
   public Spatial() {
   }

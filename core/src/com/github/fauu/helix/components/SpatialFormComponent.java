@@ -17,8 +17,8 @@ import com.github.fauu.helix.spatials.Spatial;
 
 public class SpatialFormComponent implements Component {
 
-  Spatial spatial;
-  boolean visible;
+  private Spatial spatial;
+  private boolean visible;
 
   public SpatialFormComponent() {
     this.spatial = null;

@@ -28,11 +28,11 @@ import com.github.fauu.helix.systems.editor.EditorTileMatchingSystem;
 
 public class EditorWorld extends ApplicationAdapter {
 
-  World world;
-  HelixEditor editor;
-  PerspectiveCamera camera;
-  AssetManager assetManager;
-  CameraInputController cameraInputController;
+  private World world;
+  private HelixEditor editor;
+  private PerspectiveCamera camera;
+  private AssetManager assetManager;
+  private CameraInputController cameraInputController;
 
   public EditorWorld(final HelixEditor editor) {
     this.editor = editor;

@@ -18,7 +18,7 @@ import com.github.fauu.helix.datums.TileDatum;
 
 public class TileDataComponent implements Component {
 
-  Array<TileDatum> tileData;
+  private Array<TileDatum> tileData;
 
   public TileDataComponent() {
     this.tileData = null;

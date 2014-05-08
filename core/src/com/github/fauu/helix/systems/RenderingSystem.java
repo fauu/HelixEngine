@@ -39,16 +39,16 @@ import com.github.fauu.helix.spatials.Spatial;
 
 public class RenderingSystem extends EntitySystem {
 
-  ComponentMapper<PositionComponent> positionMapper;
-  ComponentMapper<SpatialFormComponent> spatialFormMapper;
-  ComponentMapper<TileDataComponent> tileDataMapper;
+  private ComponentMapper<PositionComponent> positionMapper;
+  private ComponentMapper<SpatialFormComponent> spatialFormMapper;
+  private ComponentMapper<TileDataComponent> tileDataMapper;
 
-  PerspectiveCamera camera;
-  SafeArray<Spatial> spatials;
-  ModelBatch modelBatch;
-  RenderContext renderContext;
+  private PerspectiveCamera camera;
+  private SafeArray<Spatial> spatials;
+  private ModelBatch modelBatch;
+  private RenderContext renderContext;
 
-  ModelInstance axes;
+  private ModelInstance axes;
 
   public RenderingSystem(final PerspectiveCamera camera) {
     super(Filter.allComponents(SpatialFormComponent.class));

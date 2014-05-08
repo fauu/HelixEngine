@@ -27,11 +27,11 @@ import com.github.fauu.helix.events.MouseMovedEvent;
 
 public class EditorTileMatchingSystem extends EventVoidSystem<MouseMovedEvent> {
 
-  ComponentMapper<TileDataComponent> tileDataMapper;
-  Array<MouseMovedEvent> events;
-  HelixEditor editor;
-  Camera camera;
-  TileDatum matchedTileDatum;
+  private ComponentMapper<TileDataComponent> tileDataMapper;
+  private Array<MouseMovedEvent> events;
+  private HelixEditor editor;
+  private Camera camera;
+  private TileDatum matchedTileDatum;
 
   public EditorTileMatchingSystem(final HelixEditor editor, final Camera camera) {
     super(MouseMovedEvent.class);

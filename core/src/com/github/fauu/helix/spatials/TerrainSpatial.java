@@ -29,19 +29,19 @@ import com.github.fauu.helix.datums.TileDatum;
 
 public class TerrainSpatial extends Spatial implements RenderableProvider {
 
-  static final int NUM_POSITION_COMPONENTS = 3;
-  static final int NUM_TEXTURE_COMPONENTS = 2;
-  static final int NUM_COLOR_COMPONENTS = 1;
-  static final int NUM_COMPONENTS
+  public static final int NUM_POSITION_COMPONENTS = 3;
+  public static final int NUM_TEXTURE_COMPONENTS = 2;
+  public static final int NUM_COLOR_COMPONENTS = 1;
+  public static final int NUM_COMPONENTS
       = NUM_POSITION_COMPONENTS + NUM_TEXTURE_COMPONENTS + NUM_COLOR_COMPONENTS;
-  static final int NUM_MAX_VERTICES_PER_TILE = 128 * NUM_COMPONENTS;
+  public static final int NUM_MAX_VERTICES_PER_TILE = 128 * NUM_COMPONENTS;
 
-  Array<TileDatum> tileData;
-  Mesh mesh;
-  Renderable renderable;
-  TextureAtlas textureSet;
+  private Array<TileDatum> tileData;
+  private Mesh mesh;
+  private Renderable renderable;
+  private TextureAtlas textureSet;
 
-  int meshSize;
+  private int meshSize;
 
   public TerrainSpatial(final Array<TileDatum> tileData, final TextureAtlas textureSet) {
     this.tileData = tileData;

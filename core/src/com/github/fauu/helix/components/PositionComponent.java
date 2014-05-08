@@ -17,7 +17,7 @@ import com.badlogic.gdx.math.Vector3;
 
 public class PositionComponent implements Component {
 
-  Vector3 position;
+  private Vector3 position;
 
   public PositionComponent() {
     this(new Vector3(0, 0, 0));

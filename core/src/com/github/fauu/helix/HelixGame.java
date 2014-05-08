@@ -25,10 +25,10 @@ import com.github.fauu.helix.systems.RenderingSystem;
 
 public class HelixGame extends ApplicationAdapter {
 
-  World world;
-  PerspectiveCamera camera;
-  AssetManager assetManager;
-  CameraInputController cameraInputController;
+  private World world;
+  private PerspectiveCamera camera;
+  private AssetManager assetManager;
+  private CameraInputController cameraInputController;
 
   @Override
   public void create() {

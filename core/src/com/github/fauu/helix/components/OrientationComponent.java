@@ -17,7 +17,7 @@ import com.github.fauu.helix.Direction;
 
 public class OrientationComponent implements Component {
 
-  Direction direction;
+  private Direction direction;
 
   public OrientationComponent() {
     this(Direction.SOUTH);

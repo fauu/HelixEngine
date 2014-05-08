@@ -22,8 +22,8 @@ import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 
 public class ObjectShader extends GeneralShader {
 
-  final int u_texture = register(new Uniform("u_texture"));
-  final int u_color = register(new Uniform("u_color"));
+  private final int u_texture = register(new Uniform("u_texture"));
+  private final int u_color = register(new Uniform("u_color"));
 
   public ObjectShader() {
     super();

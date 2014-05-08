@@ -28,7 +28,7 @@ import com.badlogic.gdx.utils.Pool;
 
 public class ObjectSpatial extends Spatial implements RenderableProvider {
 
-  ModelInstance modelInstance;
+  private ModelInstance modelInstance;
 
   public ObjectSpatial(final Model model, final Matrix4 initialTransform) {
     modelInstance = new ModelInstance(model);

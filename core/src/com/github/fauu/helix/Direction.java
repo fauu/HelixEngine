@@ -19,7 +19,7 @@ public enum Direction {
   NORTH(180), NORTHWEST(180),
   WEST(270), SOUTHWEST(270);
 
-  int angle;
+  private int angle;
 
   private Direction(final int angle) {
     this.angle = angle;

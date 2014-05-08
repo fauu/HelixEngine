@@ -21,7 +21,7 @@ import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 
 public class TerrainShader extends GeneralShader {
 
-  final int u_texture = register(new Uniform("u_texture"));
+  private final int u_texture = register(new Uniform("u_texture"));
 
   public TerrainShader() {
     super();

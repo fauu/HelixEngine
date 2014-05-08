@@ -47,7 +47,6 @@ public class MapRegionLoader
     extends AsynchronousAssetLoader<Entity, MapRegionLoader.Parameters> {
 
   public static class Parameters extends AssetLoaderParameters<Entity> {
-
     public World world;
   }
 
