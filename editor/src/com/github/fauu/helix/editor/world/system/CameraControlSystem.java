@@ -15,60 +15,67 @@ package com.github.fauu.helix.editor.world.system;
 
 import com.artemis.annotations.Wire;
 import com.artemis.systems.VoidEntitySystem;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
-import com.github.fauu.helix.Direction;
 
 public class CameraControlSystem extends VoidEntitySystem {
   
   private static final float FLAT_MOVEMENT_SPEED = 1;
 
-  private static final float VERTICAL_MOVEMENT_SPEED = 4;
+  private static final float VERTICAL_MOVEMENT_STEP = 5;
+
+  private static final int MAX_ZOOM_LEVEL = 3;
+
+  private static final int MIN_ZOOM_LEVEL = -8;
   
   @Wire
   private PerspectiveCamera camera;
   
-  private Direction flatMovementDirection;
-
   private Vector3 translation = new Vector3();
+
+  private int zoomLevel;
 
   @Override
   protected void processSystem() {
-    if (flatMovementDirection != null) {
-      switch (flatMovementDirection) {
-        case NORTH:
-          translation.y = 1;
-          break;
-        case EAST:
-          translation.x = 1;
-          break;
-        case SOUTH:
-          translation.y = -1;
-          break;
-        case WEST:
-          translation.x = -1;
-          break;
-        default: break;
-      }
-      
-      camera.translate(translation.scl(FLAT_MOVEMENT_SPEED));
-      
-      translation.setZero();
+    if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+      translation.y += 1;
     }
-  }
-  
-  public void setMovementDirection(Direction direction) {
-    flatMovementDirection = direction;
-  }
 
-  public void unsetMovementDirection(Direction direction) {
-    if (flatMovementDirection == direction) {
-      flatMovementDirection = null;
+    if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+      translation.x += 1;
     }
-  }
-  
-  public void moveVertically(int amount) {
-    camera.translate(new Vector3(0, 0, amount).scl(VERTICAL_MOVEMENT_SPEED));
+
+    if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+      translation.y -= 1;
+    }
+
+    if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+      translation.x -= 1;
+    }
+
+    if (Gdx.input.isKeyJustPressed(Input.Keys.K) &&
+        zoomLevel < MAX_ZOOM_LEVEL) {
+      translation.z -= 1;
+      translation.y += 2.5 * VERTICAL_MOVEMENT_STEP;
+
+      zoomLevel++;
+    }
+
+    if (Gdx.input.isKeyJustPressed(Input.Keys.J) &&
+        zoomLevel > MIN_ZOOM_LEVEL) {
+      translation.z += 1;
+      translation.y -= 2.5 * VERTICAL_MOVEMENT_STEP;
+
+      zoomLevel--;
+    }
+
+    camera.translate(translation.x * FLAT_MOVEMENT_SPEED,
+                     translation.y * FLAT_MOVEMENT_SPEED,
+                     translation.z * VERTICAL_MOVEMENT_STEP);
+
+    translation.setZero();
   }
 
 }

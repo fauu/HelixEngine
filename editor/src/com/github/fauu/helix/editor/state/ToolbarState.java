@@ -13,7 +13,9 @@
 
 package com.github.fauu.helix.editor.state;
 
+import com.github.fauu.helix.editor.HelixEditor;
 import com.github.fauu.helix.editor.ToolType;
+import com.github.fauu.helix.editor.event.ToolbarStateChangedEvent;
 
 public class ToolbarState {
   
@@ -31,6 +33,10 @@ public class ToolbarState {
   
   public void setActiveTool(ToolType type) {
     activeTool = type;
+
+    HelixEditor.getInstance()
+               .getWorldEventBus()
+               .post(new ToolbarStateChangedEvent(type));
   }
 
 }

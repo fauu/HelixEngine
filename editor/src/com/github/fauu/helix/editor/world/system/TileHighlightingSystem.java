@@ -28,18 +28,14 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
-import com.github.fauu.helix.component.GeometryNameComponent;
-import com.github.fauu.helix.component.PositionComponent;
-import com.github.fauu.helix.component.SpatialFormComponent;
-import com.github.fauu.helix.component.TileDataComponent;
-import com.github.fauu.helix.component.VisibilityComponent;
+import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.datum.SpatialUpdateRequest;
 import com.github.fauu.helix.datum.Tile;
 import com.github.fauu.helix.editor.world.spatial.MatchedTileHighlightSpatial;
 import com.github.fauu.helix.manager.GeometryManager;
 import com.github.fauu.helix.spatial.Spatial;
 
-public class TileMatchingSystem extends EntityProcessingSystem {
+public class TileHighlightingSystem extends EntityProcessingSystem {
   
   @Wire
   private ComponentMapper<SpatialFormComponent> spatialFormMapper;
@@ -56,15 +52,24 @@ public class TileMatchingSystem extends EntityProcessingSystem {
   @Wire
   private PerspectiveCamera camera;
 
-  private Tile matchedTile;
+  private Tile highlightedTile;
   
   @SuppressWarnings("unchecked")
-  public TileMatchingSystem() {
+  public TileHighlightingSystem() {
     super(Aspect.getAspectForAll(TileDataComponent.class));
   }
   
   @Override
-  protected void initialize() { }
+  protected void initialize() {
+    Entity highlight = world.createEntity()
+                            .edit()
+                            .add(new SpatialFormComponent(
+                                new MatchedTileHighlightSpatial()))
+                            .add(new PositionComponent())
+                            .add(new GeometryNameComponent())
+                            .getEntity();
+    world.getManager(TagManager.class).register("TILE_HIGHLIGHT", highlight);
+  }
 
   @Override
   protected void process(Entity e) {
@@ -76,79 +81,64 @@ public class TileMatchingSystem extends EntityProcessingSystem {
       return;
     }
     
-    Entity matchedTileHighlight = world.getManager(TagManager.class)
-                                       .getEntity("MATCHED_TILE_HIGHLIGHT");
-
-    if (matchedTileHighlight == null) {
-      matchedTileHighlight 
-          = world.createEntity()
-                 .edit()
-                 .add(new SpatialFormComponent(
-                      new MatchedTileHighlightSpatial()))
-                 .add(new PositionComponent())
-                 .add(new GeometryNameComponent())
-                 .getEntity();
-      world.getManager(TagManager.class)
-           .register("MATCHED_TILE_HIGHLIGHT", matchedTileHighlight);
-    }
+    Entity highlight = world.getManager(TagManager.class)
+                            .getEntity("TILE_HIGHLIGHT");
 
     Array<Tile> tiles = tileDataMapper.get(e).get();
 
     Ray ray = camera.getPickRay(Gdx.input.getX(), Gdx.input.getY());
 
-    boolean foundMatch = false;
+    boolean hovering = false;
 
     for (Tile tile : tiles) {
       BoundingBox boundingBox = world.getManager(GeometryManager.class)
                                      .getGeometry(tile.getGeometryName())
                                      .getMesh()
                                      .calculateBoundingBox();
-      Matrix4 transformationMatrix = new Matrix4();
-      transformationMatrix.translate(new Vector3(tile.getPosition().x,
-                                                 tile.getPosition().y,
-                                                 0));
-      boundingBox.mul(transformationMatrix);
+
+      Matrix4 transformation = new Matrix4();
+      transformation.translate(new Vector3(tile.getPosition().x,
+                                           tile.getPosition().y,
+                                           0));
+
+      boundingBox.mul(transformation);
 
       if (Intersector.intersectRayBoundsFast(ray, boundingBox)) {
-        if (tile != matchedTile) {
+        if (tile != highlightedTile) {
           spatialFormMapper
-              .get(matchedTileHighlight)
+              .get(highlight)
               .requestUpdate(
                   new SpatialUpdateRequest(Spatial.UpdateType.POSITION, 
                                            tile.getPosition()));
 
           spatialFormMapper
-              .get(matchedTileHighlight)
+              .get(highlight)
               .requestUpdate(
                   new SpatialUpdateRequest(Spatial.UpdateType.GEOMETRY, 
                                            tile.getGeometryName()));
 
-          if (visibilityMapper.getSafe(matchedTileHighlight) == null) {
-            matchedTileHighlight.edit().create(VisibilityComponent.class);
+          if (visibilityMapper.getSafe(highlight) == null) {
+            highlight.edit().create(VisibilityComponent.class);
           }
 
-          matchedTile = tile;
+          highlightedTile = tile;
         }
 
-        foundMatch = true;
+        hovering = true;
 
         break;
       }
     }
 
-    if (!foundMatch) {
-      matchedTile = null;
+    if (!hovering) {
+      highlightedTile = null;
 
-      matchedTileHighlight.edit().remove(VisibilityComponent.class);
+      highlight.edit().remove(VisibilityComponent.class);
     }
   }
 
-  public Tile getPrevousMatchedTile() {
-    return matchedTile;
-  }
-  
-  public Tile getMatchedTile() {
-    return matchedTile;
+  public Tile getHighlightedTile() {
+    return highlightedTile;
   }
 
 }

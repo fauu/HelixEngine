@@ -20,12 +20,15 @@ import com.artemis.managers.TagManager;
 import com.artemis.systems.VoidEntitySystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.datum.SpatialUpdateRequest;
 import com.github.fauu.helix.datum.Tile;
 import com.github.fauu.helix.editor.HelixEditor;
+import com.github.fauu.helix.editor.ToolType;
 import com.github.fauu.helix.editor.event.TilePropertiesStateChangedEvent;
+import com.github.fauu.helix.editor.event.ToolbarStateChangedEvent;
 import com.github.fauu.helix.editor.world.spatial.TileToPaintSpatial;
 import com.github.fauu.helix.spatial.Spatial.UpdateType;
 import com.google.common.eventbus.Subscribe;
@@ -48,13 +51,13 @@ public class TilePaintingSystem extends VoidEntitySystem {
   private ComponentMapper<TileDataComponent> tileDataMapper;
   
   @Wire
-  private TileMatchingSystem tileMatchingSystem;
+  private TileHighlightingSystem tileHighlightingSystem;
   
-  private Tile matchedTile;
+  private Tile highlightedTile;
   
   private boolean tilePropertiesChanged;
-  
-  private boolean currentTilePainted;
+
+  private Vector2 lastPaintedTilePosition;
   
   public TilePaintingSystem() {
     super();
@@ -64,9 +67,11 @@ public class TilePaintingSystem extends VoidEntitySystem {
   protected void initialize() {
     HelixEditor.getInstance().getWorldEventBus().register(this);
 
+    lastPaintedTilePosition = new Vector2();
+
     TileToPaintSpatial spatial = new TileToPaintSpatial();
     
-    Entity tileToPaint
+    Entity preview
         = world.createEntity()
                .edit()
                .add(new SpatialFormComponent(spatial))
@@ -74,33 +79,30 @@ public class TilePaintingSystem extends VoidEntitySystem {
                .add(new GeometryNameComponent())
                .add(new TextureNameComponent())
                .getEntity();
-    world.getManager(TagManager.class).register("TILE_TO_PAINT", tileToPaint);
+    world.getManager(TagManager.class).register("PAINTED_TILE_PREVIEW", preview);
   }
 
   @Override
   protected void processSystem() {
-    if (tileMatchingSystem.getMatchedTile() != matchedTile || 
+    if ((tileHighlightingSystem.getHighlightedTile() != null &&
+        !tileHighlightingSystem.getHighlightedTile().equals(highlightedTile)) ||
         tilePropertiesChanged) {
-      
-      if (!tilePropertiesChanged) {
-        currentTilePainted = false;
-      }
 
-      matchedTile = tileMatchingSystem.getMatchedTile();
+      highlightedTile = tileHighlightingSystem.getHighlightedTile();
+
+      Entity preview = world.getManager(TagManager.class)
+                            .getEntity("PAINTED_TILE_PREVIEW");
       
-      Entity tileToPaint = world.getManager(TagManager.class)
-                                .getEntity("TILE_TO_PAINT");
-      
-      if (matchedTile == null) {
-        tileToPaint.edit().remove(VisibilityComponent.class);
+      if (highlightedTile == null) {
+        preview.edit().remove(VisibilityComponent.class);
       } else {
         SpatialFormComponent spatialFormComponent
-            = spatialFormMapper.get(tileToPaint);
+            = spatialFormMapper.get(preview);
         
         SpatialUpdateRequest request;
 
         request = new SpatialUpdateRequest(UpdateType.POSITION, 
-                                           matchedTile.getPosition());
+                                           highlightedTile.getPosition());
         spatialFormComponent.requestUpdate(request);
         
         Tile tileProperties = HelixEditor.getInstance()
@@ -115,49 +117,57 @@ public class TilePaintingSystem extends VoidEntitySystem {
                                            tileProperties.getTextureName());
         spatialFormComponent.requestUpdate(request);
 
-        if (visibilityMapper.getSafe(tileToPaint) == null) {
-          tileToPaint.edit().create(VisibilityComponent.class);
+        if (visibilityMapper.getSafe(preview) == null) {
+          preview.edit().create(VisibilityComponent.class);
         }
-      
-        tilePropertiesChanged = false;
       }
+
+      tilePropertiesChanged = false;
     }
-    
-    if (!currentTilePainted && 
-        matchedTile != null && 
-        Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+
+    // TODO: Don't recreate the whole terrain mesh when updating one tile
+    if (highlightedTile != null &&
+        Gdx.input.isButtonPressed(Input.Buttons.LEFT) &&
+        !lastPaintedTilePosition.equals(highlightedTile.getFlatPosition())) {
       Entity terrain = world.getManager(TagManager.class).getEntity("TERRAIN");
 
       Array<Tile> tiles = tileDataMapper.get(terrain).get();
       
       for (int i = 0; i < tiles.size; i++) {
         if (tiles.get(i).getFlatPosition().equals(
-                matchedTile.getFlatPosition())) {
+                highlightedTile.getFlatPosition())) {
           Tile updatedTile = new Tile();
 
           Tile tileProperties = HelixEditor.getInstance()
                                            .getTilePropertiesState()
                                            .getData();
           
-          updatedTile.setPosition(matchedTile.getPosition());
+          updatedTile.setPosition(highlightedTile.getPosition());
           updatedTile.setOrientation(tileProperties.getOrientation());
           updatedTile.setGeometryName(tileProperties.getGeometryName());
           updatedTile.setTextureName(tileProperties.getTextureName());
           updatedTile.setElevation(tileProperties.getElevation());
           
           tiles.set(i, updatedTile);
+
+          highlightedTile = updatedTile;
           
           SpatialUpdateRequest request
               = new SpatialUpdateRequest(UpdateType.TILE_DATA, tiles);
           
           spatialFormMapper.get(terrain).requestUpdate(request);
-          
-          currentTilePainted = true;
+
+          lastPaintedTilePosition = updatedTile.getFlatPosition();
 
           break;
         }
       }
     }
+  }
+
+  @Subscribe
+  public void toolbarStateChanged(ToolbarStateChangedEvent e) {
+    setEnabled(e.getMessage() == ToolType.TILE_PAINT_TOOL);
   }
 
   @Subscribe

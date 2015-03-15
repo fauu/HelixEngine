@@ -80,7 +80,7 @@ public class HelixEditor extends Game {
     textureEntryListState.initialize(editorTextureManager.getFullEntryList());
 
     Gdx.input.setInputProcessor(
-        new InputMultiplexer(ui.getStage(), mainScreen.getInputProcessor()));
+        new InputMultiplexer(ui.getStage(), new EditorInputEventProcessor()));
   }
 
   public static HelixEditor getInstance() {
@@ -114,7 +114,19 @@ public class HelixEditor extends Game {
   public void closeCurrentMapRegion() {
     mainScreen.getWorld().getManager(MapRegionManager.class).unloadAll();
   }
-  
+
+  public void newMapRegionAction() {
+    ui.showNewMapRegionDialog();
+  }
+
+  public void openMapRegionAction() {
+    ui.showOpenMapRegionFileChooser();
+  }
+
+  public void exitAction() {
+    Gdx.app.exit();
+  }
+
   public EventBus getUIEventBus() {
     return editorToUIEventBus;
   }

@@ -13,28 +13,25 @@
 
 package com.github.fauu.helix.editor.screen;
 
-import com.artemis.EntitySystem;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.managers.GroupManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.github.fauu.helix.editor.world.system.CameraControlSystem;
-import com.github.fauu.helix.editor.world.system.TileMatchingSystem;
+import com.github.fauu.helix.editor.world.system.TileHighlightingSystem;
 import com.github.fauu.helix.editor.world.system.TilePaintingSystem;
 import com.github.fauu.helix.editor.world.system.TileSelectionSystem;
-import com.github.fauu.helix.editor.world.system.WorldInputSystem;
+import com.github.fauu.helix.manager.GeometryManager;
 import com.github.fauu.helix.manager.MapRegionManager;
 import com.github.fauu.helix.manager.ObjectManager;
-import com.github.fauu.helix.manager.GeometryManager;
 import com.github.fauu.helix.manager.TextureManager;
-import com.github.fauu.helix.system.SpatialUpdateSystem;
 import com.github.fauu.helix.system.RenderingSystem;
+import com.github.fauu.helix.system.SpatialUpdateSystem;
 
 public class MainScreen implements Screen {
 
@@ -44,8 +41,6 @@ public class MainScreen implements Screen {
 
   private AssetManager assetManager;
 
-  private InputProcessor worldInputProcessor;
-  
   public MainScreen() {
     assetManager = new AssetManager();
 
@@ -54,15 +49,13 @@ public class MainScreen implements Screen {
                                    Gdx.graphics.getHeight());
     camera.near = 0.1f;
     camera.far = 300f;
-    camera.translate(0, -100, 40);
+    camera.translate(0, -75, 30);
     camera.lookAt(0, 0, 0);
   
     WorldConfiguration worldConfiguration 
         = new WorldConfiguration().register(assetManager)
                                   .register(camera);
     world = new World(worldConfiguration);
-    
-    worldInputProcessor = new WorldInputSystem();
 
     world.setManager(new UuidEntityManager());
     world.setManager(new GeometryManager());
@@ -72,9 +65,8 @@ public class MainScreen implements Screen {
     world.setManager(new GroupManager());
     world.setManager(new MapRegionManager());
     
-    world.setSystem((EntitySystem) worldInputProcessor);
     world.setSystem(new CameraControlSystem());
-    world.setSystem(new TileMatchingSystem());
+    world.setSystem(new TileHighlightingSystem());
     world.setSystem(new TileSelectionSystem());
     world.setSystem(new TilePaintingSystem());
     world.setSystem(new SpatialUpdateSystem());
@@ -112,10 +104,6 @@ public class MainScreen implements Screen {
   
   public World getWorld() {
     return world;
-  }
-  
-  public InputProcessor getInputProcessor() {
-    return worldInputProcessor;
   }
   
   public AssetManager getAssetManager() {

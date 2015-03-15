@@ -16,6 +16,8 @@ package com.github.fauu.helix.screen;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.managers.GroupManager;
+import com.artemis.managers.TagManager;
+import com.artemis.managers.UuidEntityManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
@@ -23,6 +25,7 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.github.fauu.helix.manager.GeometryManager;
 import com.github.fauu.helix.manager.MapRegionManager;
 import com.github.fauu.helix.manager.ObjectManager;
+import com.github.fauu.helix.manager.TextureManager;
 import com.github.fauu.helix.system.RenderingSystem;
 import com.github.fauu.helix.system.SpatialUpdateSystem;
 
@@ -53,9 +56,12 @@ public class MainScreen implements Screen {
     world.setSystem(new SpatialUpdateSystem());
     world.setSystem(new RenderingSystem());
 
+    world.setManager(new UuidEntityManager());
     world.setManager(new GeometryManager());
+    world.setManager(new TextureManager());
     world.setManager(new ObjectManager());
     world.setManager(new GroupManager());
+    world.setManager(new TagManager());
     world.setManager(new MapRegionManager());
 
     world.initialize();

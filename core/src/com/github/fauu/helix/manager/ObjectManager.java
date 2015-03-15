@@ -26,13 +26,17 @@ import com.github.fauu.helix.spatial.ObjectSpatial;
 
 public class ObjectManager extends Manager {
 
+  protected static final String DIRECTORY_NAME = "model";
+
+  protected static final String EXTENSION = "g3db";
+
   @Wire
   private AssetManager assetManager;
   
   public ObjectManager() { }
   
   public Entity load(String modelName) {
-    String path = "model/" + modelName + ".g3db";
+    String path = DIRECTORY_NAME + "/" + modelName + "." + EXTENSION;
     
     if (!assetManager.isLoaded(path)) {
       assetManager.load(path, Model.class);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 Helix Engine Developers 
+ * Copyright (C) 2014, 2015 Helix Engine Developers
  * (http://github.com/fauu/HelixEngine)
  *
  * This software is licensed under the GNU General Public License
@@ -11,28 +11,20 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.component;
+package com.github.fauu.helix.editor.event;
 
-import com.artemis.Component;
+import com.github.fauu.helix.editor.ToolType;
 
-public class NameComponent extends Component {
-  
-  private String name;
+public class ToolbarStateChangedEvent{
 
-  public NameComponent() {
-    name = "";
-  }
+  private ToolType message;
 
-  public NameComponent(String name) {
-    this.name = name;
+  public ToolbarStateChangedEvent(ToolType message) {
+    this.message = message;
   }
   
-  public String get() {
-    return name;
-  }
-  
-  public void set(String name) {
-    this.name = name;
+  public ToolType getMessage() {
+    return message;
   }
 
 }

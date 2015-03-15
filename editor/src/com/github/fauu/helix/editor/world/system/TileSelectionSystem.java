@@ -25,16 +25,16 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.github.fauu.helix.component.PositionComponent;
-import com.github.fauu.helix.component.SizeComponent;
-import com.github.fauu.helix.component.SpatialFormComponent;
-import com.github.fauu.helix.component.TileDataComponent;
-import com.github.fauu.helix.component.VisibilityComponent;
+import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.datum.SpatialUpdateRequest;
 import com.github.fauu.helix.datum.Tile;
+import com.github.fauu.helix.editor.HelixEditor;
+import com.github.fauu.helix.editor.ToolType;
+import com.github.fauu.helix.editor.event.ToolbarStateChangedEvent;
 import com.github.fauu.helix.editor.world.spatial.TileSelectionHighlightSpatial;
 import com.github.fauu.helix.manager.GeometryManager;
 import com.github.fauu.helix.spatial.Spatial.UpdateType;
+import com.google.common.eventbus.Subscribe;
 
 public class TileSelectionSystem extends EntityProcessingSystem {
   
@@ -48,7 +48,7 @@ public class TileSelectionSystem extends EntityProcessingSystem {
   private ComponentMapper<VisibilityComponent> visibilityMapper;
   
   @Wire
-  private TileMatchingSystem tileMatchingSystem;
+  private TileHighlightingSystem tileHighlightingSystem;
   
   private Vector2 startCoords;
 
@@ -56,9 +56,9 @@ public class TileSelectionSystem extends EntityProcessingSystem {
 
   boolean finished;
   
-  private Tile matchedTile;
+  private Tile highlightedTile;
   
-  private Tile newMatchedTile;
+  private Tile newHighlightedTile;
   
   @SuppressWarnings("unchecked")
   public TileSelectionSystem() {
@@ -69,6 +69,8 @@ public class TileSelectionSystem extends EntityProcessingSystem {
 
   @Override
   protected void initialize() {
+    HelixEditor.getInstance().getWorldEventBus().register(this);
+
     TileSelectionHighlightSpatial spatial = new TileSelectionHighlightSpatial();
     spatial.setGeometryManager(world.getManager(GeometryManager.class));
 
@@ -91,20 +93,20 @@ public class TileSelectionSystem extends EntityProcessingSystem {
     }
     
     if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-      Array<Tile> selectedTilesForUpdate = null;
+      Array<Tile> selectedTiles = null;
       
       if (finished) {
-        matchedTile = tileMatchingSystem.getMatchedTile();
+        highlightedTile = tileHighlightingSystem.getHighlightedTile();
         
-        if (matchedTile != null) {
+        if (highlightedTile != null) {
           finished = false;
         
-          startCoords = matchedTile.getFlatPosition();
-          endCoords = matchedTile.getFlatPosition();
+          startCoords = highlightedTile.getFlatPosition();
+          endCoords = highlightedTile.getFlatPosition();
           
-          selectedTilesForUpdate = getSelectedTiles(tileDataMapper.get(e).get(),  
-                                                    startCoords, 
-                                                    endCoords);
+          selectedTiles = getSelectedTiles(tileDataMapper.get(e).get(),
+                                           startCoords,
+                                           endCoords);
           
           Entity selectionHighlight = world.getManager(TagManager.class)
                                            .getEntity("SELECTION_HIGHLIGHT");
@@ -112,8 +114,6 @@ public class TileSelectionSystem extends EntityProcessingSystem {
           if (!visibilityMapper.has(selectionHighlight)) {
             selectionHighlight.edit().create(VisibilityComponent.class);
           }
-          
-          Gdx.app.debug("msg", "Started selecting: " + startCoords + endCoords);
         } else {
           startCoords = null;
           endCoords = null;
@@ -124,32 +124,28 @@ public class TileSelectionSystem extends EntityProcessingSystem {
                .remove(VisibilityComponent.class);
         }
       } else {
-        newMatchedTile = tileMatchingSystem.getMatchedTile();
+        newHighlightedTile = tileHighlightingSystem.getHighlightedTile();
         
-        if (newMatchedTile != null && newMatchedTile != matchedTile) {
-          endCoords = newMatchedTile.getFlatPosition();
+        if (newHighlightedTile != null && newHighlightedTile != highlightedTile) {
+          endCoords = newHighlightedTile.getFlatPosition();
 
-          selectedTilesForUpdate = getSelectedTiles(tileDataMapper.get(e).get(),  
-                                                    startCoords, 
-                                                    endCoords);
+          selectedTiles = getSelectedTiles(tileDataMapper.get(e).get(),
+                                           startCoords,
+                                           endCoords);
           
-          matchedTile = newMatchedTile;
-
-          Gdx.app.debug("msg", "Updated selection: " + startCoords + endCoords);
+          highlightedTile = newHighlightedTile;
         }
       }
       
-      if (selectedTilesForUpdate != null) {
+      if (selectedTiles != null) {
         Entity selectionHighlight = world.getManager(TagManager.class)
                                          .getEntity("SELECTION_HIGHLIGHT");
         spatialFormMapper.get(selectionHighlight)
                          .requestUpdate(new SpatialUpdateRequest(
-                             UpdateType.TILE_DATA, selectedTilesForUpdate));
+                             UpdateType.TILE_DATA, selectedTiles));
       }
     } else if (!finished) {
       finished = true;
-
-      Gdx.app.debug("msg", "Finished selection: " + startCoords + endCoords);
     }
   }
   
@@ -193,6 +189,11 @@ public class TileSelectionSystem extends EntityProcessingSystem {
     }
 
     return new Rectangle(x, y, w, h);
+  }
+
+  @Subscribe
+  public void toolbarStateChanged(ToolbarStateChangedEvent e) {
+    setEnabled(e.getMessage() == ToolType.TILE_EDIT_TOOL);
   }
 
 }

@@ -22,7 +22,7 @@ public class GeometryNameComponent extends Component {
   public GeometryNameComponent() {
     name = "";
   }
-  
+
   public GeometryNameComponent(String name) {
     this.name = name;
   }

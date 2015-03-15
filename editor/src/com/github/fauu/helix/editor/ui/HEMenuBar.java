@@ -13,66 +13,51 @@
 
 package com.github.fauu.helix.editor.ui;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.github.fauu.helix.editor.HelixEditor;
-import com.github.fauu.helix.editor.ui.dialog.NewMapRegionDialog;
-import com.github.fauu.helix.editor.util.FileExtensionFilter;
 import com.kotcrab.vis.ui.widget.Menu;
 import com.kotcrab.vis.ui.widget.MenuBar;
 import com.kotcrab.vis.ui.widget.MenuItem;
-import com.kotcrab.vis.ui.widget.file.FileChooser;
-import com.kotcrab.vis.ui.widget.file.FileChooser.Mode;
-import com.kotcrab.vis.ui.widget.file.FileChooser.SelectionMode;
-import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 
 public class HEMenuBar extends MenuBar {
 
   public HEMenuBar(final Stage stage) {
     super(stage);
-    
-    final FileChooser regionFileChooser = new FileChooser(Mode.OPEN);
-    regionFileChooser.setSelectionMode(SelectionMode.FILES);
-    regionFileChooser.setFileFilter(new FileExtensionFilter("json"));
-    regionFileChooser.setListener(new FileChooserAdapter() {
-      @Override
-      public void selected(FileHandle file) {
-        HelixEditor.getInstance().closeCurrentMapRegion();
-        HelixEditor.getInstance().loadMapRegion(file);
-      }
-    });
 
     Menu fileMenu = new Menu("File");
 
-    MenuItem newRegionMenuItem = new MenuItem("New Map Region...",
+    MenuItem newMapRegionMenuItem = new MenuItem("New Map Region...",
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            stage.addActor((new NewMapRegionDialog()).fadeIn());
+            HelixEditor.getInstance().newMapRegionAction();
           }
         });
-    fileMenu.addItem(newRegionMenuItem);
+    newMapRegionMenuItem.setShortcut(Input.Keys.CONTROL_LEFT, Input.Keys.N);
+    fileMenu.addItem(newMapRegionMenuItem);
 
-    MenuItem openRegionMenuItem = new MenuItem("Open Map Region...", 
+    MenuItem openMapRegionMenuItem = new MenuItem("Open Map Region...",
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            stage.addActor(regionFileChooser.fadeIn());
+            HelixEditor.getInstance().openMapRegionAction();
           }
         });
-    fileMenu.addItem(openRegionMenuItem);
+    openMapRegionMenuItem.setShortcut(Input.Keys.CONTROL_LEFT, Input.Keys.O);
+    fileMenu.addItem(openMapRegionMenuItem);
 
     fileMenu.addSeparator();
 
     MenuItem exitMenuItem = new MenuItem("Exit", new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            Gdx.app.exit();
+            HelixEditor.getInstance().exitAction();
           }
         });
+    exitMenuItem.setShortcut(Input.Keys.ALT_LEFT, Input.Keys.F4);
     fileMenu.addItem(exitMenuItem);
 
     this.addMenu(fileMenu);
