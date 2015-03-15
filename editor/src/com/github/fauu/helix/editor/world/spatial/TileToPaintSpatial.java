@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2014, 2015 Helix Engine Developers
+ * (http://github.com/fauu/HelixEngine)
+ *
+ * This software is licensed under the GNU General Public License
+ * (version 3 or later). See the COPYING file in this distribution.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this software. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Authored by: Piotr Grabowski <fau999@gmail.com>
+ */
+
 package com.github.fauu.helix.editor.world.spatial;
 
 import com.badlogic.gdx.graphics.GL20;
@@ -13,7 +26,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
-import com.github.fauu.helix.manager.TextureManager;
 import com.github.fauu.helix.shader.ShaderAttribute;
 import com.github.fauu.helix.spatial.Spatial;
 import com.github.fauu.helix.spatial.dto.TextureDTO;

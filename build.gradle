@@ -5,12 +5,13 @@ buildscript {
     }
     dependencies {
         classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.5'
-        classpath 'com.android.tools.build:gradle:0.13+'
+        classpath 'com.android.tools.build:gradle:1.0.0'
     }
 }
 
 allprojects {
     apply plugin: "eclipse"
+    apply plugin: "idea"
 
     version = '0.0.1-SNAPSHOT'
     ext {

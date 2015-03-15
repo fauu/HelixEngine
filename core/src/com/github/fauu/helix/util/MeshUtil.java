@@ -1,12 +1,25 @@
-package com.github.fauu.helix.util;
+/*
+ * Copyright (C) 2014, 2015 Helix Engine Developers
+ * (http://github.com/fauu/HelixEngine)
+ *
+ * This software is licensed under the GNU General Public License
+ * (version 3 or later). See the COPYING file in this distribution.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this software. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Authored by: Piotr Grabowski <fau999@gmail.com>
+ */
 
-import java.util.AbstractList;
+package com.github.fauu.helix.util;
 
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.math.Matrix4;
+
+import java.util.AbstractList;
 
 public final class MeshUtil {
   
@@ -47,7 +60,7 @@ public final class MeshUtil {
       int indexOffset = 0;
       int vertexOffset = 0;
       int vertexSizeOffset = 0;
-      int vertexSize = 0;
+      int vertexSize;
 
       for(int i=0; i<meshes.size(); i++)
       {
