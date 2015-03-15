@@ -50,6 +50,8 @@ public class MatchedTileHighlightSpatial extends Spatial
 
   @Override
   public void update(UpdateType type, Object value) {
+    ready = false;
+    
     switch (type) {
       case POSITION:
         renderable.worldTransform
@@ -60,17 +62,17 @@ public class MatchedTileHighlightSpatial extends Spatial
         // TODO: Implement me
         break;
       case GEOMETRY:
-        ready = false;
-        
-        Mesh mesh = (Mesh) value;
+        Mesh newMesh = (Mesh) value;
 
-        renderable.mesh = mesh.copy(true);
-        renderable.meshPartSize = mesh.getNumIndices();
-        
-        ready = true;
+        if (renderable.mesh == null || !renderable.mesh.equals(newMesh)) {
+          renderable.mesh = newMesh.copy(true);
+          renderable.meshPartSize = newMesh.getNumIndices();
+        }
         break;
       default: throw new UnsupportedOperationException();
     }
+    
+    ready = true;
   }
   
   @Override

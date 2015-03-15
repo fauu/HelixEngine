@@ -40,7 +40,7 @@ import com.github.fauu.helix.manager.GeometryManager;
 import com.github.fauu.helix.spatial.Spatial;
 
 public class TileMatchingSystem extends EntityProcessingSystem {
-
+  
   @Wire
   private ComponentMapper<SpatialFormComponent> spatialFormMapper;
   
@@ -56,7 +56,7 @@ public class TileMatchingSystem extends EntityProcessingSystem {
   @Wire
   private PerspectiveCamera camera;
 
-  private Tile matchedTile = null;
+  private Tile matchedTile;
   
   @SuppressWarnings("unchecked")
   public TileMatchingSystem() {
@@ -64,8 +64,7 @@ public class TileMatchingSystem extends EntityProcessingSystem {
   }
   
   @Override
-  protected void initialize() {
-  }
+  protected void initialize() { }
 
   @Override
   protected void process(Entity e) {
@@ -112,24 +111,21 @@ public class TileMatchingSystem extends EntityProcessingSystem {
 
       if (Intersector.intersectRayBoundsFast(ray, boundingBox)) {
         if (tile != matchedTile) {
-          if (geometryNameMapper.get(matchedTileHighlight).get() != 
-              tile.getGeometryName()) {
-            spatialFormMapper
-                .get(matchedTileHighlight)
-                .requestUpdate(
-                    new SpatialUpdateRequest(Spatial.UpdateType.GEOMETRY, 
-                                             tile.getGeometryName()));
-          }
-          
-          if (visibilityMapper.getSafe(matchedTileHighlight) == null) {
-            matchedTileHighlight.edit().create(VisibilityComponent.class);
-          }
-          
           spatialFormMapper
               .get(matchedTileHighlight)
               .requestUpdate(
                   new SpatialUpdateRequest(Spatial.UpdateType.POSITION, 
                                            tile.getPosition()));
+
+          spatialFormMapper
+              .get(matchedTileHighlight)
+              .requestUpdate(
+                  new SpatialUpdateRequest(Spatial.UpdateType.GEOMETRY, 
+                                           tile.getGeometryName()));
+
+          if (visibilityMapper.getSafe(matchedTileHighlight) == null) {
+            matchedTileHighlight.edit().create(VisibilityComponent.class);
+          }
 
           matchedTile = tile;
         }
@@ -145,6 +141,10 @@ public class TileMatchingSystem extends EntityProcessingSystem {
 
       matchedTileHighlight.edit().remove(VisibilityComponent.class);
     }
+  }
+
+  public Tile getPrevousMatchedTile() {
+    return matchedTile;
   }
   
   public Tile getMatchedTile() {

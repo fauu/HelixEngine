@@ -18,11 +18,11 @@ import com.artemis.Entity;
 import com.artemis.Manager;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.GroupManager;
+import com.artemis.managers.TagManager;
 import com.artemis.utils.ImmutableBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
@@ -71,6 +71,9 @@ public class MapRegionManager extends Manager {
       world.getManager(GeometryManager.class).load(tileWrapper.geometry);
     }
     
+    /* Loading texture set */
+    world.getManager(TextureManager.class).loadSet("1");
+    
     /* Loading tiles */
     Array<Tile> tiles = new Array<Tile>();
     for (TileWrapper tileWrapper : mapRegionWrapper.tiles) {
@@ -87,14 +90,11 @@ public class MapRegionManager extends Manager {
       
       tiles.add(tile);
     }
-
-    // FIXME: temporary
-    assetManager.load("texture-set/1.atlas", TextureAtlas.class);
-    assetManager.finishLoading();
-    TextureAtlas textureSet = assetManager.get("texture-set/1.atlas");
     
     /* Creating terrain */
-    TerrainSpatial terrainSpatial = new TerrainSpatial(textureSet);
+    TerrainSpatial terrainSpatial
+        = new TerrainSpatial(world.getManager(TextureManager.class)
+                                  .getTextureSet());
     terrainSpatial.setGeometryManager(world.getManager(GeometryManager.class));
     terrainSpatial.initialize(tiles);
 
@@ -104,6 +104,7 @@ public class MapRegionManager extends Manager {
                           .add(new SpatialFormComponent(terrainSpatial))
                           .add(new VisibilityComponent())
                           .getEntity();
+    world.getManager(TagManager.class).register("TERRAIN", terrain);
     world.getManager(GroupManager.class).add(terrain, "MAP_REGION");
 
     /* Loading objects */
@@ -113,18 +114,20 @@ public class MapRegionManager extends Manager {
       
       spatialFormMapper
           .get(object)
-          .requestUpdate(new SpatialUpdateRequest(Spatial.UpdateType.POSITION, 
-                                         new Vector3(objectWrapper.x, 
-                                                     objectWrapper.y, 
-                                                     objectWrapper.z)));
+          .requestUpdate(
+              new SpatialUpdateRequest(Spatial.UpdateType.POSITION, 
+                                       new Vector3(objectWrapper.x, 
+                                                   objectWrapper.y, 
+                                                   objectWrapper.z)));
 
       spatialFormMapper
           .get(object)
-          .requestUpdate(new SpatialUpdateRequest(Spatial.UpdateType.ORIENTATION, 
-                                                  Direction.valueOf(
-                                                      objectWrapper.orientation
-                                                                   .toUpperCase()
-                                                                   .trim())));
+          .requestUpdate(
+              new SpatialUpdateRequest(Spatial.UpdateType.ORIENTATION, 
+                                       Direction.valueOf(
+                                           objectWrapper.orientation
+                                                        .toUpperCase()
+                                                        .trim())));
 
       world.getManager(GroupManager.class).add(object, "MAP_REGION");
     }
@@ -162,16 +165,16 @@ public class MapRegionManager extends Manager {
       }
     }
 
-    // FIXME: temporary
-    assetManager.load("texture-set/1.atlas", TextureAtlas.class);
-    assetManager.finishLoading();
-    TextureAtlas textureSet = assetManager.get("texture-set/1.atlas");
+    /* Loading texture set */
+    world.getManager(TextureManager.class).loadSet("1");
 
     /* Loading default tile geometry */
     world.getManager(GeometryManager.class).load(DEFAULT_TILE_GEOMETRY);
 
     /* Creating terrain */
-    TerrainSpatial terrainSpatial = new TerrainSpatial(textureSet);
+    TerrainSpatial terrainSpatial
+        = new TerrainSpatial(world.getManager(TextureManager.class)
+                                  .getTextureSet());
     terrainSpatial.setGeometryManager(world.getManager(GeometryManager.class));
     terrainSpatial.initialize(tiles);
 
@@ -181,6 +184,7 @@ public class MapRegionManager extends Manager {
                           .add(new SpatialFormComponent(terrainSpatial))
                           .add(new VisibilityComponent())
                           .getEntity();
+    world.getManager(TagManager.class).register("TERRAIN", terrain);
     world.getManager(GroupManager.class).add(terrain, "MAP_REGION");
   }
   

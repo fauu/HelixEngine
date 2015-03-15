@@ -23,18 +23,22 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.github.fauu.helix.datum.Geometry;
 
 public class GeometryManager extends Manager {
+  
+  protected static final String DIRECTORY_NAME = "tile-geometry";
+  
+  protected static final String EXTENSION = "obj";
 
   @Wire
-  private AssetManager assetManager;
+  protected AssetManager assetManager;
   
-  private Map<String, Geometry> geometries;
+  protected Map<String, Geometry> geometries;
   
   public GeometryManager() {
     geometries = new HashMap<String, Geometry>();
   }
   
   public Geometry load(String name) {
-    String path = "tile-geometry/" + name + ".obj";
+    String path = DIRECTORY_NAME + "/" + name + "." + EXTENSION;
 
     if (!assetManager.isLoaded(path)) {
       assetManager.load(path, Model.class);

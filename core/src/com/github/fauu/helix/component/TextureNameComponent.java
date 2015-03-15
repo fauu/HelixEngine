@@ -11,31 +11,28 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.spatial;
+package com.github.fauu.helix.component;
 
-import com.badlogic.gdx.graphics.g3d.RenderableProvider;
+import com.artemis.Component;
 
-public abstract class Spatial implements RenderableProvider {
-
-  protected boolean ready;
-
-  public Spatial() { 
-    this.ready = false;
-  }
-
-  public boolean isReady() {
-    return ready;
+public class TextureNameComponent extends Component {
+  
+  private String name;
+  
+  public TextureNameComponent() {
+    name = "";
   }
   
-  public abstract void update(UpdateType type, Object value);
+  public TextureNameComponent(String name) {
+    this.name = name;
+  }
   
-  public enum UpdateType {
-    POSITION,
-    ORIENTATION,
-    SIZE,
-    GEOMETRY,
-    TEXTURE,
-    TILE_DATA
+  public String get() {
+    return name;
+  }
+  
+  public void set(String name) {
+    this.name = name;
   }
 
 }

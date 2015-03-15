@@ -18,6 +18,9 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.EntityProcessingSystem;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.github.fauu.helix.Direction;
@@ -25,10 +28,13 @@ import com.github.fauu.helix.component.GeometryNameComponent;
 import com.github.fauu.helix.component.OrientationComponent;
 import com.github.fauu.helix.component.PositionComponent;
 import com.github.fauu.helix.component.SpatialFormComponent;
+import com.github.fauu.helix.component.TextureNameComponent;
 import com.github.fauu.helix.component.TileDataComponent;
 import com.github.fauu.helix.datum.SpatialUpdateRequest;
 import com.github.fauu.helix.datum.Tile;
 import com.github.fauu.helix.manager.GeometryManager;
+import com.github.fauu.helix.manager.TextureManager;
+import com.github.fauu.helix.spatial.dto.TextureDTO;
 
 public class SpatialUpdateSystem extends EntityProcessingSystem {
 
@@ -40,6 +46,9 @@ public class SpatialUpdateSystem extends EntityProcessingSystem {
 
   @Wire
   private ComponentMapper<GeometryNameComponent> geometryNameMapper;
+
+  @Wire
+  private ComponentMapper<TextureNameComponent> textureNameMapper;
 
   @Wire
   private ComponentMapper<TileDataComponent> tileDataMapper;
@@ -79,6 +88,19 @@ public class SpatialUpdateSystem extends EntityProcessingSystem {
           updateValue = world.getManager(GeometryManager.class)
                              .getGeometry(newGeometryName)
                              .getMesh();
+          break;
+        case TEXTURE:
+          String newTextureName = (String) request.getValue();
+          
+          TextureAtlas set = world.getManager(TextureManager.class)
+                                  .getTextureSet();
+
+          // TODO: findRegion result should be cached
+          TextureRegion region = set.findRegion(newTextureName);
+          Texture setTexture = region.getTexture();
+
+          textureNameMapper.get(e).set(newTextureName);
+          updateValue = new TextureDTO(setTexture, region);
           break;
         case TILE_DATA:
           @SuppressWarnings("unchecked")

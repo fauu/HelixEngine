@@ -18,6 +18,7 @@ import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.managers.GroupManager;
 import com.artemis.managers.TagManager;
+import com.artemis.managers.UuidEntityManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
@@ -25,11 +26,13 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.github.fauu.helix.editor.world.system.CameraControlSystem;
 import com.github.fauu.helix.editor.world.system.TileMatchingSystem;
+import com.github.fauu.helix.editor.world.system.TilePaintingSystem;
 import com.github.fauu.helix.editor.world.system.TileSelectionSystem;
 import com.github.fauu.helix.editor.world.system.WorldInputSystem;
 import com.github.fauu.helix.manager.MapRegionManager;
 import com.github.fauu.helix.manager.ObjectManager;
 import com.github.fauu.helix.manager.GeometryManager;
+import com.github.fauu.helix.manager.TextureManager;
 import com.github.fauu.helix.system.SpatialUpdateSystem;
 import com.github.fauu.helix.system.RenderingSystem;
 
@@ -61,7 +64,9 @@ public class MainScreen implements Screen {
     
     worldInputProcessor = new WorldInputSystem();
 
+    world.setManager(new UuidEntityManager());
     world.setManager(new GeometryManager());
+    world.setManager(new TextureManager());
     world.setManager(new ObjectManager());
     world.setManager(new TagManager());
     world.setManager(new GroupManager());
@@ -71,6 +76,7 @@ public class MainScreen implements Screen {
     world.setSystem(new CameraControlSystem());
     world.setSystem(new TileMatchingSystem());
     world.setSystem(new TileSelectionSystem());
+    world.setSystem(new TilePaintingSystem());
     world.setSystem(new SpatialUpdateSystem());
     world.setSystem(new RenderingSystem());
 
@@ -110,6 +116,10 @@ public class MainScreen implements Screen {
   
   public InputProcessor getInputProcessor() {
     return worldInputProcessor;
+  }
+  
+  public AssetManager getAssetManager() {
+    return assetManager;
   }
 
 }

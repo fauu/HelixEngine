@@ -29,5 +29,20 @@ public enum Direction {
   public int getAngle() {
     return angle;
   }
+  
+  @Override
+  public String toString() {
+    switch (this) {
+      case SOUTH: return "South";
+      case SOUTHEAST: return "Southeast";
+      case EAST: return "East";
+      case NORTHEAST: return "Northeast";
+      case NORTH: return "North"; // by
+      case NORTHWEST: return "Northwest";
+      case WEST: return "West";
+      case SOUTHWEST: return "Southwest";
+      default: throw new IllegalArgumentException();
+    }
+  }
 
 }

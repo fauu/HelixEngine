@@ -16,27 +16,68 @@ package com.github.fauu.helix.editor;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
+import com.github.fauu.helix.editor.manager.EditorGeometryManager;
+import com.github.fauu.helix.editor.manager.EditorTextureManager;
 import com.github.fauu.helix.editor.screen.MainScreen;
+import com.github.fauu.helix.editor.state.GeometryNameListState;
+import com.github.fauu.helix.editor.state.TextureEntryListState;
+import com.github.fauu.helix.editor.state.TilePropertiesState;
+import com.github.fauu.helix.editor.state.ToolbarState;
 import com.github.fauu.helix.editor.ui.UI;
 import com.github.fauu.helix.manager.MapRegionManager;
+import com.google.common.eventbus.EventBus;
 
 public class HelixEditor extends Game {
 
   private static HelixEditor instance;
   
   private MainScreen mainScreen;
+  
+  private EventBus editorToUIEventBus;
+
+  private EventBus editorToWorldEventBus;
 
   private UI ui;
-
+  
+  private ToolbarState toolbarState;
+  
+  private TilePropertiesState tilePropertiesState;
+  
+  private GeometryNameListState geometryNameListState;
+  
+  private TextureEntryListState textureEntryListState;
+  
+  private EditorGeometryManager editorGeometryManager;
+  
+  private EditorTextureManager editorTextureManager;
+  
   @Override
-  public void create () {
+  public void create() {
     instance = this;
+    
+    editorToUIEventBus = new EventBus();
+    editorToWorldEventBus = new EventBus();
     
     mainScreen = new MainScreen();
     setScreen(mainScreen);
-
+    
+    toolbarState = new ToolbarState();
+    tilePropertiesState = new TilePropertiesState();
+    geometryNameListState = new GeometryNameListState();
+    textureEntryListState = new TextureEntryListState();
+    
     ui = new UI();
+    
+    editorGeometryManager = new EditorGeometryManager();
+    editorTextureManager = new EditorTextureManager();
+    editorTextureManager.getFullEntryList();
+    
+    toolbarState.initialize(ToolType.TILE_EDIT_TOOL);
+    tilePropertiesState.initialize();
+    geometryNameListState.initialize(editorGeometryManager.getAllNameEntries());
+    textureEntryListState.initialize(editorTextureManager.getFullEntryList());
 
     Gdx.input.setInputProcessor(
         new InputMultiplexer(ui.getStage(), mainScreen.getInputProcessor()));
@@ -73,5 +114,33 @@ public class HelixEditor extends Game {
   public void closeCurrentMapRegion() {
     mainScreen.getWorld().getManager(MapRegionManager.class).unloadAll();
   }
+  
+  public EventBus getUIEventBus() {
+    return editorToUIEventBus;
+  }
 
+  public EventBus getWorldEventBus() {
+    return editorToWorldEventBus;
+  }
+  
+  public AssetManager getAssetManager() {
+    return mainScreen.getAssetManager();
+  }
+  
+  public ToolbarState getToolbarState() {
+    return toolbarState;
+  }
+  
+  public TilePropertiesState getTilePropertiesState() {
+    return tilePropertiesState;
+  }
+  
+  public GeometryNameListState getGeometryNameListState() {
+    return geometryNameListState;
+  }
+  
+  public TextureEntryListState getTextureEntryListState() {
+    return textureEntryListState;
+  }
+  
 }

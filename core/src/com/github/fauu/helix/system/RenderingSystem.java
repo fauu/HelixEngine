@@ -13,13 +13,17 @@
 
 package com.github.fauu.helix.system;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.EntitySystem;
 import com.artemis.annotations.Wire;
+import com.artemis.managers.UuidEntityManager;
 import com.artemis.utils.Bag;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
@@ -48,7 +52,9 @@ public class RenderingSystem extends EntitySystem {
   @Wire
   private PerspectiveCamera camera;
   
-  private Bag<Spatial> spatials = new Bag<Spatial>();
+  private Map<UUID, Spatial> spatials;
+  
+  private UuidEntityManager uuidEntityManager;
   
   private RenderContext renderContext;
   
@@ -60,18 +66,25 @@ public class RenderingSystem extends EntitySystem {
 
   @SuppressWarnings("unchecked")
   public RenderingSystem() {
-    super(Aspect.getAspectForAll(SpatialFormComponent.class, 
+    super(Aspect.getAspectForAll(SpatialFormComponent.class,
                                  VisibilityComponent.class));
+    
+    spatials = new HashMap<UUID, Spatial>();
 
     renderContext = new RenderContext(
         new DefaultTextureBinder(DefaultTextureBinder.WEIGHTED));
     
     modelBatch = new ModelBatch(renderContext, new GeneralShaderProvider());
     
-    axes = buildAxes();
-    
     bloom = new Bloom();
+    
+    axes = buildAxes();
   }
+  
+  @Override
+  protected void initialize() {
+    uuidEntityManager = world.getManager(UuidEntityManager.class);
+  };
 
   @Override
   protected void processEntities(IntBag entities) {
@@ -92,7 +105,7 @@ public class RenderingSystem extends EntitySystem {
     
     modelBatch.render(axes);
     
-    for (Iterator<Spatial> it = spatials.iterator(); it.hasNext();) {
+    for (Iterator<Spatial> it = spatials.values().iterator(); it.hasNext(); ) {
       Spatial spatial = it.next();
 
       if (spatial != null && spatial.isReady()) {
@@ -108,12 +121,12 @@ public class RenderingSystem extends EntitySystem {
   
   @Override
   protected void inserted(Entity e) { 
-    spatials.set(e.getId(), spatialFormMapper.get(e).get());
+    spatials.put(uuidEntityManager.getUuid(e), spatialFormMapper.get(e).get());
   }
   
   @Override
   protected void removed(Entity e) {
-    spatials.remove(spatialFormMapper.get(e).get());
+    spatials.remove(uuidEntityManager.getUuid(e));
   }
   
   private ModelInstance buildAxes() {

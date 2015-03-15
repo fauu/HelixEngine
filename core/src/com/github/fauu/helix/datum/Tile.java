@@ -29,6 +29,8 @@ public class Tile {
 
   private String textureName;
   
+  private int elevation;
+  
   public Tile() {
     this.position = new Vector3();
     this.flatPosition = new Vector2();
@@ -50,8 +52,13 @@ public class Tile {
     return textureName;
   }
   
+  public Vector2 getFlatPosition() {
+    return flatPosition;
+  }
+  
+  
   public void setPosition(Vector3 position) {
-    this.position.set(position);
+    this.position.set(position.cpy());
 
     this.flatPosition.x = position.x;
     this.flatPosition.y = position.y;
@@ -68,9 +75,13 @@ public class Tile {
   public void setTextureName(String textureName) {
     this.textureName = textureName;
   }
+
+  public int getElevation() {
+    return elevation;
+  }
   
-  public Vector2 getFlatPosition() {
-    return flatPosition;
+  public void setElevation(int elevation) {
+    this.elevation = elevation;
   }
 
 }

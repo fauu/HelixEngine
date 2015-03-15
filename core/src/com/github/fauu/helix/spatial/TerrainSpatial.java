@@ -63,13 +63,13 @@ public class TerrainSpatial extends Spatial implements RenderableProvider {
   }
   
   public void initialize(Array<Tile> tiles) {
-    update(tiles);
+    updateMeshAndRenderable(tiles);
     
     ready = true;
   }
   
-  public void update(Array<Tile> tiles) {
-    constructMesh(tiles);
+  public void updateMeshAndRenderable(Array<Tile> tiles) {
+    createMesh(tiles);
 
     if (renderable == null) {
       renderable = createRenderable(mesh, meshSize, textureSet);
@@ -79,7 +79,7 @@ public class TerrainSpatial extends Spatial implements RenderableProvider {
     }
   }
   
-  private void constructMesh(Array<Tile> tiles) {
+  private void createMesh(Array<Tile> tiles) {
     meshSize = NUM_MAX_VERTICES_PER_TILE * tiles.size;
     
     mesh = new Mesh(true, 
@@ -162,9 +162,13 @@ public class TerrainSpatial extends Spatial implements RenderableProvider {
     return renderable;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public void update(Spatial.UpdateType type, Object value) {
     switch (type) {
+      case TILE_DATA:
+        updateMeshAndRenderable((Array<Tile>) value);
+        break;
       default: throw new UnsupportedOperationException();
     }
   }

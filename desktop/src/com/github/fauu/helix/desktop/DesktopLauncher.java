@@ -19,7 +19,7 @@ import com.github.fauu.helix.HelixGame;
 
 public class DesktopLauncher {
 
-  public static void main (String[] arg) {
+  public static void main(String[] arg) {
     LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 
     config.title = "helix";

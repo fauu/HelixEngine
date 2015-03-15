@@ -13,7 +13,6 @@
 
 package com.github.fauu.helix.editor.ui;
 
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.kotcrab.vis.ui.VisTable;
 import com.kotcrab.vis.ui.VisUI;
 
@@ -22,15 +21,21 @@ public class HESidebar extends VisTable {
   public HESidebar() {
     super(true);
     
+    top();
+
+    setBackground((VisUI.getSkin().getDrawable("menu-bg")));
+
+    addSeparator().padTop(-0.5f);
+    
+    add(new HEToolbox()).fill().expandX().padBottom(10);
+    
     row();
     
-    addSeparator();
+    addSeparator().padTop(-0.5f);
+    
+    add(new HETileCustomizationPanel()).fill().expandX().padTop(-5);
 
     row();
-    
-    // TODO: Dis hacky
-    setBackground(
-        (new Image(VisUI.getSkin().getRegion("menu-bg")).getDrawable()));
 
     pack();
   }

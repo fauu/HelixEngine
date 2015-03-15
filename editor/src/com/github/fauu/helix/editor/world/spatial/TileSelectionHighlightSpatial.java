@@ -38,7 +38,7 @@ public class TileSelectionHighlightSpatial extends Spatial
 
   private static final Color COLOR = new Color(0.0f, 0.0f, 1.0f, 0.1f);
   
-  private static final float Z_OFFSET = 0.06f;
+  private static final float Z_OFFSET = 0.01f;
 
   private GeometryManager geometryManager;
 
