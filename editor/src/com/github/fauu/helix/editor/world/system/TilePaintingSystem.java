@@ -150,12 +150,16 @@ public class TilePaintingSystem extends VoidEntitySystem {
           
           tiles.set(i, updatedTile);
 
-          highlightedTile = updatedTile;
-          
+          Array<Tile> updatedTiles = new Array<>();
+          updatedTiles.add(updatedTile);
+
           SpatialUpdateRequest request
-              = new SpatialUpdateRequest(UpdateType.TILE_DATA, tiles);
-          
+              = new SpatialUpdateRequest(UpdateType.TILE_DATA_PARTIAL,
+                                         updatedTiles);
+
           spatialFormMapper.get(terrain).requestUpdate(request);
+
+          highlightedTile = updatedTile;
 
           lastPaintedTilePosition = updatedTile.getFlatPosition();
 

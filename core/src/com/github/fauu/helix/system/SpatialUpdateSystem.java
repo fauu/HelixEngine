@@ -17,29 +17,30 @@ import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
+import com.artemis.managers.TagManager;
 import com.artemis.systems.EntityProcessingSystem;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.github.fauu.helix.Direction;
-import com.github.fauu.helix.component.GeometryNameComponent;
-import com.github.fauu.helix.component.OrientationComponent;
-import com.github.fauu.helix.component.PositionComponent;
-import com.github.fauu.helix.component.SpatialFormComponent;
-import com.github.fauu.helix.component.TextureNameComponent;
-import com.github.fauu.helix.component.TileDataComponent;
+import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.datum.SpatialUpdateRequest;
 import com.github.fauu.helix.datum.Tile;
 import com.github.fauu.helix.manager.GeometryManager;
 import com.github.fauu.helix.manager.TextureManager;
+import com.github.fauu.helix.spatial.dto.PartialTileUpdateDTO;
 import com.github.fauu.helix.spatial.dto.TextureDTO;
 
 public class SpatialUpdateSystem extends EntityProcessingSystem {
 
   @Wire
   private ComponentMapper<PositionComponent> positionMapper;
+
+  @Wire
+  private ComponentMapper<DimensionsComponent> dimensionsMapper;
 
   @Wire
   private ComponentMapper<OrientationComponent> orientationMapper;
@@ -105,9 +106,38 @@ public class SpatialUpdateSystem extends EntityProcessingSystem {
         case TILE_DATA:
           @SuppressWarnings("unchecked")
           Array<Tile> newTileData = (Array<Tile>) request.getValue();
-          
+
           tileDataMapper.get(e).set(newTileData);
           updateValue = newTileData;
+          break;
+        case TILE_DATA_PARTIAL:
+          Entity terrain = world.getManager(TagManager.class)
+                                .getEntity("TERRAIN");
+
+          if (e.equals(terrain)) {
+            newTileData = (Array<Tile>) request.getValue();
+
+            Array<Tile> tileData = tileDataMapper.get(e).get();
+
+            Vector2 terrainDimensions = dimensionsMapper.get(terrain).get();
+
+            for (int i = 0; i < newTileData.size; i++) {
+              Tile updatedTile = newTileData.get(i);
+
+              int tileIndex = (int) (updatedTile.getPosition().x +
+                                     (terrainDimensions.x *
+                                      updatedTile.getPosition().y));
+
+              tileData.set(tileIndex, newTileData.get(i));
+            }
+
+            tileDataMapper.get(e).set(tileData);
+
+            updateValue
+                = new PartialTileUpdateDTO(newTileData, terrainDimensions);
+          } else {
+            throw new UnsupportedOperationException();
+          }
           break;
         default: throw new IllegalStateException();
       }

@@ -16,24 +16,24 @@ package com.github.fauu.helix.component;
 import com.artemis.Component;
 import com.badlogic.gdx.math.Vector2;
 
-public class SizeComponent extends Component {
+public class DimensionsComponent extends Component {
   
-  private Vector2 size;
+  private Vector2 dimensions;
   
-  public SizeComponent() {
-    this.size = new Vector2();
+  public DimensionsComponent() {
+    this.dimensions = new Vector2();
   }
   
-  public SizeComponent(Vector2 size) {
-    this.size = size;
+  public DimensionsComponent(Vector2 dimensions) {
+    this.dimensions = dimensions.cpy();
   }
   
   public Vector2 get() {
-    return this.size;
+    return this.dimensions;
   }
   
   public void set(Vector2 size) {
-    this.size.set(size);
+    this.dimensions.set(size);
   }
 
 }

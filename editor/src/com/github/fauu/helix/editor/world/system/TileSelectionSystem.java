@@ -79,7 +79,7 @@ public class TileSelectionSystem extends EntityProcessingSystem {
                .edit()
                .add(new SpatialFormComponent(spatial))
                .add(new PositionComponent())
-               .add(new SizeComponent())
+               .add(new DimensionsComponent())
                .add(new TileDataComponent())
                .getEntity();
     world.getManager(TagManager.class)

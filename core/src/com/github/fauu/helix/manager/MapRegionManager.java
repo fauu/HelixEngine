@@ -23,10 +23,12 @@ import com.artemis.utils.ImmutableBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.github.fauu.helix.Direction;
+import com.github.fauu.helix.component.DimensionsComponent;
 import com.github.fauu.helix.component.SpatialFormComponent;
 import com.github.fauu.helix.component.TileDataComponent;
 import com.github.fauu.helix.component.VisibilityComponent;
@@ -39,7 +41,11 @@ import com.github.fauu.helix.spatial.Spatial;
 import com.github.fauu.helix.spatial.TerrainSpatial;
 
 public class MapRegionManager extends Manager {
-  
+
+  private static final int DEFAULT_TILE_ELEVATION = 0;
+
+  private static final Direction DEFAULT_TILE_ORIENTATION = Direction.SOUTH;
+
   private static final String DEFAULT_TILE_TEXTURE = "grass1";
   
   private static final String DEFAULT_TILE_GEOMETRY = "flat";
@@ -152,12 +158,13 @@ public class MapRegionManager extends Manager {
     Array<Tile> tiles = new Array<Tile>();
     
     /* Creating tiles */
-    for (int x = 0; x < width; x++) {
-      for (int y = 0; y < length; y++) {
+    for (int y = 0; y < length; y++) {
+      for (int x = 0; x < width; x++) {
         Tile tile = new Tile();
 
         tile.setPosition(new Vector3(x, y, 0));
-        tile.setOrientation(Direction.SOUTH);
+        tile.setElevation(0);
+        tile.setOrientation(DEFAULT_TILE_ORIENTATION);
         tile.setGeometryName(DEFAULT_TILE_GEOMETRY);
         tile.setTextureName(DEFAULT_TILE_TEXTURE);
         
@@ -180,6 +187,8 @@ public class MapRegionManager extends Manager {
 
     Entity terrain = world.createEntity()
                           .edit()
+                          .add(new DimensionsComponent(
+                              new Vector2(width, length)))
                           .add(new TileDataComponent(tiles))
                           .add(new SpatialFormComponent(terrainSpatial))
                           .add(new VisibilityComponent())

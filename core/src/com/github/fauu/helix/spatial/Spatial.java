@@ -35,7 +35,8 @@ public abstract class Spatial implements RenderableProvider {
     SIZE,
     GEOMETRY,
     TEXTURE,
-    TILE_DATA
+    TILE_DATA,
+    TILE_DATA_PARTIAL
   }
 
 }

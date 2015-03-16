@@ -32,8 +32,9 @@ import com.badlogic.gdx.utils.Pool;
 import com.github.fauu.helix.datum.Tile;
 import com.github.fauu.helix.manager.GeometryManager;
 import com.github.fauu.helix.shader.ShaderAttribute;
+import com.github.fauu.helix.spatial.dto.PartialTileUpdateDTO;
 
-// TODO: Refactor to use util.MeshUtil.mergeMeshes()
+// TODO: Refactor to use util.MeshUtil.mergeMeshes()?
 public class TerrainSpatial extends Spatial implements RenderableProvider {
   
   private static final int NUM_POSITION_COMPONENTS = 3;
@@ -44,7 +45,7 @@ public class TerrainSpatial extends Spatial implements RenderableProvider {
       = NUM_POSITION_COMPONENTS + NUM_TEXTURE_COMPONENTS;
   
   // TODO: refine this
-  private static final int NUM_MAX_VERTICES_PER_TILE = 32 * NUM_COMPONENTS;
+  private static final int NUM_VERTICES_PER_TILE = 6 * NUM_COMPONENTS;
   
   private GeometryManager geometryManager;
   
@@ -55,6 +56,8 @@ public class TerrainSpatial extends Spatial implements RenderableProvider {
   private Renderable renderable;
   
   private TextureAtlas textureSet;
+
+  private int numTiles;
   
   public TerrainSpatial(TextureAtlas textureSet) {
     super();
@@ -63,14 +66,16 @@ public class TerrainSpatial extends Spatial implements RenderableProvider {
   }
   
   public void initialize(Array<Tile> tiles) {
-    updateMeshAndRenderable(tiles);
+    numTiles = tiles.size;
+
+    constructMesh(tiles);
+
+    updateRenderable();
     
     ready = true;
   }
   
-  public void updateMeshAndRenderable(Array<Tile> tiles) {
-    createMesh(tiles);
-
+  private void updateRenderable() {
     if (renderable == null) {
       renderable = createRenderable(mesh, meshSize, textureSet);
     } else {
@@ -79,10 +84,10 @@ public class TerrainSpatial extends Spatial implements RenderableProvider {
     }
   }
   
-  private void createMesh(Array<Tile> tiles) {
-    meshSize = NUM_MAX_VERTICES_PER_TILE * tiles.size;
+  private void constructMesh(Array<Tile> tiles) {
+    meshSize = NUM_VERTICES_PER_TILE * tiles.size;
     
-    mesh = new Mesh(true, 
+    mesh = new Mesh(false,
                     meshSize, 
                     0,
                     new VertexAttribute(Usage.Position, 
@@ -91,48 +96,18 @@ public class TerrainSpatial extends Spatial implements RenderableProvider {
                     new VertexAttribute(Usage.TextureCoordinates, 
                                         NUM_TEXTURE_COMPONENTS, 
                                         "a_texCoord0"));
-    
+
+    Texture texture = textureSet.getTextures().first();
+
     float[] vertices = new float[meshSize];
-    
+
     int vertexCount = 0;
+
     for (Tile tile : tiles) {
-      Texture texture = textureSet.getTextures().first();
+      float[] tileVertices
+          = getVertexArrayForTile(tile, new Vector2(texture.getWidth(),
+                                                    texture.getHeight()));
 
-      /* TODO: cache the result! */
-      TextureRegion textureRegion 
-          = textureSet.findRegion(tile.getTextureName());
-      
-      Vector2 textureCoords 
-          = new Vector2(textureRegion.getU(), textureRegion.getV());
-      Vector2 textureScaling 
-          = new Vector2((float) textureRegion.getRegionWidth() /
-                                texture.getWidth(),
-                        (float) textureRegion.getRegionHeight() /
-                                texture.getHeight());
-      
-      Matrix3 transformationMatrixUV
-          = new Matrix3().translate(textureCoords)
-                         .scale(textureScaling.x, -1 * textureScaling.y)
-                         .translate(0, -1);
-      
-      Matrix4 transformationMatrix
-          = new Matrix4().translate(tile.getPosition())
-                         .translate(0.5f, 0.5f, 0)
-                         .rotate(0, 0, 1, tile.getOrientation().getAngle())
-                         .translate(-0.5f, -0.5f, 0);
-      
-      Mesh geometry = geometryManager.getGeometry(tile.getGeometryName())
-                                     .getMesh()
-                                     .copy(true);
-
-      geometry.transform(transformationMatrix);
-      geometry.transformUV(transformationMatrixUV);
-      
-      float[] tileVertices 
-          = new float[NUM_COMPONENTS * geometry.getNumIndices()];
-      
-      geometry.getVertices(tileVertices);
-      
       System.arraycopy(tileVertices, 
                        0, 
                        vertices, 
@@ -144,10 +119,64 @@ public class TerrainSpatial extends Spatial implements RenderableProvider {
     
     mesh.setVertices(vertices, 0, vertexCount);
   }
-  
-  public Renderable createRenderable(Mesh mesh, 
-                                     int meshSize, 
-                                     TextureAtlas textureSet) {
+
+  private void updateMesh(Array<Tile> tiles, Vector2 terrainDimensions) {
+    Texture texture = textureSet.getTextures().first();
+
+    for (Tile tile : tiles) {
+      float[] tileVertices
+          = getVertexArrayForTile(tile, new Vector2(texture.getWidth(),
+                                                    texture.getHeight()));
+
+      int tileIndex = (int) (tile.getPosition().x +
+                             (terrainDimensions.x *
+                              tile.getPosition().y));
+
+      mesh.updateVertices(tileIndex * NUM_VERTICES_PER_TILE, tileVertices);
+    }
+  }
+
+  private float[] getVertexArrayForTile(Tile tile, Vector2 setTextureSize) {
+    // TODO: cache the result!
+    TextureRegion textureRegion
+        = textureSet.findRegion(tile.getTextureName());
+
+    Matrix4 transformation
+        = new Matrix4().translate(tile.getPosition())
+        .translate(0.5f, 0.5f, 0)
+        .rotate(0, 0, 1, tile.getOrientation().getAngle())
+        .translate(-0.5f, -0.5f, 0);
+
+    Vector2 textureCoords
+        = new Vector2(textureRegion.getU(), textureRegion.getV());
+    Vector2 textureScaling
+        = new Vector2((float) textureRegion.getRegionWidth() /
+                              setTextureSize.x,
+                      (float) textureRegion.getRegionHeight() /
+                              setTextureSize.y);
+
+    Matrix3 uvTransformation
+        = new Matrix3().translate(textureCoords)
+                       .scale(textureScaling.x, -1 * textureScaling.y)
+                       .translate(0, -1);
+
+    Mesh geometry = geometryManager.getGeometry(tile.getGeometryName())
+                                   .getMesh()
+                                   .copy(true);
+
+    geometry.transform(transformation);
+    geometry.transformUV(uvTransformation);
+
+    float[] tileVertices = new float[NUM_VERTICES_PER_TILE];
+
+    geometry.getVertices(tileVertices);
+
+    return tileVertices;
+  }
+
+  private Renderable createRenderable(Mesh mesh,
+                                      int meshSize,
+                                      TextureAtlas textureSet) {
     Renderable renderable = new Renderable();
     
     renderable.mesh = mesh;
@@ -165,12 +194,25 @@ public class TerrainSpatial extends Spatial implements RenderableProvider {
   @SuppressWarnings("unchecked")
   @Override
   public void update(Spatial.UpdateType type, Object value) {
+    ready = false;
+
     switch (type) {
       case TILE_DATA:
-        updateMeshAndRenderable((Array<Tile>) value);
+        Array<Tile> tiles = (Array<Tile>) value;
+
+        constructMesh(tiles);
+        updateRenderable();
+        break;
+      case TILE_DATA_PARTIAL:
+        PartialTileUpdateDTO updateDTO = (PartialTileUpdateDTO) value;
+
+        updateMesh(updateDTO.getTileData(), updateDTO.getTerrainDimensions());
+        updateRenderable();
         break;
       default: throw new UnsupportedOperationException();
     }
+
+    ready = true;
   }
   
   public void setGeometryManager(GeometryManager manager) {
