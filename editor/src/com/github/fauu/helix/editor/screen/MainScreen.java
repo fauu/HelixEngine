@@ -22,16 +22,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.github.fauu.helix.editor.world.system.CameraControlSystem;
-import com.github.fauu.helix.editor.world.system.TileHighlightingSystem;
-import com.github.fauu.helix.editor.world.system.TilePaintingSystem;
-import com.github.fauu.helix.editor.world.system.TileSelectionSystem;
-import com.github.fauu.helix.manager.GeometryManager;
-import com.github.fauu.helix.manager.MapRegionManager;
-import com.github.fauu.helix.manager.ObjectManager;
+import com.github.fauu.helix.editor.system.CameraControlSystem;
+import com.github.fauu.helix.editor.system.TileHighlightingSystem;
+import com.github.fauu.helix.editor.system.TilePermissionsEditingSystem;
+import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.manager.TextureManager;
 import com.github.fauu.helix.system.RenderingSystem;
-import com.github.fauu.helix.system.SpatialUpdateSystem;
 
 public class MainScreen implements Screen {
 
@@ -44,35 +40,34 @@ public class MainScreen implements Screen {
   public MainScreen() {
     assetManager = new AssetManager();
 
-    camera = new PerspectiveCamera(13, 
+    camera = new PerspectiveCamera(40,
                                    Gdx.graphics.getWidth(), 
                                    Gdx.graphics.getHeight());
+
     camera.near = 0.1f;
     camera.far = 300f;
-    camera.translate(0, -75, 30);
+    camera.translate(0, -30, 30);
     camera.lookAt(0, 0, 0);
-  
+
     WorldConfiguration worldConfiguration 
         = new WorldConfiguration().register(assetManager)
                                   .register(camera);
     world = new World(worldConfiguration);
 
     world.setManager(new UuidEntityManager());
-    world.setManager(new GeometryManager());
     world.setManager(new TextureManager());
-    world.setManager(new ObjectManager());
     world.setManager(new TagManager());
     world.setManager(new GroupManager());
-    world.setManager(new MapRegionManager());
+    world.setManager(new AreaManager());
     
     world.setSystem(new CameraControlSystem());
     world.setSystem(new TileHighlightingSystem());
-    world.setSystem(new TileSelectionSystem());
-    world.setSystem(new TilePaintingSystem());
-    world.setSystem(new SpatialUpdateSystem());
+    world.setSystem(new TilePermissionsEditingSystem());
     world.setSystem(new RenderingSystem());
 
     world.initialize();
+
+    world.getManager(AreaManager.class).load("area1");
   }
 
   @Override

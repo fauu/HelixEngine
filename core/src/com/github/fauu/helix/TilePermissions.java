@@ -11,20 +11,18 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.editor.event;
+package com.github.fauu.helix;
 
-import com.github.fauu.helix.datum.Tile;
+public enum TilePermissions {
 
-public class TilePropertiesStateChangedEvent {
-  
-  private Tile message;
-  
-  public TilePropertiesStateChangedEvent(Tile message) {
-    this.message = message;
-  }
-  
-  public Tile getMessage() {
-    return message;
-  }
+  OBSTACLE,
+  LEVEL0,
+  LEVEL1,
+  LEVEL2,
+  LEVEL3,
+  LEVEL4,
+  LEVEL5,
+  LEVEL6,
+  LEVEL7
 
 }

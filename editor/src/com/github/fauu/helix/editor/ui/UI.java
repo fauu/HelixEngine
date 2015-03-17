@@ -18,7 +18,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.github.fauu.helix.editor.HelixEditor;
-import com.github.fauu.helix.editor.ui.dialog.NewMapRegionDialog;
 import com.github.fauu.helix.editor.util.FileExtensionFilter;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.file.FileChooser;
@@ -51,10 +50,6 @@ public class UI {
     VisUI.dispose();
   }
 
-  public void showNewMapRegionDialog() {
-    stage.addActor((new NewMapRegionDialog()).fadeIn());
-  }
-
   public void showOpenMapRegionFileChooser() {
     final FileChooser regionFileChooser = new FileChooser(FileChooser.Mode.OPEN);
     regionFileChooser.setSelectionMode(FileChooser.SelectionMode.FILES);
@@ -63,7 +58,6 @@ public class UI {
       @Override
       public void selected(FileHandle file) {
         HelixEditor.getInstance().closeCurrentMapRegion();
-        HelixEditor.getInstance().loadMapRegion(file);
       }
     });
 

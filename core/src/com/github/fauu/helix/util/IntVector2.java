@@ -11,22 +11,28 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.editor.event;
+package com.github.fauu.helix.util;
 
-import com.github.fauu.helix.editor.datum.TextureEntry;
+public class IntVector2 {
 
-import java.util.List;
+  public int x;
 
-public class TextureEntryListStateChangedEvent {
+  public int y;
 
-  private List<TextureEntry> message;
-  
-  public TextureEntryListStateChangedEvent(List<TextureEntry> message) {
-    this.message = message;
+  public IntVector2() { }
+
+  public IntVector2(int x, int y) {
+    this.x = x;
+    this.y = y;
   }
-  
-  public List<TextureEntry> getMessage() {
-    return message;
+
+  public void set(IntVector2 source) {
+    x = source.x;
+    y = source.y;
+  }
+
+  public IntVector2 cpy() {
+    return new IntVector2(x, y);
   }
 
 }

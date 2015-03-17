@@ -29,7 +29,6 @@ public class EditorInputEventProcessor implements InputProcessor {
         break;
       case Input.Keys.N:
         if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
-          HelixEditor.getInstance().newMapRegionAction();
         }
         break;
       case Input.Keys.F4:

@@ -22,20 +22,6 @@ public class GeneralShaderProvider extends BaseShaderProvider {
   
   @Override
   protected Shader createShader(Renderable renderable) {
-    // Meh
-    if (renderable.material.has(ShaderAttribute.ID)) {
-      ShaderAttribute shaderAttribute = 
-          (ShaderAttribute) renderable.material.get(ShaderAttribute.ID);
-
-      if (shaderAttribute.getValue() == 1) {
-        return new TerrainShader();
-      } else if (shaderAttribute.getValue() == 2) {
-        return new ObjectShader();
-      } else if (shaderAttribute.getValue() == 3) {
-        return new SimpleShader();
-      }
-    }
-    
     return new DefaultShader(renderable);
   }
 

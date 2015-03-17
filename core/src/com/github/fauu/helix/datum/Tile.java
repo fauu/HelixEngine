@@ -13,75 +13,22 @@
 
 package com.github.fauu.helix.datum;
 
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
-import com.github.fauu.helix.Direction;
+import com.github.fauu.helix.TilePermissions;
 
 public class Tile {
   
-  private Vector3 position;
-  
-  private Vector2 flatPosition;
+  private TilePermissions permissions;
 
-  private Direction orientation;
-
-  private String geometryName;
-
-  private String textureName;
-  
-  private int elevation;
-  
   public Tile() {
-    this.position = new Vector3();
-    this.flatPosition = new Vector2();
-  }
-  
-  public Vector3 getPosition() {
-    return position;
+    permissions = TilePermissions.LEVEL0;
   }
 
-  public Direction getOrientation() {
-    return orientation;
-  }
-  
-  public String getGeometryName() {
-    return geometryName;
-  }
-  
-  public String getTextureName() {
-    return textureName;
-  }
-  
-  public Vector2 getFlatPosition() {
-    return flatPosition;
-  }
-  
-  
-  public void setPosition(Vector3 position) {
-    this.position.set(position.cpy());
-
-    this.flatPosition.x = position.x;
-    this.flatPosition.y = position.y;
-  }
-  
-  public void setOrientation(Direction orientation) {
-    this.orientation = orientation;
-  }
-  
-  public void setGeometryName(String geometryName) {
-    this.geometryName = geometryName;
-  }
-  
-  public void setTextureName(String textureName) {
-    this.textureName = textureName;
+  public TilePermissions getPermissions() {
+    return permissions;
   }
 
-  public int getElevation() {
-    return elevation;
-  }
-  
-  public void setElevation(int elevation) {
-    this.elevation = elevation;
+  public void setPermissions(TilePermissions permissions) {
+    this.permissions = permissions;
   }
 
 }

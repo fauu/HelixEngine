@@ -13,18 +13,10 @@
 
 package com.github.fauu.helix.json.wrapper;
 
+import com.github.fauu.helix.TilePermissions;
+
 public class TileWrapper {
-  
-  public int x;
 
-  public int y;
-
-  public int z;
-
-  public String geometry;
-
-  public String texture;
-
-  public String orientation;
+  public TilePermissions permissions;
 
 }

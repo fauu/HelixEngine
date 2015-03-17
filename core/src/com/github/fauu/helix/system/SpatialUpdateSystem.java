@@ -17,22 +17,8 @@ import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
-import com.artemis.managers.TagManager;
 import com.artemis.systems.EntityProcessingSystem;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
-import com.github.fauu.helix.Direction;
 import com.github.fauu.helix.component.*;
-import com.github.fauu.helix.datum.SpatialUpdateRequest;
-import com.github.fauu.helix.datum.Tile;
-import com.github.fauu.helix.manager.GeometryManager;
-import com.github.fauu.helix.manager.TextureManager;
-import com.github.fauu.helix.spatial.dto.PartialTileUpdateDTO;
-import com.github.fauu.helix.spatial.dto.TextureDTO;
 
 public class SpatialUpdateSystem extends EntityProcessingSystem {
 
@@ -46,13 +32,7 @@ public class SpatialUpdateSystem extends EntityProcessingSystem {
   private ComponentMapper<OrientationComponent> orientationMapper;
 
   @Wire
-  private ComponentMapper<GeometryNameComponent> geometryNameMapper;
-
-  @Wire
-  private ComponentMapper<TextureNameComponent> textureNameMapper;
-
-  @Wire
-  private ComponentMapper<TileDataComponent> tileDataMapper;
+  private ComponentMapper<TilesComponent> tileDataMapper;
   
   @Wire
   private ComponentMapper<SpatialFormComponent> spatialFormMapper;
@@ -64,86 +44,86 @@ public class SpatialUpdateSystem extends EntityProcessingSystem {
 
   @Override
   protected void process(Entity e) {
-    SpatialUpdateRequest request;
-
-    while ((request = spatialFormMapper.get(e).pollUpdateRequest()) != null) {
-      Object updateValue;
-      
-      switch (request.getType()) {
-        case POSITION:
-          Vector3 newPosition = (Vector3) request.getValue();
-          
-          positionMapper.get(e).set(newPosition);
-          updateValue = newPosition;
-          break;
-        case ORIENTATION:
-          Direction newOrientation = (Direction) request.getValue();
-          
-          orientationMapper.get(e).set(newOrientation);
-          updateValue = newOrientation;
-          break;
-        case GEOMETRY:
-          String newGeometryName = (String) request.getValue(); 
-          
-          geometryNameMapper.get(e).set(newGeometryName);
-          updateValue = world.getManager(GeometryManager.class)
-                             .getGeometry(newGeometryName)
-                             .getMesh();
-          break;
-        case TEXTURE:
-          String newTextureName = (String) request.getValue();
-          
-          TextureAtlas set = world.getManager(TextureManager.class)
-                                  .getTextureSet();
-
-          // TODO: findRegion result should be cached
-          TextureRegion region = set.findRegion(newTextureName);
-          Texture setTexture = region.getTexture();
-
-          textureNameMapper.get(e).set(newTextureName);
-          updateValue = new TextureDTO(setTexture, region);
-          break;
-        case TILE_DATA:
-          @SuppressWarnings("unchecked")
-          Array<Tile> newTileData = (Array<Tile>) request.getValue();
-
-          tileDataMapper.get(e).set(newTileData);
-          updateValue = newTileData;
-          break;
-        case TILE_DATA_PARTIAL:
-          Entity terrain = world.getManager(TagManager.class)
-                                .getEntity("TERRAIN");
-
-          if (e.equals(terrain)) {
-            newTileData = (Array<Tile>) request.getValue();
-
-            Array<Tile> tileData = tileDataMapper.get(e).get();
-
-            Vector2 terrainDimensions = dimensionsMapper.get(terrain).get();
-
-            for (int i = 0; i < newTileData.size; i++) {
-              Tile updatedTile = newTileData.get(i);
-
-              int tileIndex = (int) (updatedTile.getPosition().x +
-                                     (terrainDimensions.x *
-                                      updatedTile.getPosition().y));
-
-              tileData.set(tileIndex, newTileData.get(i));
-            }
-
-            tileDataMapper.get(e).set(tileData);
-
-            updateValue
-                = new PartialTileUpdateDTO(newTileData, terrainDimensions);
-          } else {
-            throw new UnsupportedOperationException();
-          }
-          break;
-        default: throw new IllegalStateException();
-      }
-
-      spatialFormMapper.get(e).get().update(request.getType(), updateValue);
-    }
+//    SpatialUpdateRequest request;
+//
+//    while ((request = spatialFormMapper.get(e).pollUpdateRequest()) != null) {
+//      Object updateValue;
+//
+//      switch (request.getType()) {
+//        case POSITION:
+//          Vector3 newPosition = (Vector3) request.getValue();
+//
+//          positionMapper.get(e).set(newPosition);
+//          updateValue = newPosition;
+//          break;
+//        case ORIENTATION:
+//          Direction newOrientation = (Direction) request.getValue();
+//
+//          orientationMapper.get(e).set(newOrientation);
+//          updateValue = newOrientation;
+//          break;
+//        case GEOMETRY:
+//          String newGeometryName = (String) request.getValue();
+//
+//          geometryNameMapper.get(e).set(newGeometryName);
+//          updateValue = world.getManager(GeometryManager.class)
+//                             .getGeometry(newGeometryName)
+//                             .getMesh();
+//          break;
+//        case TEXTURE:
+//          String newTextureName = (String) request.getValue();
+//
+//          TextureAtlas set = world.getManager(TextureManager.class)
+//                                  .getTextureSet();
+//
+//          // TODO: findRegion result should be cached
+//          TextureRegion region = set.findRegion(newTextureName);
+//          Texture setTexture = region.getTexture();
+//
+//          textureNameMapper.get(e).set(newTextureName);
+//          updateValue = new TextureDTO(setTexture, region);
+//          break;
+//        case TILE_DATA:
+//          @SuppressWarnings("unchecked")
+//          Array<Tile> newTileData = (Array<Tile>) request.getValue();
+//
+//          tileDataMapper.get(e).set(newTileData);
+//          updateValue = newTileData;
+//          break;
+//        case TILE_DATA_PARTIAL:
+//          Entity terrain = world.getManager(TagManager.class)
+//                                .getEntity("TERRAIN");
+//
+//          if (e.equals(terrain)) {
+//            newTileData = (Array<Tile>) request.getValue();
+//
+//            Array<Tile> tileData = tileDataMapper.get(e).get();
+//
+//            Vector2 terrainDimensions = dimensionsMapper.get(terrain).get();
+//
+//            for (int i = 0; i < newTileData.size; i++) {
+//              Tile updatedTile = newTileData.get(i);
+//
+//              int tileIndex = (int) (updatedTile.getPosition().x +
+//                                     (terrainDimensions.x *
+//                                      updatedTile.getPosition().y));
+//
+//              tileData.set(tileIndex, newTileData.get(i));
+//            }
+//
+//            tileDataMapper.get(e).set(tileData);
+//
+//            updateValue
+//                = new PartialTileUpdateDTO(newTileData, terrainDimensions);
+//          } else {
+//            throw new UnsupportedOperationException();
+//          }
+//          break;
+//        default: throw new IllegalStateException();
+//      }
+//
+//      spatialFormMapper.get(e).get().update(request.getType(), updateValue);
+//    }
   }
 
 }

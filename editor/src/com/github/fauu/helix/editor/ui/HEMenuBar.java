@@ -33,7 +33,6 @@ public class HEMenuBar extends MenuBar {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            HelixEditor.getInstance().newMapRegionAction();
           }
         });
     newMapRegionMenuItem.setShortcut(Input.Keys.CONTROL_LEFT, Input.Keys.N);

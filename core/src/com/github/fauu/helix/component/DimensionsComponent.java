@@ -14,26 +14,26 @@
 package com.github.fauu.helix.component;
 
 import com.artemis.Component;
-import com.badlogic.gdx.math.Vector2;
+import com.github.fauu.helix.util.IntVector2;
 
 public class DimensionsComponent extends Component {
   
-  private Vector2 dimensions;
+  private IntVector2 dimensions;
   
   public DimensionsComponent() {
-    this.dimensions = new Vector2();
+    this.dimensions = new IntVector2();
   }
   
-  public DimensionsComponent(Vector2 dimensions) {
+  public DimensionsComponent(IntVector2 dimensions) {
     this.dimensions = dimensions.cpy();
   }
   
-  public Vector2 get() {
-    return this.dimensions;
+  public IntVector2 get() {
+    return dimensions;
   }
   
-  public void set(Vector2 size) {
-    this.dimensions.set(size);
+  public void set(IntVector2 dimensions) {
+    this.dimensions.set(dimensions);
   }
 
 }

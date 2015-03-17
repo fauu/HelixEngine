@@ -11,20 +11,12 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.editor;
+package com.github.fauu.helix.util;
 
-public enum ToolType {
-  
-  TILE_EDIT_TOOL,
-  TILE_PAINT_TOOL;
-  
-  @Override
-  public String toString() {
-    switch (this) {
-      case TILE_EDIT_TOOL: return "Tile Edit";
-      case TILE_PAINT_TOOL: return "Tile Paint";
-      default: throw new IllegalArgumentException();
-    }
+public class TileUtil {
+
+  public static IntVector2 calculatePosition(int index, IntVector2 areaDimensions) {
+    return new IntVector2(index % areaDimensions.x, index / areaDimensions.x);
   }
-  
+
 }

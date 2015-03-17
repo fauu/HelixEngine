@@ -11,28 +11,16 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.component;
+package com.github.fauu.helix.json.wrapper;
 
-import com.artemis.Component;
+import java.util.ArrayList;
 
-public class GeometryNameComponent extends Component {
-  
-  private String name;
-  
-  public GeometryNameComponent() {
-    name = "";
-  }
+public class AreaWrapper {
 
-  public GeometryNameComponent(String name) {
-    this.name = name;
-  }
+  public int width;
+
+  public int length;
   
-  public String get() {
-    return name;
-  }
-  
-  public void set(String name) {
-    this.name = name;
-  }
+  public ArrayList<TileWrapper> tiles;
 
 }

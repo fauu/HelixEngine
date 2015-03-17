@@ -11,7 +11,7 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.editor.world.system;
+package com.github.fauu.helix.editor.system;
 
 import com.artemis.annotations.Wire;
 import com.artemis.systems.VoidEntitySystem;

@@ -13,18 +13,12 @@
 
 package com.github.fauu.helix.system;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.EntitySystem;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.UuidEntityManager;
-import com.artemis.utils.Bag;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -43,6 +37,10 @@ import com.github.fauu.helix.component.VisibilityComponent;
 import com.github.fauu.helix.postprocessing.Bloom;
 import com.github.fauu.helix.shader.GeneralShaderProvider;
 import com.github.fauu.helix.spatial.Spatial;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class RenderingSystem extends EntitySystem {
   
@@ -104,10 +102,8 @@ public class RenderingSystem extends EntitySystem {
     modelBatch.begin(camera);
     
     modelBatch.render(axes);
-    
-    for (Iterator<Spatial> it = spatials.values().iterator(); it.hasNext(); ) {
-      Spatial spatial = it.next();
 
+    for (Spatial spatial : spatials.values()) {
       if (spatial != null && spatial.isReady()) {
         modelBatch.render(spatial);
       }

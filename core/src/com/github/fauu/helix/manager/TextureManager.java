@@ -20,12 +20,12 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 
 public class TextureManager extends Manager {
 
-  protected static final String DIRECTORY_NAME = "texture-set";
+  public static final String DIRECTORY_NAME = "texture-set";
   
-  protected static final String EXTENSION = "atlas";
+  public static final String EXTENSION = "atlas";
 
   @Wire
-  protected AssetManager assetManager;
+  private AssetManager assetManager;
   
   private TextureAtlas textureSet;
   

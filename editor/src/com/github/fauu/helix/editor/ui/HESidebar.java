@@ -26,14 +26,6 @@ public class HESidebar extends VisTable {
     setBackground((VisUI.getSkin().getDrawable("menu-bg")));
 
     addSeparator().padTop(-0.5f);
-    
-    add(new HEToolbox()).fill().expandX().padBottom(10);
-    
-    row();
-    
-    addSeparator().padTop(-0.5f);
-    
-    add(new HETileCustomizationPanel()).fill().expandX().padTop(-5);
 
     row();
 

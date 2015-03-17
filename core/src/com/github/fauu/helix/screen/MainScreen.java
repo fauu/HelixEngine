@@ -22,12 +22,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.github.fauu.helix.manager.GeometryManager;
-import com.github.fauu.helix.manager.MapRegionManager;
-import com.github.fauu.helix.manager.ObjectManager;
+import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.manager.TextureManager;
 import com.github.fauu.helix.system.RenderingSystem;
-import com.github.fauu.helix.system.SpatialUpdateSystem;
 
 public class MainScreen implements Screen {
 
@@ -42,10 +39,13 @@ public class MainScreen implements Screen {
 
     camera = new PerspectiveCamera(13, Gdx.graphics.getWidth(), 
                                        Gdx.graphics.getHeight());
+
     camera.near = 0.1f;
     camera.far = 300f;
     camera.translate(0, -40, 40);
     camera.lookAt(0, 0, 0);
+
+    camera.translate(18, 20, 0);
     
     WorldConfiguration worldConfiguration 
         = new WorldConfiguration().register(assetManager)
@@ -53,20 +53,18 @@ public class MainScreen implements Screen {
 
     world = new World(worldConfiguration);
 
-    world.setSystem(new SpatialUpdateSystem());
+//    world.setSystem(new SpatialUpdateSystem());
     world.setSystem(new RenderingSystem());
 
     world.setManager(new UuidEntityManager());
-    world.setManager(new GeometryManager());
     world.setManager(new TextureManager());
-    world.setManager(new ObjectManager());
     world.setManager(new GroupManager());
     world.setManager(new TagManager());
-    world.setManager(new MapRegionManager());
+    world.setManager(new AreaManager());
 
     world.initialize();
     
-    world.getManager(MapRegionManager.class).load("region1");
+    world.getManager(AreaManager.class).load("area1");
   }
 
   @Override
