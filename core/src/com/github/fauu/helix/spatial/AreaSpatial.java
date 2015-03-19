@@ -14,11 +14,13 @@
 package com.github.fauu.helix.spatial;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.math.Vector3;
@@ -44,13 +46,28 @@ public class AreaSpatial extends Spatial {
 
       material.set(ta);
       material.set(ColorAttribute.createDiffuse(Color.WHITE));
-    }
 
-    ready = true;
+      BlendingAttribute ba = new BlendingAttribute(GL20.GL_SRC_ALPHA,
+                                                   GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+      material.set(ba);
+    }
   }
 
   @Override
-  public void update(UpdateType type, Object value) { }
+  public void update(UpdateType type, Object value) {
+    switch (type) {
+      case OPACITY:
+          for (Material material : instance.materials) {
+            BlendingAttribute ba
+                = (BlendingAttribute) material.get(BlendingAttribute.Type);
+
+            ba.opacity = (Float) value;
+          }
+        break;
+      default: throw new UnsupportedOperationException();
+    }
+  }
 
   @Override
   public void getRenderables(Array<Renderable> renderables,

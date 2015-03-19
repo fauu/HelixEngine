@@ -13,21 +13,31 @@
 
 package com.github.fauu.helix.datum;
 
-import com.github.fauu.helix.TilePermissions;
+import com.github.fauu.helix.TilePermission;
 
 public class Tile {
+
+  private int index;
   
-  private TilePermissions permissions;
+  private TilePermission permissions;
 
   public Tile() {
-    permissions = TilePermissions.LEVEL0;
+    permissions = TilePermission.LEVEL0;
   }
 
-  public TilePermissions getPermissions() {
+  public int getIndex() {
+    return index;
+  }
+
+  public void setIndex(int index) {
+    this.index = index;
+  }
+
+  public TilePermission getPermissions() {
     return permissions;
   }
 
-  public void setPermissions(TilePermissions permissions) {
+  public void setPermissions(TilePermission permissions) {
     this.permissions = permissions;
   }
 

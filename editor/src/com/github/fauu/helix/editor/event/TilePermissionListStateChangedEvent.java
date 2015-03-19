@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 Helix Engine Developers 
+ * Copyright (C) 2014, 2015 Helix Engine Developers
  * (http://github.com/fauu/HelixEngine)
  *
  * This software is licensed under the GNU General Public License
@@ -11,18 +11,20 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.spatial;
+package com.github.fauu.helix.editor.event;
 
-import com.badlogic.gdx.graphics.g3d.RenderableProvider;
+import com.github.fauu.helix.TilePermission;
 
-public abstract class Spatial implements RenderableProvider {
+public class TilePermissionListStateChangedEvent {
 
-  public abstract void update(UpdateType type, Object value);
-  
-  public enum UpdateType {
-    OPACITY,
-    POSITION,
-    TILES_PARTIAL
+  private TilePermission message;
+
+  public TilePermissionListStateChangedEvent(TilePermission message) {
+    this.message = message;
+  }
+
+  public TilePermission getMessage() {
+    return message;
   }
 
 }

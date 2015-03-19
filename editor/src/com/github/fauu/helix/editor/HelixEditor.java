@@ -17,7 +17,10 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.assets.AssetManager;
+import com.github.fauu.helix.TilePermission;
 import com.github.fauu.helix.editor.screen.MainScreen;
+import com.github.fauu.helix.editor.state.TilePermissionListState;
+import com.github.fauu.helix.editor.state.ToolbarState;
 import com.github.fauu.helix.editor.ui.UI;
 import com.github.fauu.helix.manager.AreaManager;
 import com.google.common.eventbus.EventBus;
@@ -34,6 +37,10 @@ public class HelixEditor extends Game {
 
   private UI ui;
 
+  private ToolbarState toolbarState;
+
+  private TilePermissionListState tilePermissionListState;
+
   @Override
   public void create() {
     instance = this;
@@ -43,6 +50,12 @@ public class HelixEditor extends Game {
     
     mainScreen = new MainScreen();
     setScreen(mainScreen);
+
+    toolbarState = new ToolbarState();
+    toolbarState.initialize(ToolType.TILE_PERMISSIONS);
+
+    tilePermissionListState = new TilePermissionListState();
+    tilePermissionListState.initialize(TilePermission.LEVEL0);
 
     ui = new UI();
 
@@ -78,6 +91,16 @@ public class HelixEditor extends Game {
     Gdx.app.exit();
   }
 
+  public void fadeAreaModelAction(boolean on) {
+    mainScreen.getSpatialIntermediary().setAreaSpatialOpacity(on ? 0.5f : 1);
+  }
+
+  public void toolSelected(ToolType type) {
+    if (type == ToolType.TILE_PERMISSIONS) {
+      fadeAreaModelAction(true);
+    }
+  }
+
   public EventBus getUIEventBus() {
     return editorToUIEventBus;
   }
@@ -88,6 +111,14 @@ public class HelixEditor extends Game {
   
   public AssetManager getAssetManager() {
     return mainScreen.getAssetManager();
+  }
+
+  public ToolbarState getToolbarState() {
+    return toolbarState;
+  }
+
+  public TilePermissionListState getTilePermissionListState() {
+    return tilePermissionListState;
   }
 
 }

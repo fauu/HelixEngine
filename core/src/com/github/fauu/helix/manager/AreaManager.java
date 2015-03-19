@@ -52,12 +52,17 @@ public class AreaManager extends Manager {
     AreaWrapper areaWrapper = json.fromJson(AreaWrapper.class, file);
 
     Array<Tile> tiles = new Array<Tile>();
+    int i = 0;
     for (TileWrapper wrapper : areaWrapper.tiles) {
       Tile tile = new Tile();
+
+      tile.setIndex(i);
 
       tile.setPermissions(wrapper.permissions);
 
       tiles.add(tile);
+
+      i++;
     }
 
     String modelPath = "model/" + name + ".g3db";

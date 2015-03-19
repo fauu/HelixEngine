@@ -22,12 +22,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.github.fauu.helix.editor.manager.SpatialIntermediary;
 import com.github.fauu.helix.editor.system.CameraControlSystem;
 import com.github.fauu.helix.editor.system.TileHighlightingSystem;
 import com.github.fauu.helix.editor.system.TilePermissionsEditingSystem;
 import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.manager.TextureManager;
 import com.github.fauu.helix.system.RenderingSystem;
+import com.github.fauu.helix.system.SpatialUpdateSystem;
 
 public class MainScreen implements Screen {
 
@@ -36,6 +38,8 @@ public class MainScreen implements Screen {
   private PerspectiveCamera camera;
 
   private AssetManager assetManager;
+
+  private SpatialIntermediary spatialIntermediary;
 
   public MainScreen() {
     assetManager = new AssetManager();
@@ -59,10 +63,12 @@ public class MainScreen implements Screen {
     world.setManager(new TagManager());
     world.setManager(new GroupManager());
     world.setManager(new AreaManager());
-    
+    world.setManager(spatialIntermediary = new SpatialIntermediary());
+
     world.setSystem(new CameraControlSystem());
     world.setSystem(new TileHighlightingSystem());
     world.setSystem(new TilePermissionsEditingSystem());
+    world.setSystem(new SpatialUpdateSystem());
     world.setSystem(new RenderingSystem());
 
     world.initialize();
@@ -103,6 +109,10 @@ public class MainScreen implements Screen {
   
   public AssetManager getAssetManager() {
     return assetManager;
+  }
+
+  public SpatialIntermediary getSpatialIntermediary() {
+    return spatialIntermediary;
   }
 
 }

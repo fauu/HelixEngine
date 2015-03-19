@@ -22,6 +22,11 @@ public class EditorInputEventProcessor implements InputProcessor {
   @Override
   public boolean keyDown(int keycode) {
     switch (keycode) {
+      case Input.Keys.F4:
+        if (Gdx.input.isKeyPressed(Input.Keys.ALT_LEFT)) {
+          HelixEditor.getInstance().exitAction();
+        }
+        break;
       case Input.Keys.O:
         if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
           HelixEditor.getInstance().openMapRegionAction();
@@ -31,9 +36,10 @@ public class EditorInputEventProcessor implements InputProcessor {
         if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
         }
         break;
-      case Input.Keys.F4:
-        if (Gdx.input.isKeyPressed(Input.Keys.ALT_LEFT)) {
-          HelixEditor.getInstance().exitAction();
+      case Input.Keys.SPACE:
+        if (HelixEditor.getInstance().getToolbarState().getActiveTool() ==
+            ToolType.TILE_PERMISSIONS) {
+          HelixEditor.getInstance().fadeAreaModelAction(false);
         }
         break;
       default: break;
@@ -44,6 +50,16 @@ public class EditorInputEventProcessor implements InputProcessor {
 
   @Override
   public boolean keyUp(int keycode) {
+    switch (keycode) {
+      case Input.Keys.SPACE:
+        if (HelixEditor.getInstance().getToolbarState().getActiveTool() ==
+            ToolType.TILE_PERMISSIONS) {
+          HelixEditor.getInstance().fadeAreaModelAction(true);
+        }
+        break;
+      default: break;
+    }
+
     return false;
   }
 

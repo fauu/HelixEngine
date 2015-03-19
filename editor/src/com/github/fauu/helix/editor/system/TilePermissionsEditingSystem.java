@@ -19,23 +19,36 @@ import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
 import com.artemis.systems.EntityProcessingSystem;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.utils.Array;
+import com.github.fauu.helix.TilePermission;
 import com.github.fauu.helix.component.DimensionsComponent;
 import com.github.fauu.helix.component.SpatialFormComponent;
 import com.github.fauu.helix.component.TilesComponent;
 import com.github.fauu.helix.component.VisibilityComponent;
+import com.github.fauu.helix.datum.SpatialUpdateRequest;
+import com.github.fauu.helix.datum.Tile;
+import com.github.fauu.helix.editor.HelixEditor;
+import com.github.fauu.helix.editor.event.TilePermissionListStateChangedEvent;
 import com.github.fauu.helix.editor.spatial.TilePermissionsGridSpatial;
+import com.github.fauu.helix.spatial.Spatial;
+import com.google.common.eventbus.Subscribe;
 
 public class TilePermissionsEditingSystem extends EntityProcessingSystem {
 
   private static final String atlasPath = "texture-atlas/tile-permissions.atlas";
 
   @Wire
-  private ComponentMapper<TilesComponent> tilesMapper;
+  private ComponentMapper<DimensionsComponent> dimensionsMapper;
 
   @Wire
-  private ComponentMapper<DimensionsComponent> dimensionsMapper;
+  private ComponentMapper<SpatialFormComponent> spatialFormMapper;
+
+  @Wire
+  private ComponentMapper<TilesComponent> tilesMapper;
 
   @Wire
   private TileHighlightingSystem tileHighlightingSystem;
@@ -45,6 +58,12 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
 
   private boolean ready;
 
+  private Tile highlightedTile;
+
+  private Tile lastUpdatedTile;
+
+  private TilePermission selectedTilePermission;
+
   @SuppressWarnings("unchecked")
   public TilePermissionsEditingSystem() {
     super(Aspect.getAspectForAll(TilesComponent.class,
@@ -53,6 +72,8 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
 
   @Override
   protected void initialize() {
+    HelixEditor.getInstance().getWorldEventBus().register(this);
+
     assetManager.load(atlasPath, TextureAtlas.class);
     assetManager.finishLoading();
 
@@ -86,5 +107,48 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
 
       ready = true;
     }
+
+    Tile highlightedTile = tileHighlightingSystem.getHighlightedTile();
+
+    if (highlightedTile != this.highlightedTile) {
+      this.highlightedTile = highlightedTile;
+    }
+
+    if (lastUpdatedTile != highlightedTile &&
+        highlightedTile != null &&
+        Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+      Entity area = world.getManager(TagManager.class).getEntity("area");
+
+      Array<Tile> tiles = tilesMapper.get(area).get();
+
+      for (Tile tile : tiles) {
+        if (tile == highlightedTile) {
+          tile.setPermissions(selectedTilePermission);
+
+          Array<Tile> updatedTiles = new Array<>();
+          updatedTiles.add(tile);
+
+          Entity grid = world.getManager(TagManager.class)
+                             .getEntity("tilePermissionsGrid");
+
+          spatialFormMapper
+              .get(grid)
+              .requestUpdate(
+                  new SpatialUpdateRequest(Spatial.UpdateType.TILES_PARTIAL,
+                      updatedTiles));
+
+          lastUpdatedTile = tile;
+
+          break;
+        }
+      }
+    }
   }
+
+  @Subscribe
+  public void TilePermissionListStateChanged(
+      TilePermissionListStateChangedEvent e) {
+    selectedTilePermission = e.getMessage();
+  }
+
 }

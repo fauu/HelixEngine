@@ -13,10 +13,10 @@
 
 package com.github.fauu.helix.json.wrapper;
 
-import com.github.fauu.helix.TilePermissions;
+import com.github.fauu.helix.TilePermission;
 
 public class TileWrapper {
 
-  public TilePermissions permissions;
+  public TilePermission permissions;
 
 }

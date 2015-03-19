@@ -27,6 +27,14 @@ public class HESidebar extends VisTable {
 
     addSeparator().padTop(-0.5f);
 
+    add(new HEToolbox()).fill().expandX().padBottom(10);
+
+    row();
+
+    addSeparator().padTop(-0.5f);
+
+    add(new HETilePermissionPanel()).fill().expandX().padTop(-5);
+
     row();
 
     pack();

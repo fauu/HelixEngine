@@ -11,18 +11,20 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix;
+package com.github.fauu.helix.editor.event;
 
-public enum TilePermissions {
+import com.github.fauu.helix.editor.ToolType;
 
-  OBSTACLE,
-  LEVEL0,
-  LEVEL1,
-  LEVEL2,
-  LEVEL3,
-  LEVEL4,
-  LEVEL5,
-  LEVEL6,
-  LEVEL7
+public class ToolbarStateChangedEvent {
+
+  private ToolType message;
+
+  public ToolbarStateChangedEvent(ToolType message) {
+    this.message = message;
+  }
+
+  public ToolType getMessage() {
+    return message;
+  }
 
 }

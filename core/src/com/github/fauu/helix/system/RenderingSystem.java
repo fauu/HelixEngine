@@ -104,7 +104,7 @@ public class RenderingSystem extends EntitySystem {
     modelBatch.render(axes);
 
     for (Spatial spatial : spatials.values()) {
-      if (spatial != null && spatial.isReady()) {
+      if (spatial != null) {
         modelBatch.render(spatial);
       }
     }

@@ -18,7 +18,9 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.EntityProcessingSystem;
+import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.component.*;
+import com.github.fauu.helix.datum.SpatialUpdateRequest;
 
 public class SpatialUpdateSystem extends EntityProcessingSystem {
 
@@ -44,86 +46,33 @@ public class SpatialUpdateSystem extends EntityProcessingSystem {
 
   @Override
   protected void process(Entity e) {
-//    SpatialUpdateRequest request;
-//
-//    while ((request = spatialFormMapper.get(e).pollUpdateRequest()) != null) {
-//      Object updateValue;
-//
-//      switch (request.getType()) {
-//        case POSITION:
-//          Vector3 newPosition = (Vector3) request.getValue();
-//
-//          positionMapper.get(e).set(newPosition);
-//          updateValue = newPosition;
-//          break;
-//        case ORIENTATION:
-//          Direction newOrientation = (Direction) request.getValue();
-//
-//          orientationMapper.get(e).set(newOrientation);
-//          updateValue = newOrientation;
-//          break;
-//        case GEOMETRY:
-//          String newGeometryName = (String) request.getValue();
-//
-//          geometryNameMapper.get(e).set(newGeometryName);
-//          updateValue = world.getManager(GeometryManager.class)
-//                             .getGeometry(newGeometryName)
-//                             .getMesh();
-//          break;
-//        case TEXTURE:
-//          String newTextureName = (String) request.getValue();
-//
-//          TextureAtlas set = world.getManager(TextureManager.class)
-//                                  .getTextureSet();
-//
-//          // TODO: findRegion result should be cached
-//          TextureRegion region = set.findRegion(newTextureName);
-//          Texture setTexture = region.getTexture();
-//
-//          textureNameMapper.get(e).set(newTextureName);
-//          updateValue = new TextureDTO(setTexture, region);
-//          break;
-//        case TILE_DATA:
-//          @SuppressWarnings("unchecked")
-//          Array<Tile> newTileData = (Array<Tile>) request.getValue();
-//
-//          tileDataMapper.get(e).set(newTileData);
-//          updateValue = newTileData;
-//          break;
-//        case TILE_DATA_PARTIAL:
-//          Entity terrain = world.getManager(TagManager.class)
-//                                .getEntity("TERRAIN");
-//
-//          if (e.equals(terrain)) {
-//            newTileData = (Array<Tile>) request.getValue();
-//
-//            Array<Tile> tileData = tileDataMapper.get(e).get();
-//
-//            Vector2 terrainDimensions = dimensionsMapper.get(terrain).get();
-//
-//            for (int i = 0; i < newTileData.size; i++) {
-//              Tile updatedTile = newTileData.get(i);
-//
-//              int tileIndex = (int) (updatedTile.getPosition().x +
-//                                     (terrainDimensions.x *
-//                                      updatedTile.getPosition().y));
-//
-//              tileData.set(tileIndex, newTileData.get(i));
-//            }
-//
-//            tileDataMapper.get(e).set(tileData);
-//
-//            updateValue
-//                = new PartialTileUpdateDTO(newTileData, terrainDimensions);
-//          } else {
-//            throw new UnsupportedOperationException();
-//          }
-//          break;
-//        default: throw new IllegalStateException();
-//      }
-//
-//      spatialFormMapper.get(e).get().update(request.getType(), updateValue);
-//    }
+    SpatialUpdateRequest request;
+
+    while ((request = spatialFormMapper.get(e).pollUpdateRequest()) != null) {
+      Object updateValue;
+
+      switch (request.getType()) {
+        case OPACITY:
+          updateValue = request.getValue();
+          break;
+        case POSITION:
+          Vector3 newPosition = (Vector3) request.getValue();
+
+          positionMapper.get(e).set(newPosition);
+          updateValue = newPosition;
+          break;
+        case TILES_PARTIAL:
+          updateValue = request.getValue();
+          break;
+        default: throw new IllegalStateException();
+      }
+
+      spatialFormMapper.get(e).get().update(request.getType(), updateValue);
+    }
+  }
+
+  public class TileDataPartialUpdateDTO {
+
   }
 
 }

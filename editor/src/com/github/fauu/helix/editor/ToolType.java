@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 Helix Engine Developers 
+ * Copyright (C) 2014, 2015 Helix Engine Developers
  * (http://github.com/fauu/HelixEngine)
  *
  * This software is licensed under the GNU General Public License
@@ -11,18 +11,18 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.spatial;
+package com.github.fauu.helix.editor;
 
-import com.badlogic.gdx.graphics.g3d.RenderableProvider;
+public enum ToolType {
 
-public abstract class Spatial implements RenderableProvider {
+  TILE_PERMISSIONS;
 
-  public abstract void update(UpdateType type, Object value);
-  
-  public enum UpdateType {
-    OPACITY,
-    POSITION,
-    TILES_PARTIAL
+  @Override
+  public String toString() {
+    switch (this) {
+      case TILE_PERMISSIONS: return "Tile Permissions";
+      default: throw new IllegalArgumentException();
+    }
   }
 
 }
