@@ -28,14 +28,14 @@ import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.utils.DefaultTextureBinder;
-import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
+import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
+import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
+import com.badlogic.gdx.graphics.g3d.utils.*;
 import com.github.fauu.helix.component.SpatialFormComponent;
 import com.github.fauu.helix.component.VisibilityComponent;
 import com.github.fauu.helix.postprocessing.Bloom;
-import com.github.fauu.helix.shader.GeneralShaderProvider;
+import com.github.fauu.helix.spatial.DecalSpatial;
+import com.github.fauu.helix.spatial.ModelSpatial;
 import com.github.fauu.helix.spatial.Spatial;
 
 import java.util.HashMap;
@@ -50,38 +50,50 @@ public class RenderingSystem extends EntitySystem {
   @Wire
   private PerspectiveCamera camera;
   
-  private Map<UUID, Spatial> spatials;
+  private Map<UUID, ModelSpatial> modelSpatials;
+
+  private Map<UUID, DecalSpatial> decalSpatials;
   
   private UuidEntityManager uuidEntityManager;
   
   private RenderContext renderContext;
   
   private ModelBatch modelBatch;
+
+  private DecalBatch decalBatch;
   
   private ModelInstance axes;
   
   private Bloom bloom;
 
+  private static final boolean bloomEnabled = true;
+
   @SuppressWarnings("unchecked")
   public RenderingSystem() {
     super(Aspect.getAspectForAll(SpatialFormComponent.class,
                                  VisibilityComponent.class));
-    
-    spatials = new HashMap<UUID, Spatial>();
-
-    renderContext = new RenderContext(
-        new DefaultTextureBinder(DefaultTextureBinder.WEIGHTED));
-    
-    modelBatch = new ModelBatch(renderContext, new GeneralShaderProvider());
-    
-    bloom = new Bloom();
-    
-    axes = buildAxes();
   }
   
   @Override
   protected void initialize() {
     uuidEntityManager = world.getManager(UuidEntityManager.class);
+
+    modelSpatials = new HashMap<UUID, ModelSpatial>();
+
+    decalSpatials = new HashMap<UUID, DecalSpatial>();
+
+    renderContext = new RenderContext(
+        new DefaultTextureBinder(DefaultTextureBinder.WEIGHTED));
+
+    modelBatch = new ModelBatch(renderContext, new DefaultShaderProvider());
+
+    decalBatch = new DecalBatch(new CameraGroupStrategy(camera));
+
+    bloom = new Bloom();
+    bloom.setBloomIntesity(0.6f);
+    bloom.setOriginalIntesity(1);
+
+    axes = buildAxes();
   };
 
   @Override
@@ -89,40 +101,60 @@ public class RenderingSystem extends EntitySystem {
     camera.update();
     
     GL20 gl = Gdx.graphics.getGL20();
-    
-    //bloom.capture();
-    
+
     gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-    gl.glClearColor(0.4f, 0.4f, 0.4f, 1);
+    gl.glClearColor(0.53f, 0.8f, 0.92f, 1);
     gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
     gl.glEnable(GL20.GL_BLEND);
     gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    
+
+    if (bloomEnabled) {
+      bloom.capture();
+    }
+
     renderContext.begin();
     modelBatch.begin(camera);
-    
+
     modelBatch.render(axes);
 
-    for (Spatial spatial : spatials.values()) {
-      if (spatial != null) {
-        modelBatch.render(spatial);
-      }
+    for (ModelSpatial spatial : modelSpatials.values()) {
+      modelBatch.render(spatial);
     }
-    
+
     modelBatch.end();
     renderContext.end();
-    
-    //bloom.render();
+
+    for (DecalSpatial spatial : decalSpatials.values()) {
+      decalBatch.add(spatial.getDecal());
+    }
+
+    decalBatch.flush();
+
+    if (bloomEnabled) {
+      bloom.render();
+    }
   }
   
   @Override
-  protected void inserted(Entity e) { 
-    spatials.put(uuidEntityManager.getUuid(e), spatialFormMapper.get(e).get());
+  protected void inserted(Entity e) {
+    Spatial spatial = spatialFormMapper.get(e).get();
+
+    if (spatial instanceof ModelSpatial) {
+      modelSpatials.put(uuidEntityManager.getUuid(e), (ModelSpatial) spatial);
+    } else if (spatial instanceof DecalSpatial) {
+      decalSpatials.put(uuidEntityManager.getUuid(e), (DecalSpatial) spatial);
+    }
   }
   
   @Override
   protected void removed(Entity e) {
-    spatials.remove(uuidEntityManager.getUuid(e));
+    UUID uuid = uuidEntityManager.getUuid(e);
+
+    if (modelSpatials.containsKey(uuid)) {
+      modelSpatials.remove(uuid);
+    } else {
+      decalSpatials.remove(uuid);
+    }
   }
   
   private ModelInstance buildAxes() {

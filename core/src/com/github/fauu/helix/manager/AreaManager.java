@@ -24,6 +24,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonWriter;
 import com.github.fauu.helix.component.DimensionsComponent;
 import com.github.fauu.helix.component.SpatialFormComponent;
 import com.github.fauu.helix.component.TilesComponent;
@@ -34,13 +35,24 @@ import com.github.fauu.helix.json.wrapper.TileWrapper;
 import com.github.fauu.helix.spatial.AreaSpatial;
 import com.github.fauu.helix.util.IntVector2;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class AreaManager extends Manager {
 
   @Wire
+  private ComponentMapper<DimensionsComponent> dimensionsMapper;
+
+  @Wire
   private ComponentMapper<SpatialFormComponent> spatialFormMapper;
-  
+
+  @Wire
+  private ComponentMapper<TilesComponent> tilesMapper;
+
   @Wire
   private AssetManager assetManager;
+
+  private Entity area;
 
   public void load(String name) {
     loadFromFile(Gdx.files.internal("area/" + name + ".json"), name);
@@ -82,11 +94,55 @@ public class AreaManager extends Manager {
                        .add(new VisibilityComponent())
                        .getEntity();
     world.getManager(TagManager.class).register("area", area);
-   
+
+    this.area = area;
+  }
+
+  public void save() {
+    Json json = new Json();
+
+    Entity area = world.getManager(TagManager.class).getEntity("area");
+
+    IntVector2 dimensions = dimensionsMapper.get(area).get();
+
+    FileHandle file = Gdx.files.internal("area/area1.json");
+
+    try {
+      json.setWriter(new JsonWriter(new FileWriter(file.file())));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    json.writeObjectStart();
+    json.writeValue("width", dimensions.x);
+    json.writeValue("length", dimensions.y);
+    json.writeArrayStart("tiles");
+    for (Tile tile : tilesMapper.get(area).get()) {
+      json.writeObjectStart();
+      json.writeValue("permissions", tile.getPermissions().toString());
+      json.writeObjectEnd();
+    }
+    json.writeArrayEnd();
+    json.writeObjectEnd();
+
+    try {
+      json.getWriter().close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
   }
   
-  public void unloadAll() {
-    // TODO: Implement me
+  public void unloadCurrent() {
+    if (area != null) {
+      area.deleteFromWorld();
+
+      area = null;
+    }
+  }
+
+  public boolean isAreaLoaded() {
+    return area != null;
   }
 
 }

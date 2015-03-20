@@ -18,7 +18,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.assets.AssetManager;
 import com.github.fauu.helix.TilePermission;
-import com.github.fauu.helix.editor.screen.MainScreen;
+import com.github.fauu.helix.editor.screen.Overworld;
 import com.github.fauu.helix.editor.state.TilePermissionListState;
 import com.github.fauu.helix.editor.state.ToolbarState;
 import com.github.fauu.helix.editor.ui.UI;
@@ -29,7 +29,7 @@ public class HelixEditor extends Game {
 
   private static HelixEditor instance;
   
-  private MainScreen mainScreen;
+  private Overworld overworld;
   
   private EventBus editorToUIEventBus;
 
@@ -48,8 +48,8 @@ public class HelixEditor extends Game {
     editorToUIEventBus = new EventBus();
     editorToWorldEventBus = new EventBus();
     
-    mainScreen = new MainScreen();
-    setScreen(mainScreen);
+    overworld = new Overworld();
+    setScreen(overworld);
 
     toolbarState = new ToolbarState();
     toolbarState.initialize(ToolType.TILE_PERMISSIONS);
@@ -79,12 +79,28 @@ public class HelixEditor extends Game {
     ui.dispose();
   }
 
-  public void closeCurrentMapRegion() {
-    mainScreen.getWorld().getManager(AreaManager.class).unloadAll();
+  public void closeCurrentAreaAction() {
+    overworld.getWorld().getManager(AreaManager.class).unloadCurrent();
+
+    ui.setSidebarVisibility(false);
   }
 
-  public void openMapRegionAction() {
-    ui.showOpenMapRegionFileChooser();
+  public void openAreaAction() {
+    ui.showOpenAreaFileChooser();
+  }
+
+  public void loadAreaAction(String name) {
+    overworld.getWorld().getManager(AreaManager.class).load(name);
+
+    ui.setSidebarVisibility(true);
+
+    if (toolbarState.getActiveTool() == ToolType.TILE_PERMISSIONS) {
+      fadeAreaModelAction(true);
+    }
+  }
+
+  public void saveAreaAction() {
+    overworld.getWorld().getManager(AreaManager.class).save();
   }
 
   public void exitAction() {
@@ -92,11 +108,18 @@ public class HelixEditor extends Game {
   }
 
   public void fadeAreaModelAction(boolean on) {
-    mainScreen.getSpatialIntermediary().setAreaSpatialOpacity(on ? 0.5f : 1);
+    overworld.getSpatialIntermediary().setAreaSpatialOpacity(on ? 0.75f : 1);
+  }
+
+  public void centerCameraOnAreaAction() {
+    overworld.getCameraIntermediary().centerCameraOnArea();
   }
 
   public void toolSelected(ToolType type) {
-    if (type == ToolType.TILE_PERMISSIONS) {
+    boolean areaLoaded
+        = overworld.getWorld().getManager(AreaManager.class).isAreaLoaded();
+
+    if (type == ToolType.TILE_PERMISSIONS && areaLoaded) {
       fadeAreaModelAction(true);
     }
   }
@@ -110,7 +133,7 @@ public class HelixEditor extends Game {
   }
   
   public AssetManager getAssetManager() {
-    return mainScreen.getAssetManager();
+    return overworld.getAssetManager();
   }
 
   public ToolbarState getToolbarState() {

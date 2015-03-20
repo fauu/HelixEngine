@@ -11,7 +11,7 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.screen;
+package com.github.fauu.helix.editor.screen;
 
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
@@ -22,11 +22,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.github.fauu.helix.editor.manager.CameraIntermediary;
+import com.github.fauu.helix.editor.manager.SpatialIntermediary;
+import com.github.fauu.helix.editor.system.CameraControlSystem;
+import com.github.fauu.helix.editor.system.TileHighlightingSystem;
+import com.github.fauu.helix.editor.system.TilePermissionsEditingSystem;
 import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.manager.TextureManager;
 import com.github.fauu.helix.system.RenderingSystem;
+import com.github.fauu.helix.system.SpatialUpdateSystem;
 
-public class MainScreen implements Screen {
+public class Overworld implements Screen {
 
   private World world;
 
@@ -34,37 +40,42 @@ public class MainScreen implements Screen {
 
   private AssetManager assetManager;
 
-  public MainScreen() {
+  private SpatialIntermediary spatialIntermediary;
+
+  private CameraIntermediary cameraIntermediary;
+
+  public Overworld() {
     assetManager = new AssetManager();
 
-    camera = new PerspectiveCamera(13, Gdx.graphics.getWidth(), 
-                                       Gdx.graphics.getHeight());
+    camera = new PerspectiveCamera(40,
+                                   Gdx.graphics.getWidth(), 
+                                   Gdx.graphics.getHeight());
 
     camera.near = 0.1f;
     camera.far = 300f;
-    camera.translate(0, -40, 40);
+    camera.translate(0, -30, 30);
     camera.lookAt(0, 0, 0);
 
-    camera.translate(18, 20, 0);
-    
     WorldConfiguration worldConfiguration 
         = new WorldConfiguration().register(assetManager)
                                   .register(camera);
-
     world = new World(worldConfiguration);
-
-//    world.setSystem(new SpatialUpdateSystem());
-    world.setSystem(new RenderingSystem());
 
     world.setManager(new UuidEntityManager());
     world.setManager(new TextureManager());
-    world.setManager(new GroupManager());
     world.setManager(new TagManager());
+    world.setManager(new GroupManager());
     world.setManager(new AreaManager());
+    world.setManager(spatialIntermediary = new SpatialIntermediary());
+    world.setManager(cameraIntermediary = new CameraIntermediary());
+
+    world.setSystem(new CameraControlSystem());
+    world.setSystem(new TileHighlightingSystem());
+    world.setSystem(new TilePermissionsEditingSystem());
+    world.setSystem(new SpatialUpdateSystem());
+    world.setSystem(new RenderingSystem());
 
     world.initialize();
-    
-    world.getManager(AreaManager.class).load("area1");
   }
 
   @Override
@@ -90,7 +101,24 @@ public class MainScreen implements Screen {
 
   @Override
   public void dispose() {
+    world.dispose();
     assetManager.dispose();
+  }
+  
+  public World getWorld() {
+    return world;
+  }
+  
+  public AssetManager getAssetManager() {
+    return assetManager;
+  }
+
+  public SpatialIntermediary getSpatialIntermediary() {
+    return spatialIntermediary;
+  }
+
+  public CameraIntermediary getCameraIntermediary() {
+    return cameraIntermediary;
   }
 
 }

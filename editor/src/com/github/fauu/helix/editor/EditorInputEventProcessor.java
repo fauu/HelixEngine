@@ -27,9 +27,19 @@ public class EditorInputEventProcessor implements InputProcessor {
           HelixEditor.getInstance().exitAction();
         }
         break;
+      case Input.Keys.W:
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
+          HelixEditor.getInstance().closeCurrentAreaAction();
+        }
+        break;
       case Input.Keys.O:
         if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
-          HelixEditor.getInstance().openMapRegionAction();
+          HelixEditor.getInstance().openAreaAction();
+        }
+        break;
+      case Input.Keys.S:
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
+          HelixEditor.getInstance().saveAreaAction();
         }
         break;
       case Input.Keys.N:

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 Helix Engine Developers 
+ * Copyright (C) 2014, 2015 Helix Engine Developers
  * (http://github.com/fauu/HelixEngine)
  *
  * This software is licensed under the GNU General Public License
@@ -11,8 +11,9 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.component;
+package com.github.fauu.helix.spatial;
 
-import com.artemis.Component;
+import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 
-public class VisibilityComponent extends Component { }
+public abstract class ModelSpatial extends Spatial
+                                   implements RenderableProvider { }

@@ -22,7 +22,7 @@ public class Tile {
   private TilePermission permissions;
 
   public Tile() {
-    permissions = TilePermission.LEVEL0;
+    setPermissions(TilePermission.LEVEL0);
   }
 
   public int getIndex() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 Helix Engine Developers 
+ * Copyright (C) 2014, 2015 Helix Engine Developers
  * (http://github.com/fauu/HelixEngine)
  *
  * This software is licensed under the GNU General Public License
@@ -14,28 +14,23 @@
 package com.github.fauu.helix.component;
 
 import com.artemis.Component;
-import com.github.fauu.helix.util.IntVector3;
 
-public class PositionComponent extends Component {
+public class MovementSpeedComponent extends Component {
 
-  private IntVector3 position;
+  private float speed;
 
-  public PositionComponent() {
-    this.position = new IntVector3();
+  public MovementSpeedComponent() { }
+
+  public MovementSpeedComponent(float speed){
+    set(speed);
   }
 
-  public PositionComponent(IntVector3 position) {
-    this();
-
-    set(position);
+  public float get() {
+    return speed;
   }
 
-  public IntVector3 get() {
-    return position;
-  }
-
-  public void set(IntVector3 value) {
-    this.position.set(value);
+  public void set(float speed) {
+    this.speed = speed;
   }
 
 }

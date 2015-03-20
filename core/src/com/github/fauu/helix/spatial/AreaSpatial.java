@@ -27,7 +27,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 
-public class AreaSpatial extends Spatial {
+public class AreaSpatial extends ModelSpatial {
 
   private ModelInstance instance;
 

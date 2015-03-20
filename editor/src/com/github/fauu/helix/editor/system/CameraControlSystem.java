@@ -19,6 +19,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
+import com.github.fauu.helix.editor.HelixEditor;
 
 public class CameraControlSystem extends VoidEntitySystem {
   
@@ -36,6 +37,13 @@ public class CameraControlSystem extends VoidEntitySystem {
   private Vector3 translation = new Vector3();
 
   private int zoomLevel;
+
+  private ViewType currentView;
+
+  @Override
+  protected void initialize() {
+    currentView = ViewType.PERSPECTIVE;
+  }
 
   @Override
   protected void processSystem() {
@@ -58,7 +66,6 @@ public class CameraControlSystem extends VoidEntitySystem {
     if (Gdx.input.isKeyJustPressed(Input.Keys.K) &&
         zoomLevel < MAX_ZOOM_LEVEL) {
       translation.z -= 1;
-      translation.y += 2.5 * VERTICAL_MOVEMENT_STEP;
 
       zoomLevel++;
     }
@@ -66,16 +73,37 @@ public class CameraControlSystem extends VoidEntitySystem {
     if (Gdx.input.isKeyJustPressed(Input.Keys.J) &&
         zoomLevel > MIN_ZOOM_LEVEL) {
       translation.z += 1;
-      translation.y -= 2.5 * VERTICAL_MOVEMENT_STEP;
 
       zoomLevel--;
     }
 
     camera.translate(translation.x * FLAT_MOVEMENT_SPEED,
-                     translation.y * FLAT_MOVEMENT_SPEED,
-                     translation.z * VERTICAL_MOVEMENT_STEP);
+        translation.y * FLAT_MOVEMENT_SPEED,
+        translation.z * VERTICAL_MOVEMENT_STEP);
 
     translation.setZero();
+
+    if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1) &&
+         currentView != ViewType.PERSPECTIVE) {
+       camera.rotateAround(camera.position, new Vector3(1, 0, 0), 45);
+
+       HelixEditor.getInstance().centerCameraOnAreaAction();
+
+       currentView = ViewType.PERSPECTIVE;
+     }
+
+    if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_7) &&
+        currentView != ViewType.TOP) {
+      camera.rotateAround(camera.position, new Vector3(1, 0, 0), -45);
+
+      HelixEditor.getInstance().centerCameraOnAreaAction();
+
+      currentView = ViewType.TOP;
+    }
+  }
+
+  public enum ViewType {
+    PERSPECTIVE, TOP;
   }
 
 }

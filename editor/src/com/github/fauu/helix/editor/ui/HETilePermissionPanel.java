@@ -29,7 +29,7 @@ public class HETilePermissionPanel extends VisTable {
   public HETilePermissionPanel() {
     HelixEditor.getInstance().getUIEventBus().register(this);
 
-    add(new VisLabel("Tile permission type:")).left().padLeft(10);
+    add(new VisLabel("Tile permission type:"));
 
     row();
 

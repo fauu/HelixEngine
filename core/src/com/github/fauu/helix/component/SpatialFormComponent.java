@@ -13,11 +13,11 @@
 
 package com.github.fauu.helix.component;
 
-import java.util.LinkedList;
-
 import com.artemis.Component;
 import com.github.fauu.helix.datum.SpatialUpdateRequest;
 import com.github.fauu.helix.spatial.Spatial;
+
+import java.util.LinkedList;
 
 public class SpatialFormComponent extends Component {
 
@@ -31,7 +31,8 @@ public class SpatialFormComponent extends Component {
   
   public SpatialFormComponent(Spatial spatial) {
     this();
-    this.spatial = spatial;
+
+    set(spatial);
   }
   
   public Spatial get() {

@@ -26,6 +26,8 @@ import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 public class UI {
   
   private Stage stage;
+
+  private HESidebar sidebar;
   
   public UI() {
     VisUI.load();
@@ -37,7 +39,12 @@ public class UI {
     stage.addActor(root.top());
     
     root.add((new HEMenuBar(stage)).getTable()).fillX().expandX().row();
-    root.add(new HESidebar()).minWidth(200).left().fillY().expandY().row();
+    root.add(sidebar = new HESidebar()).minWidth(200)
+                                       .left()
+                                       .fillY()
+                                       .expandY()
+                                       .row();
+    sidebar.setVisible(false);
   }
   
   public void render(float delta) {
@@ -50,18 +57,24 @@ public class UI {
     VisUI.dispose();
   }
 
-  public void showOpenMapRegionFileChooser() {
+  public void showOpenAreaFileChooser() {
     final FileChooser regionFileChooser = new FileChooser(FileChooser.Mode.OPEN);
     regionFileChooser.setSelectionMode(FileChooser.SelectionMode.FILES);
     regionFileChooser.setFileFilter(new FileExtensionFilter("json"));
     regionFileChooser.setListener(new FileChooserAdapter() {
       @Override
       public void selected(FileHandle file) {
-        HelixEditor.getInstance().closeCurrentMapRegion();
+        HelixEditor.getInstance().loadAreaAction(file.nameWithoutExtension());
+
+        HelixEditor.getInstance().closeCurrentAreaAction();
       }
     });
 
     stage.addActor(regionFileChooser.fadeIn());
+  }
+
+  public void setSidebarVisibility(boolean visible) {
+    sidebar.setVisible(visible);
   }
 
   public Stage getStage() {

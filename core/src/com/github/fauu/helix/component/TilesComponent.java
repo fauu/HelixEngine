@@ -11,18 +11,26 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.shader;
+package com.github.fauu.helix.component;
 
-import com.badlogic.gdx.graphics.g3d.Renderable;
-import com.badlogic.gdx.graphics.g3d.Shader;
-import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
-import com.badlogic.gdx.graphics.g3d.utils.BaseShaderProvider;
+import com.artemis.Component;
+import com.badlogic.gdx.utils.Array;
+import com.github.fauu.helix.datum.Tile;
 
-public class GeneralShaderProvider extends BaseShaderProvider {
+public class TilesComponent extends Component {
   
-  @Override
-  protected Shader createShader(Renderable renderable) {
-    return new DefaultShader(renderable);
+  private Array<Tile> tiles;
+
+  public TilesComponent(Array<Tile> tiles) {
+    set(tiles);
+  }
+  
+  public Array<Tile> get() {
+    return this.tiles;
+  }
+  
+  public void set(Array<Tile> tiles) {
+    this.tiles = tiles;
   }
 
 }

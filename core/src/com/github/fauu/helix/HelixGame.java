@@ -14,7 +14,7 @@
 package com.github.fauu.helix;
 
 import com.badlogic.gdx.Game;
-import com.github.fauu.helix.screen.MainScreen;
+import com.github.fauu.helix.screen.Overworld;
 
 public class HelixGame extends Game {
 
@@ -24,7 +24,7 @@ public class HelixGame extends Game {
   public void create () {
     instance = this;
 
-    setScreen(new MainScreen());
+    setScreen(new Overworld());
   }
 
   public static HelixGame getInstance() {

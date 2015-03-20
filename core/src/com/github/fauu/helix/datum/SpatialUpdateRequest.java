@@ -21,11 +21,9 @@ public class SpatialUpdateRequest {
   
   private Object value;
   
-  public SpatialUpdateRequest() { }
-  
   public SpatialUpdateRequest(Spatial.UpdateType type, Object value) {
-    this.type = type;
-    this.value = value;
+    setType(type);
+    setValue(value);
   }
 
   public Spatial.UpdateType getType() {

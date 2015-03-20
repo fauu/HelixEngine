@@ -1,16 +1,3 @@
-/*
- * Copyright (C) 2014, 2015 Helix Engine Developers
- * (http://github.com/fauu/HelixEngine)
- *
- * This software is licensed under the GNU General Public License
- * (version 3 or later). See the COPYING file in this distribution.
- *
- * You should have received a copy of the GNU Library General Public License
- * along with this software. If not, see <http://www.gnu.org/licenses/>.
- *
- * Authored by: Piotr Grabowski <fau999@gmail.com>
- */
-
 package com.github.fauu.helix.postprocessing;
 
 import com.badlogic.gdx.Gdx;
@@ -65,11 +52,11 @@ public class Bloom {
   private float treshold;
   private int w;
   private int h;
-  private boolean blending = false;
+  private boolean blending = true;
   private boolean capturing = false;
-  private float r = 0f;
-  private float g = 0f;
-  private float b = 0f;
+  private float r = 0.53f;
+  private float g = 0.8f;
+  private float b = 0.92f;
   private float a = 1f;
   private boolean disposeFBO = true;
 
@@ -101,7 +88,7 @@ public class Bloom {
    */
   public Bloom() {
     initialize(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 4,
-        null, true, false, true);
+        null, true, true, true);
   }
 
   /**
@@ -151,7 +138,7 @@ public class Bloom {
   public Bloom(int FBO_W, int FBO_H, FrameBuffer sceneIsCapturedHere,
       boolean useBlending, boolean use32bitFBO) {
 
-    initialize(FBO_W, FBO_H, sceneIsCapturedHere, false, useBlending,
+    initialize(FBO_W, FBO_H, sceneIsCapturedHere, true, useBlending,
         use32bitFBO);
     disposeFBO = false;
   }
@@ -244,6 +231,8 @@ public class Bloom {
       frameBuffer.begin();
       Gdx.gl.glClearColor(r, g, b, a);
       Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+      Gdx.gl.glEnable(GL20.GL_BLEND);
+      Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
     }
   }
@@ -277,7 +266,7 @@ public class Bloom {
 
     Gdx.gl.glDisable(GL20.GL_BLEND);
     Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
-    Gdx.gl.glDepthMask(false);
+//    Gdx.gl.glDepthMask(false);
 
     gaussianBlur();
 

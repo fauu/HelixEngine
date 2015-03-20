@@ -11,8 +11,9 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.editor.screen;
+package com.github.fauu.helix.screen;
 
+import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.managers.GroupManager;
@@ -22,16 +23,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.github.fauu.helix.editor.manager.SpatialIntermediary;
-import com.github.fauu.helix.editor.system.CameraControlSystem;
-import com.github.fauu.helix.editor.system.TileHighlightingSystem;
-import com.github.fauu.helix.editor.system.TilePermissionsEditingSystem;
+import com.github.fauu.helix.Direction;
+import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.manager.TextureManager;
+import com.github.fauu.helix.spatial.PlayerSpatial;
+import com.github.fauu.helix.system.PlayerMovementSystem;
 import com.github.fauu.helix.system.RenderingSystem;
 import com.github.fauu.helix.system.SpatialUpdateSystem;
+import com.github.fauu.helix.util.IntVector3;
 
-public class MainScreen implements Screen {
+public class Overworld implements Screen {
 
   private World world;
 
@@ -39,41 +41,57 @@ public class MainScreen implements Screen {
 
   private AssetManager assetManager;
 
-  private SpatialIntermediary spatialIntermediary;
-
-  public MainScreen() {
+  public Overworld() {
     assetManager = new AssetManager();
 
-    camera = new PerspectiveCamera(40,
-                                   Gdx.graphics.getWidth(), 
-                                   Gdx.graphics.getHeight());
+    camera = new PerspectiveCamera(30, Gdx.graphics.getWidth(),
+                                          Gdx.graphics.getHeight());
 
     camera.near = 0.1f;
     camera.far = 300f;
-    camera.translate(0, -30, 30);
+    camera.translate(0, -14, 17);
     camera.lookAt(0, 0, 0);
 
+    camera.translate(13 + 0.5f, 20 + 0.6f, 0);
+    
     WorldConfiguration worldConfiguration 
         = new WorldConfiguration().register(assetManager)
                                   .register(camera);
+
     world = new World(worldConfiguration);
 
-    world.setManager(new UuidEntityManager());
-    world.setManager(new TextureManager());
-    world.setManager(new TagManager());
-    world.setManager(new GroupManager());
-    world.setManager(new AreaManager());
-    world.setManager(spatialIntermediary = new SpatialIntermediary());
-
-    world.setSystem(new CameraControlSystem());
-    world.setSystem(new TileHighlightingSystem());
-    world.setSystem(new TilePermissionsEditingSystem());
+    world.setSystem(new PlayerMovementSystem());
     world.setSystem(new SpatialUpdateSystem());
     world.setSystem(new RenderingSystem());
 
-    world.initialize();
+    world.setManager(new UuidEntityManager());
+    world.setManager(new TextureManager());
+    world.setManager(new GroupManager());
+    world.setManager(new TagManager());
+    world.setManager(new AreaManager());
 
+    IntVector3 playerPosition = new IntVector3(13, 20, 0);
+    Direction playerOrientation = Direction.SOUTH;
+    float playerMovementSpeed = 4.5f;
+
+    world.initialize();
+    
     world.getManager(AreaManager.class).load("area1");
+
+    Entity player
+        = world.createEntity()
+        .edit()
+        .add(new OrientationComponent(playerOrientation))
+        .add(new MovementSpeedComponent(playerMovementSpeed))
+        .add(new PositionComponent(playerPosition))
+        .add(new SpatialFormComponent(
+            new PlayerSpatial(playerPosition,
+                              playerOrientation,
+                              playerMovementSpeed)))
+        .add(new VisibilityComponent())
+        .getEntity();
+    world.getManager(TagManager.class).register("player", player);
+
   }
 
   @Override
@@ -99,20 +117,7 @@ public class MainScreen implements Screen {
 
   @Override
   public void dispose() {
-    world.dispose();
     assetManager.dispose();
-  }
-  
-  public World getWorld() {
-    return world;
-  }
-  
-  public AssetManager getAssetManager() {
-    return assetManager;
-  }
-
-  public SpatialIntermediary getSpatialIntermediary() {
-    return spatialIntermediary;
   }
 
 }

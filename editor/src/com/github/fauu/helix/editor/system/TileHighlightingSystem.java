@@ -104,8 +104,8 @@ public class TileHighlightingSystem extends EntityProcessingSystem {
               .requestUpdate(
                   new SpatialUpdateRequest(Spatial.UpdateType.POSITION,
                                            new Vector3(position.x,
-                                               position.y,
-                                               0)));
+                                                       position.y,
+                                                       0)));
 
           highlight.edit().create(VisibilityComponent.class);
         }
@@ -121,7 +121,7 @@ public class TileHighlightingSystem extends EntityProcessingSystem {
     if (!hovering) {
       highlightedTile = null;
 
-      highlight.edit().remove(VisibilityComponent.class);
+//      highlight.edit().remove(VisibilityComponent.class);
     }
   }
 

@@ -13,15 +13,17 @@
 
 package com.github.fauu.helix.spatial;
 
-import com.badlogic.gdx.graphics.g3d.RenderableProvider;
-
-public abstract class Spatial implements RenderableProvider {
+public abstract class Spatial {
 
   public abstract void update(UpdateType type, Object value);
   
   public enum UpdateType {
     OPACITY,
     POSITION,
+    ORIENTATION,
+    PLAY_ANIMATION,
+    STOP_ANIMATION,
+    IDLE,
     TILES_PARTIAL
   }
 

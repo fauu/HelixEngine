@@ -29,24 +29,35 @@ public class HEMenuBar extends MenuBar {
 
     Menu fileMenu = new Menu("File");
 
-    MenuItem newMapRegionMenuItem = new MenuItem("New Map Region...",
+    MenuItem openMapRegionMenuItem = new MenuItem("Open Area...",
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-          }
-        });
-    newMapRegionMenuItem.setShortcut(Input.Keys.CONTROL_LEFT, Input.Keys.N);
-    fileMenu.addItem(newMapRegionMenuItem);
-
-    MenuItem openMapRegionMenuItem = new MenuItem("Open Map Region...",
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            HelixEditor.getInstance().openMapRegionAction();
+            HelixEditor.getInstance().openAreaAction();
           }
         });
     openMapRegionMenuItem.setShortcut(Input.Keys.CONTROL_LEFT, Input.Keys.O);
     fileMenu.addItem(openMapRegionMenuItem);
+
+    MenuItem saveAreaMenuItem = new MenuItem("Save Area",
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            HelixEditor.getInstance().saveAreaAction();
+          }
+        });
+    saveAreaMenuItem.setShortcut(Input.Keys.CONTROL_LEFT, Input.Keys.S);
+    fileMenu.addItem(saveAreaMenuItem);
+
+    MenuItem closeAreaMenuItem = new MenuItem("Close Area",
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            HelixEditor.getInstance().closeCurrentAreaAction();
+          }
+        });
+    closeAreaMenuItem.setShortcut(Input.Keys.CONTROL_LEFT, Input.Keys.W);
+    fileMenu.addItem(closeAreaMenuItem);
 
     fileMenu.addSeparator();
 

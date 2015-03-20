@@ -30,7 +30,7 @@ import com.github.fauu.helix.spatial.Spatial;
 
 public class TileHighlightSpatial extends Spatial {
 
-  private static final float Z_OFFSET = -0.001f;
+  private static final float Z_OFFSET = -0.01f;
 
   private static final Color color = new Color(1, 1, 1, 0.75f);
 
