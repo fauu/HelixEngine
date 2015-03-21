@@ -25,7 +25,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.Direction;
 import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.datum.Tile;
+import com.github.fauu.helix.graphics.AnimationType;
 import com.github.fauu.helix.spatial.Spatial;
+import com.github.fauu.helix.spatial.update.dto.AnimationUpdateDTO;
 import com.github.fauu.helix.util.IntVector2;
 import com.github.fauu.helix.util.IntVector3;
 
@@ -59,11 +61,15 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
   private static final HashMap<Direction, Integer> DIRECTION_KEYS;
 
+  private static final AnimationType[] WALK_ANIMATION_CYCLE;
+
   private boolean moving;
 
   private float movementStartDelayCounter;
 
   private float movementProgressCounter;
+
+  private int walkAnimationCycleCounter;
 
   static {
     MOVEMENT_START_DELAY = 0.1f;
@@ -73,8 +79,13 @@ public class PlayerMovementSystem extends VoidEntitySystem {
     DIRECTION_KEYS.put(Direction.EAST, Input.Keys.D);
     DIRECTION_KEYS.put(Direction.SOUTH, Input.Keys.S);
     DIRECTION_KEYS.put(Direction.WEST, Input.Keys.A);
+
+    WALK_ANIMATION_CYCLE = new AnimationType[2];
+    WALK_ANIMATION_CYCLE[0] = AnimationType.STEP_RIGHT_LEG;
+    WALK_ANIMATION_CYCLE[1] = AnimationType.STEP_LEFT_LEG;
   }
 
+  // FIXME: Obstacles aren't accounted for properly
   @Override
   protected void processSystem() {
     Entity player = tagManager.getEntity("player");
@@ -121,13 +132,19 @@ public class PlayerMovementSystem extends VoidEntitySystem {
             moving = true;
             movementStartDelayCounter = 0;
 
-            spatial.update(Spatial.UpdateType.PLAY_ANIMATION, orientation);
+            spatial.update(Spatial.UpdateType.ANIMATION,
+                new AnimationUpdateDTO(
+                    WALK_ANIMATION_CYCLE[walkAnimationCycleCounter++],
+                    requestedMovementDirection,
+                    movementDuration));
+
+            walkAnimationCycleCounter %= 2;
 
             positionMapper.get(player)
                           .set(new IntVector3(targetPosition.x,
                                               targetPosition.y,
                                               targetTile.getPermissions()
-                                                      .getElevation()));
+                                                        .getElevation()));
           }
         } // end "if movementStartDelayCounter >= MOVEMENT_START_DELAY"
       } // end "if requestedMovementDirection != null"
@@ -140,7 +157,10 @@ public class PlayerMovementSystem extends VoidEntitySystem {
         moving = false;
         movementProgressCounter = 0;
 
-        spatial.update(Spatial.UpdateType.IDLE, orientation);
+        spatial.update(Spatial.UpdateType.ANIMATION,
+            new AnimationUpdateDTO(AnimationType.IDLE,
+                                   movementDirection,
+                                   movementDuration));
       } else {
         float delta = Gdx.graphics.getDeltaTime();
 

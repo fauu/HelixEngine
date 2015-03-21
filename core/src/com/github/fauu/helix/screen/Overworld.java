@@ -27,7 +27,7 @@ import com.github.fauu.helix.Direction;
 import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.manager.TextureManager;
-import com.github.fauu.helix.spatial.PlayerSpatial;
+import com.github.fauu.helix.spatial.CharacterSpatial;
 import com.github.fauu.helix.system.PlayerMovementSystem;
 import com.github.fauu.helix.system.RenderingSystem;
 import com.github.fauu.helix.system.SpatialUpdateSystem;
@@ -85,9 +85,7 @@ public class Overworld implements Screen {
         .add(new MovementSpeedComponent(playerMovementSpeed))
         .add(new PositionComponent(playerPosition))
         .add(new SpatialFormComponent(
-            new PlayerSpatial(playerPosition,
-                              playerOrientation,
-                              playerMovementSpeed)))
+            new CharacterSpatial(playerPosition, "player")))
         .add(new VisibilityComponent())
         .getEntity();
     world.getManager(TagManager.class).register("player", player);

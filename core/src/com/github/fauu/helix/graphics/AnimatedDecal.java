@@ -12,8 +12,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. */
 
-/* Modifications: Quick and dirty appropriation for use with Java 1.6;
-                  animation parameter deleted, initialFrame parameter added in newAnimatedDecal() method - Helix Engine Developers */
+/* Modifications: Quick and dirty appropriation for use with Java 1.6 - Helix Engine Developers */
 
 package com.github.fauu.helix.graphics;
 
@@ -108,29 +107,29 @@ public class AnimatedDecal extends Decal implements ManagedAnimation {
 	}
 
 	/** @see Decal#newDecal(TextureRegion) */
-	public static AnimatedDecal newAnimatedDecal(TextureRegion initialFrame) {
-		return newAnimatedDecal(initialFrame.getRegionWidth(), initialFrame.getRegionHeight(), initialFrame, DecalMaterial.NO_BLEND, DecalMaterial.NO_BLEND);
+	public static AnimatedDecal newAnimatedDecal(Animation animation) {
+		return newAnimatedDecal(animation.getKeyFrame(0).getRegionWidth(), animation.getKeyFrame(0).getRegionHeight(), animation, DecalMaterial.NO_BLEND, DecalMaterial.NO_BLEND);
 	}
 
 	/** @see Decal#newDecal(TextureRegion, boolean) */
-	public static AnimatedDecal newDecal(TextureRegion initialFrame, boolean hasTransparency) {
-		return newAnimatedDecal(initialFrame.getRegionWidth(), initialFrame.getRegionHeight(), initialFrame, hasTransparency ? GL20.GL_SRC_ALPHA : DecalMaterial.NO_BLEND, hasTransparency ? GL20.GL_ONE_MINUS_SRC_ALPHA : DecalMaterial.NO_BLEND);
+	public static AnimatedDecal newDecal(Animation animation, boolean hasTransparency) {
+		return newAnimatedDecal(animation.getKeyFrame(0).getRegionWidth(), animation.getKeyFrame(0).getRegionHeight(), animation, hasTransparency ? GL20.GL_SRC_ALPHA : DecalMaterial.NO_BLEND, hasTransparency ? GL20.GL_ONE_MINUS_SRC_ALPHA : DecalMaterial.NO_BLEND);
 	}
 
 	/** @see Decal#newDecal(float, float, TextureRegion) */
-	public static AnimatedDecal newAnimatedDecal(float width, float height, TextureRegion initialFrame) {
-		return newAnimatedDecal(width, height, initialFrame, DecalMaterial.NO_BLEND, DecalMaterial.NO_BLEND);
+	public static AnimatedDecal newAnimatedDecal(float width, float height, Animation animation) {
+		return newAnimatedDecal(width, height, animation, DecalMaterial.NO_BLEND, DecalMaterial.NO_BLEND);
 	}
 
 	/** @see Decal#newDecal(float, float, TextureRegion, boolean) */
-	public static AnimatedDecal newAnimatedDecal(float width, float height, TextureRegion initialFrame, boolean hasTransparency) {
-		return newAnimatedDecal(width, height, initialFrame, hasTransparency ? GL20.GL_SRC_ALPHA : DecalMaterial.NO_BLEND, hasTransparency ? GL20.GL_ONE_MINUS_SRC_ALPHA : DecalMaterial.NO_BLEND);
+	public static AnimatedDecal newAnimatedDecal(float width, float height, Animation animation, boolean hasTransparency) {
+		return newAnimatedDecal(width, height, animation, hasTransparency ? GL20.GL_SRC_ALPHA : DecalMaterial.NO_BLEND, hasTransparency ? GL20.GL_ONE_MINUS_SRC_ALPHA : DecalMaterial.NO_BLEND);
 	}
 
 	/** @see Decal#newDecal(float, float, TextureRegion, int, int) */
-	public static AnimatedDecal newAnimatedDecal(float width, float height, TextureRegion initialFrame, int srcBlendFactor, int dstBlendFactor) {
+	public static AnimatedDecal newAnimatedDecal(float width, float height, Animation animation, int srcBlendFactor, int dstBlendFactor) {
 		AnimatedDecal decal = new AnimatedDecal();
-		decal.setTextureRegion(initialFrame);
+		decal.setTextureRegion(animation.getKeyFrame(0));
 		decal.setBlending(srcBlendFactor, dstBlendFactor);
 		decal.dimensions.x = width;
 		decal.dimensions.y = height;
