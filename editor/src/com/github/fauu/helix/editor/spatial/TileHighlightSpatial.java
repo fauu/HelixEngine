@@ -26,9 +26,9 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
-import com.github.fauu.helix.spatial.Spatial;
+import com.github.fauu.helix.spatial.ModelSpatial;
 
-public class TileHighlightSpatial extends Spatial {
+public class TileHighlightSpatial extends ModelSpatial {
 
   private static final float Z_OFFSET = -0.01f;
 

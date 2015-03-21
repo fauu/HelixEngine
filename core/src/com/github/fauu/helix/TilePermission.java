@@ -19,38 +19,45 @@ import java.util.NoSuchElementException;
 
 public enum TilePermission {
 
-  OBSTACLE("Obstacle"),
-  LEVEL0("Level 0"),
-  LEVEL1("Level 1"),
-  LEVEL2("Level 2"),
-  LEVEL3("Level 3"),
-  LEVEL4("Level 4"),
-  LEVEL5("Level 5"),
-  LEVEL6("Level 6"),
-  LEVEL7("Level 7");
+  OBSTACLE("Obstacle", -1),
+  LEVEL0("Level 0", 0),
+  LEVEL1("Level 1", 1),
+  LEVEL2("Level 2", 2),
+  LEVEL3("Level 3", 3),
+  LEVEL4("Level 4", 4),
+  LEVEL5("Level 5", 5),
+  LEVEL6("Level 6", 6),
+  LEVEL7("Level 7", 7);
 
-  private final String name;
+  private String name;
 
-  private static final Map<String, TilePermission> map
+  private int elevation;
+
+  private static final Map<String, TilePermission> nameToValue
       = new HashMap<String, TilePermission>();
 
   static {
     for (TilePermission permission : TilePermission.values()) {
-      map.put(permission.name, permission);
+      nameToValue.put(permission.name, permission);
     }
   }
 
-  private TilePermission(String name) {
+  private TilePermission(String name, int elevation) {
     this.name = name;
+    this.elevation = elevation;
   }
 
   public String getName() {
     return name;
   }
 
+  public int getElevation() {
+    return elevation;
+  }
+
   public static TilePermission fromString(String name) {
-    if (map.containsKey(name)) {
-      return map.get(name);
+    if (nameToValue.containsKey(name)) {
+      return nameToValue.get(name);
     }
 
     throw new NoSuchElementException(name + " not found");

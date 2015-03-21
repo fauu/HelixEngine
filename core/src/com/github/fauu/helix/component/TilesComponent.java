@@ -14,22 +14,21 @@
 package com.github.fauu.helix.component;
 
 import com.artemis.Component;
-import com.badlogic.gdx.utils.Array;
 import com.github.fauu.helix.datum.Tile;
 
 public class TilesComponent extends Component {
   
-  private Array<Tile> tiles;
+  private Tile[][] tiles;
 
-  public TilesComponent(Array<Tile> tiles) {
+  public TilesComponent(Tile[][] tiles) {
     set(tiles);
   }
   
-  public Array<Tile> get() {
+  public Tile[][] get() {
     return this.tiles;
   }
   
-  public void set(Array<Tile> tiles) {
+  public void set(Tile[][] tiles) {
     this.tiles = tiles;
   }
 

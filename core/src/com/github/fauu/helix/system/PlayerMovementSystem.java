@@ -23,17 +23,19 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.Direction;
-import com.github.fauu.helix.component.MovementSpeedComponent;
-import com.github.fauu.helix.component.OrientationComponent;
-import com.github.fauu.helix.component.PositionComponent;
-import com.github.fauu.helix.component.SpatialFormComponent;
+import com.github.fauu.helix.component.*;
+import com.github.fauu.helix.datum.Tile;
 import com.github.fauu.helix.spatial.Spatial;
+import com.github.fauu.helix.util.IntVector2;
 import com.github.fauu.helix.util.IntVector3;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class PlayerMovementSystem extends VoidEntitySystem {
 
   @Wire
-  private PerspectiveCamera camera;
+  private TagManager tagManager;
 
   @Wire
   private ComponentMapper<MovementSpeedComponent> movementSpeedMapper;
@@ -47,115 +49,129 @@ public class PlayerMovementSystem extends VoidEntitySystem {
   @Wire
   private ComponentMapper<SpatialFormComponent> spatialFormMapper;
 
-  private Entity player;
+  @Wire
+  private ComponentMapper<TilesComponent> tilesMapper;
 
-  private boolean moving;
+  @Wire
+  private PerspectiveCamera camera;
 
   private static final float MOVEMENT_START_DELAY;
 
+  private static final HashMap<Direction, Integer> DIRECTION_KEYS;
+
+  private boolean moving;
+
   private float movementStartDelayCounter;
 
-  private float walkCounter;
+  private float movementProgressCounter;
 
   static {
     MOVEMENT_START_DELAY = 0.1f;
+
+    DIRECTION_KEYS = new HashMap<Direction, Integer>();
+    DIRECTION_KEYS.put(Direction.NORTH, Input.Keys.W);
+    DIRECTION_KEYS.put(Direction.EAST, Input.Keys.D);
+    DIRECTION_KEYS.put(Direction.SOUTH, Input.Keys.S);
+    DIRECTION_KEYS.put(Direction.WEST, Input.Keys.A);
   }
 
-  // TODO: Refactor this a bit
   @Override
   protected void processSystem() {
-    if (player == null) {
-      player = world.getManager(TagManager.class).getEntity("player");
-    }
-
-    float movementSpeed =  movementSpeedMapper.get(player).get();
-
-    float movementDuration = 1 / movementSpeed;
+    Entity player = tagManager.getEntity("player");
 
     Direction orientation = orientationMapper.get(player).get();
 
     Spatial spatial = spatialFormMapper.get(player).get();
 
-    Direction requestedDirection = null;
+    float movementSpeed =  movementSpeedMapper.get(player).get();
 
-    if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-      requestedDirection = Direction.NORTH;
-    } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-      requestedDirection = Direction.WEST;
-    } else if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-      requestedDirection = Direction.SOUTH;
-    } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-      requestedDirection = Direction.EAST;
+    float movementDuration = 1 / movementSpeed;
+
+    Direction requestedMovementDirection = null;
+
+    for (Map.Entry<Direction, Integer> dk : DIRECTION_KEYS.entrySet()) {
+      if (Gdx.input.isKeyPressed(dk.getValue())) {
+        requestedMovementDirection = dk.getKey();
+        break;
+      }
     }
 
     if (!moving) {
-      if (requestedDirection == null) {
+      if (requestedMovementDirection == null) {
         movementStartDelayCounter = 0;
       } else {
         if (movementStartDelayCounter == 0) {
-          spatial.update(Spatial.UpdateType.ORIENTATION, requestedDirection);
-
-          orientationMapper.get(player).set(requestedDirection);
+          orientationMapper.get(player).set(requestedMovementDirection);
+          spatial.update(Spatial.UpdateType.ORIENTATION,
+                         requestedMovementDirection);
         }
 
         movementStartDelayCounter += Gdx.graphics.getDeltaTime();
 
         if (movementStartDelayCounter >= MOVEMENT_START_DELAY) {
-          moving = true;
-          movementStartDelayCounter = 0;
-        }
-      }
-    }
+          IntVector3 position = positionMapper.get(player).get();
+          IntVector2 targetPosition
+              = position.toIntVector2()
+                        .add(requestedMovementDirection.getVector());
+
+          Tile[][] tiles = tilesMapper.get(tagManager.getEntity("area")).get();
+          Tile currentTile = tiles[position.x][position.y];
+          Tile targetTile = tiles[targetPosition.x][targetPosition.y];
+          if (targetTile.getPermissions() == currentTile.getPermissions()) {
+            moving = true;
+            movementStartDelayCounter = 0;
+
+            spatial.update(Spatial.UpdateType.PLAY_ANIMATION, orientation);
+
+            positionMapper.get(player)
+                          .set(new IntVector3(targetPosition.x,
+                                              targetPosition.y,
+                                              targetTile.getPermissions()
+                                                      .getElevation()));
+          }
+        } // end "if movementStartDelayCounter >= MOVEMENT_START_DELAY"
+      } // end "if requestedMovementDirection != null"
+    } // end "if !moving"
 
     if (moving) {
-      if (walkCounter < movementDuration) {
-        if (walkCounter == 0) {
-          spatial.update(Spatial.UpdateType.PLAY_ANIMATION, orientation);
+      Direction movementDirection = orientation;
+
+      if (movementProgressCounter >= movementDuration) {
+        moving = false;
+        movementProgressCounter = 0;
+
+        spatial.update(Spatial.UpdateType.IDLE, orientation);
+      } else {
+        float delta = Gdx.graphics.getDeltaTime();
+
+        if (movementProgressCounter + delta > movementDuration) {
+          delta = movementDuration - movementProgressCounter;
         }
 
-        walkCounter += Gdx.graphics.getDeltaTime();
+        movementProgressCounter += Gdx.graphics.getDeltaTime();
 
-        IntVector3 positionDeltaCoefficients;
+        IntVector2 movementDirectionVector = movementDirection.getVector();
 
-        switch (orientation) {
-          case NORTH:
-            positionDeltaCoefficients = new IntVector3(0, 1, 0);
-            break;
-          case WEST:
-            positionDeltaCoefficients = new IntVector3(-1, 0, 0);
-            break;
-          case SOUTH:
-            positionDeltaCoefficients = new IntVector3(0, -1, 0);
-            break;
-          case EAST:
-            positionDeltaCoefficients = new IntVector3(1, 0, 0);
-            break;
-          default: throw new IllegalStateException();
-        }
-
-        Vector3 translation
-            = positionDeltaCoefficients.toVector3()
-                                       .scl(Gdx.graphics.getDeltaTime() *
-                                            movementSpeed);
+        Vector3 translation = new Vector3(movementDirectionVector.x,
+                                          movementDirectionVector.y,
+                                          0);
+        translation.scl(delta * movementSpeed);
 
         spatial.update(Spatial.UpdateType.POSITION, translation);
 
         camera.translate(translation);
 
-        if (walkCounter >= movementDuration && requestedDirection != null) {
+        if (movementProgressCounter >= movementDuration &&
+            requestedMovementDirection != null) {
           movementStartDelayCounter = MOVEMENT_START_DELAY;
 
-          spatial.update(Spatial.UpdateType.ORIENTATION, requestedDirection);
+          spatial.update(Spatial.UpdateType.ORIENTATION,
+                         requestedMovementDirection);
 
-          orientationMapper.get(player).set(requestedDirection);
+          orientationMapper.get(player).set(requestedMovementDirection);
         }
-      } else {
-        moving = false;
-        walkCounter = 0;
-
-        spatial.update(Spatial.UpdateType.IDLE, orientation);
-      }
-    }
+      } // end "if movementProgressCounter < movementDuration"
+    } // end "if moving"
   }
 
 }

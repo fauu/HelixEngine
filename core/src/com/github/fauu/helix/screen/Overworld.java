@@ -52,7 +52,7 @@ public class Overworld implements Screen {
     camera.translate(0, -14, 17);
     camera.lookAt(0, 0, 0);
 
-    camera.translate(13 + 0.5f, 20 + 0.6f, 0);
+    camera.translate(16 + 0.5f, 16 + 0.6f, 0);
     
     WorldConfiguration worldConfiguration 
         = new WorldConfiguration().register(assetManager)
@@ -70,7 +70,7 @@ public class Overworld implements Screen {
     world.setManager(new TagManager());
     world.setManager(new AreaManager());
 
-    IntVector3 playerPosition = new IntVector3(13, 20, 0);
+    IntVector3 playerPosition = new IntVector3(16, 16, 0);
     Direction playerOrientation = Direction.SOUTH;
     float playerMovementSpeed = 4.5f;
 

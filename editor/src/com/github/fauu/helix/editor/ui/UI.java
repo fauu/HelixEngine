@@ -65,8 +65,6 @@ public class UI {
       @Override
       public void selected(FileHandle file) {
         HelixEditor.getInstance().loadAreaAction(file.nameWithoutExtension());
-
-        HelixEditor.getInstance().closeCurrentAreaAction();
       }
     });
 

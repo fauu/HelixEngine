@@ -22,7 +22,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.github.fauu.helix.component.DimensionsComponent;
@@ -63,16 +62,14 @@ public class AreaManager extends Manager {
 
     AreaWrapper areaWrapper = json.fromJson(AreaWrapper.class, file);
 
-    Array<Tile> tiles = new Array<Tile>();
+    Tile[][] tiles = new Tile[areaWrapper.width][areaWrapper.length];
     int i = 0;
     for (TileWrapper wrapper : areaWrapper.tiles) {
       Tile tile = new Tile();
 
-      tile.setIndex(i);
-
       tile.setPermissions(wrapper.permissions);
 
-      tiles.add(tile);
+      tiles[i % areaWrapper.width][i / areaWrapper.width] = tile;
 
       i++;
     }
@@ -101,8 +98,6 @@ public class AreaManager extends Manager {
   public void save() {
     Json json = new Json();
 
-    Entity area = world.getManager(TagManager.class).getEntity("area");
-
     IntVector2 dimensions = dimensionsMapper.get(area).get();
 
     FileHandle file = Gdx.files.internal("area/area1.json");
@@ -117,10 +112,13 @@ public class AreaManager extends Manager {
     json.writeValue("width", dimensions.x);
     json.writeValue("length", dimensions.y);
     json.writeArrayStart("tiles");
-    for (Tile tile : tilesMapper.get(area).get()) {
-      json.writeObjectStart();
-      json.writeValue("permissions", tile.getPermissions().toString());
-      json.writeObjectEnd();
+    Tile[][] tiles = tilesMapper.get(area).get();
+    for (int y = 0; y < dimensions.y; y++) {
+      for (int x = 0; x < dimensions.x; x++) {
+        json.writeObjectStart();
+        json.writeValue("permissions", tiles[x][y].getPermissions().toString());
+        json.writeObjectEnd();
+      }
     }
     json.writeArrayEnd();
     json.writeObjectEnd();

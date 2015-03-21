@@ -26,15 +26,29 @@ public class IntVector3 {
   public IntVector3() { }
 
   public IntVector3(int x, int y, int z) {
+    set(x, y, z);
+  }
+
+  public void set(int x, int y, int z) {
     this.x = x;
     this.y = y;
     this.z = z;
   }
 
   public void set(IntVector3 source) {
-    x = source.x;
-    y = source.y;
-    z = source.z;
+    set(source.x, source.y, source.z);
+  }
+
+  public IntVector3 add(IntVector2 other) {
+    set(x + other.x, y + other.y, z);
+
+    return this;
+  }
+
+  public IntVector3 add(IntVector3 other) {
+    set(x + other.x, y + other.y, z + other.z);
+
+    return this;
   }
 
   public IntVector3 cpy() {
@@ -43,6 +57,10 @@ public class IntVector3 {
 
   public Vector3 toVector3() {
     return new Vector3(x, y, z);
+  }
+
+  public IntVector2 toIntVector2() {
+    return new IntVector2(x, y);
   }
 
 }

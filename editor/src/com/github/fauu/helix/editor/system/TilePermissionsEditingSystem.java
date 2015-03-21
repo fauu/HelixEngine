@@ -23,7 +23,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.utils.Array;
 import com.github.fauu.helix.TilePermission;
 import com.github.fauu.helix.component.DimensionsComponent;
 import com.github.fauu.helix.component.SpatialFormComponent;
@@ -36,6 +35,8 @@ import com.github.fauu.helix.editor.event.TilePermissionListStateChangedEvent;
 import com.github.fauu.helix.editor.spatial.TilePermissionsGridSpatial;
 import com.github.fauu.helix.spatial.Spatial;
 import com.google.common.eventbus.Subscribe;
+
+import java.util.HashMap;
 
 public class TilePermissionsEditingSystem extends EntityProcessingSystem {
 
@@ -95,7 +96,6 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
         .add(new SpatialFormComponent(
             new TilePermissionsGridSpatial(
                 tilesMapper.get(area).get(),
-                dimensionsMapper.get(area).get(),
                 assetManager.get(atlasPath, TextureAtlas.class))))
         .add(new VisibilityComponent());
   }
@@ -119,27 +119,33 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
         Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
       Entity area = world.getManager(TagManager.class).getEntity("area");
 
-      Array<Tile> tiles = tilesMapper.get(area).get();
+      Tile[][] tiles = tilesMapper.get(area).get();
 
-      for (Tile tile : tiles) {
-        if (tile == highlightedTile) {
-          tile.setPermissions(selectedTilePermission);
+      for (int y = 0; y < tiles.length; y++) {
+        for (int x = 0; x < tiles[y].length; x++) {
+          Tile tile = tiles[x][y];
 
-          Array<Tile> updatedTiles = new Array<>();
-          updatedTiles.add(tile);
+          if (tile == highlightedTile) {
+            tile.setPermissions(selectedTilePermission);
 
-          Entity grid = world.getManager(TagManager.class)
-                             .getEntity("tilePermissionsGrid");
+            HashMap<Integer, Tile> updatedTilesWithIndex = new HashMap<>();
+            updatedTilesWithIndex.put(x + y * tiles.length, tile);
 
-          spatialFormMapper
-              .get(grid)
-              .requestUpdate(
-                  new SpatialUpdateRequest(Spatial.UpdateType.TILES_PARTIAL,
-                      updatedTiles));
+            Entity grid = world.getManager(TagManager.class)
+                               .getEntity("tilePermissionsGrid");
 
-          lastUpdatedTile = tile;
+            spatialFormMapper
+                .get(grid)
+                .requestUpdate(
+                    new SpatialUpdateRequest(Spatial.UpdateType.TILES_PARTIAL,
+                                             updatedTilesWithIndex));
 
-          break;
+            Gdx.app.debug("", "updated " + x + "" + y);
+
+            lastUpdatedTile = tile;
+
+            break;
+          }
         }
       }
     }

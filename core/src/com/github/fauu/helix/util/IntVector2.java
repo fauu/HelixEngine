@@ -13,6 +13,8 @@
 
 package com.github.fauu.helix.util;
 
+import com.badlogic.gdx.math.Vector2;
+
 public class IntVector2 {
 
   public int x;
@@ -22,17 +24,30 @@ public class IntVector2 {
   public IntVector2() { }
 
   public IntVector2(int x, int y) {
+    set(x, y);
+  }
+
+  public void set(int x, int y) {
     this.x = x;
     this.y = y;
   }
 
   public void set(IntVector2 source) {
-    x = source.x;
-    y = source.y;
+    set(x, y);
+  }
+
+  public IntVector2 add(IntVector2 other) {
+    set(x + other.x, y + other.y);
+
+    return this;
   }
 
   public IntVector2 cpy() {
     return new IntVector2(x, y);
+  }
+
+  public Vector2 toVector2() {
+    return new Vector2(x, y);
   }
 
 }

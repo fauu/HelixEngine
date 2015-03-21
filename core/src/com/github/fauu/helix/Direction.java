@@ -13,23 +13,25 @@
 
 package com.github.fauu.helix;
 
+import com.github.fauu.helix.util.IntVector2;
+
 public enum Direction {
 
-  SOUTH(0), SOUTHEAST(0),
-  EAST(90), NORTHEAST(90),
-  NORTH(180), NORTHWEST(180),
-  WEST(270), SOUTHWEST(270);
+  SOUTH(new IntVector2(0, -1)), SOUTHEAST(null),
+  EAST(new IntVector2(1, 0)), NORTHEAST(null),
+  NORTH(new IntVector2(0, 1)), NORTHWEST(null),
+  WEST(new IntVector2(-1, 0)), SOUTHWEST(null);
 
-  private int angle;
+  private IntVector2 vector;
 
-  private Direction(final int angle) {
-    this.angle = angle;
+  private Direction(IntVector2 vector) {
+    this.vector = vector;
   }
 
-  public int getAngle() {
-    return angle;
+  public IntVector2 getVector() {
+    return vector;
   }
-  
+
   @Override
   public String toString() {
     switch (this) {

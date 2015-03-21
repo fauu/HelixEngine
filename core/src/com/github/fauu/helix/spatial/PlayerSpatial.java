@@ -80,10 +80,10 @@ public class PlayerSpatial extends DecalSpatial {
                                          idleFrames.get(orientation),
                                          true);
 
-    decal.rotateX(45);
     decal.setKeepSize(true);
     decal.setPosition(position.toVector3());
     decal.getPosition().add(DEFAULT_DISPLACEMENT);
+    decal.rotateX(45);
     decal.setTextureRegion(idleFrames.get(orientation));
 
     setDecal(decal);

@@ -27,11 +27,12 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.github.fauu.helix.datum.Tile;
-import com.github.fauu.helix.spatial.Spatial;
-import com.github.fauu.helix.util.IntVector2;
-import com.github.fauu.helix.util.TileUtil;
+import com.github.fauu.helix.spatial.ModelSpatial;
 
-public class TilePermissionsGridSpatial extends Spatial {
+import java.util.HashMap;
+import java.util.Map;
+
+public class TilePermissionsGridSpatial extends ModelSpatial {
 
   private static final float Z_OFFSET = -0.002f;
 
@@ -39,9 +40,7 @@ public class TilePermissionsGridSpatial extends Spatial {
 
   private ModelInstance instance;
 
-  public TilePermissionsGridSpatial(Array<Tile> tiles,
-                                    IntVector2 areaDimensions,
-                                    TextureAtlas atlas) {
+  public TilePermissionsGridSpatial(Tile[][] tiles, TextureAtlas atlas) {
     this.atlas = atlas;
 
     MeshBuilder meshBuilder = new MeshBuilder();
@@ -50,18 +49,18 @@ public class TilePermissionsGridSpatial extends Spatial {
                       VertexAttributes.Usage.TextureCoordinates,
                       GL20.GL_TRIANGLES);
 
-    for (Tile tile : tiles) {
-      IntVector2 position = TileUtil.calculatePosition(tile.getIndex(),
-                                                       areaDimensions);
+    for (int y = 0; y < tiles.length; y++) {
+      for (int x = 0; x < tiles[y].length; x++) {
+        // TODO: Cache regions
+        meshBuilder.setUVRange(
+            atlas.findRegion(tiles[x][y].getPermissions().name()));
 
-      // TODO: Cache regions
-      meshBuilder.setUVRange(atlas.findRegion(tile.getPermissions().name()));
-
-      meshBuilder.rect(position.x, position.y, Z_OFFSET,
-                       position.x + 1, position.y, Z_OFFSET,
-                       position.x + 1, position.y + 1, Z_OFFSET,
-                       position.x, position.y + 1, Z_OFFSET,
-                       0, 0, 1);
+        meshBuilder.rect(x,     y,     Z_OFFSET,
+                         x + 1, y,     Z_OFFSET,
+                         x + 1, y + 1, Z_OFFSET,
+                         x,     y + 1, Z_OFFSET,
+                         0,     0,     1);
+      }
     }
 
     Mesh mesh = meshBuilder.end();
@@ -83,29 +82,33 @@ public class TilePermissionsGridSpatial extends Spatial {
   public void update(UpdateType type, Object value) {
     switch (type) {
       case TILES_PARTIAL:
-        Array<Tile> tiles = (Array<Tile>) value;
+        HashMap<Integer, Tile> tilesWithIndex = (HashMap<Integer, Tile>) value;
 
         Mesh mesh = instance.model.meshes.first();
 
-        for (Tile tile : tiles) {
+        // TODO: Get rid of magic numbers
+        for (Map.Entry<Integer, Tile> tileWithIndex :
+             tilesWithIndex.entrySet()) {
+          int index = tileWithIndex.getKey();
+          Tile tile = tileWithIndex.getValue();
+
           float[] vertices = new float[4 * 5];
 
-          mesh.getVertices(tile.getIndex() * 4 * 5, 4 * 5, vertices);
+          mesh.getVertices(index * 4 * 5, 4 * 5, vertices);
 
           TextureRegion region = atlas.findRegion(tile.getPermissions().name());
 
-          float[] uv = new float[] {
-              region.getU(), region.getV2(),
-              region.getU2(), region.getV2(),
-              region.getU2(), region.getV(),
-              region.getU(), region.getV()};
+          float[] uv = new float[] { region.getU(), region.getV2(),
+                                     region.getU2(), region.getV2(),
+                                     region.getU2(), region.getV(),
+                                     region.getU(), region.getV() };
 
           for (int i = 0; i < 4; i++) {
             vertices[i * 5 + 3] = uv[i * 2];
             vertices[i * 5 + 4] = uv[i * 2 + 1];
           }
 
-          mesh.updateVertices(tile.getIndex() * 4 * 5, vertices);
+          mesh.updateVertices(index * 4 * 5, vertices);
         }
         break;
       default: throw new UnsupportedOperationException();

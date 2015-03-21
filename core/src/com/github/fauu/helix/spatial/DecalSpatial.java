@@ -29,7 +29,7 @@ public abstract class DecalSpatial extends Spatial {
   static {
     DEFAULT_DIMENSIONS = new Vector2(1.95f, 1.95f);
     DEFAULT_ROTATION = 45;
-    DEFAULT_DISPLACEMENT = new Vector3(0.5f, 0.7f, 1.01f);
+    DEFAULT_DISPLACEMENT = new Vector3(0.52f, 0.5f, 1.01f);
   }
 
   protected Decal decal;
