@@ -71,7 +71,7 @@ public class Overworld implements Screen {
     world.getManager(AreaManager.class).load("area1");
 
     world.getManager(WeatherManager.class)
-         .setType(WeatherManager.WeatherType.OVERCAST);
+         .setType(WeatherManager.WeatherType.RAINSTORM);
   }
 
   @Override

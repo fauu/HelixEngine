@@ -37,7 +37,7 @@ public class WeatherManager extends Manager {
     switch (type) {
       case SUNNY:
         bloom = new Bloom();
-        bloom.setBloomIntesity(1.2f);
+        bloom.setBloomIntesity(1.1f);
         bloom.setOriginalIntesity(1);
 
         environment.set(
