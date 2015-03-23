@@ -21,7 +21,9 @@ import com.artemis.managers.TagManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.github.fauu.helix.component.DimensionsComponent;
@@ -79,15 +81,18 @@ public class AreaManager extends Manager {
     assetManager.load(modelPath, Model.class);
     assetManager.finishLoading();
 
+    Model model = assetManager.get(modelPath, Model.class);
+    for (Material m : model.materials) {
+      m.set(new FloatAttribute(FloatAttribute.AlphaTest, 0.1f));
+    }
+
     Entity area = world.createEntity()
                        .edit()
                        .add(new TilesComponent(tiles))
                        .add(new DimensionsComponent(
                            new IntVector2(areaWrapper.width,
                                           areaWrapper.length)))
-                       .add(new SpatialFormComponent(
-                           new AreaSpatial(
-                               assetManager.get(modelPath, Model.class))))
+                       .add(new SpatialFormComponent(new AreaSpatial(model)))
                        .add(new VisibilityComponent())
                        .getEntity();
     world.getManager(TagManager.class).register("area", area);

@@ -17,9 +17,9 @@ import com.artemis.annotations.Wire;
 import com.artemis.systems.VoidEntitySystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.editor.HelixEditor;
+import com.github.fauu.helix.graphics.HelixCamera;
 
 public class CameraControlSystem extends VoidEntitySystem {
   
@@ -32,7 +32,7 @@ public class CameraControlSystem extends VoidEntitySystem {
   private static final int MIN_ZOOM_LEVEL = -8;
   
   @Wire
-  private PerspectiveCamera camera;
+  private HelixCamera camera;
   
   private Vector3 translation = new Vector3();
 

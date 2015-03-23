@@ -88,7 +88,7 @@ public class Bloom {
    */
   public Bloom() {
     initialize(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 4,
-        null, true, true, true);
+        null, true, false, true);
   }
 
   /**

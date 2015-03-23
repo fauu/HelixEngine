@@ -18,9 +18,9 @@ import com.artemis.Entity;
 import com.artemis.Manager;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.component.DimensionsComponent;
+import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.util.IntVector2;
 
 public class CameraIntermediary extends Manager {
@@ -29,7 +29,7 @@ public class CameraIntermediary extends Manager {
   private ComponentMapper<DimensionsComponent> dimensionsMapper;
 
   @Wire
-  private PerspectiveCamera camera;
+  private HelixCamera camera;
 
   public void centerCameraOnArea() {
     Entity area = world.getManager(TagManager.class).getEntity("area");

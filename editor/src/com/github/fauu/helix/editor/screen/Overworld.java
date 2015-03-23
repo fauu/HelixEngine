@@ -21,12 +21,12 @@ import com.artemis.managers.UuidEntityManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.github.fauu.helix.editor.manager.CameraIntermediary;
 import com.github.fauu.helix.editor.manager.SpatialIntermediary;
 import com.github.fauu.helix.editor.system.CameraControlSystem;
 import com.github.fauu.helix.editor.system.TileHighlightingSystem;
 import com.github.fauu.helix.editor.system.TilePermissionsEditingSystem;
+import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.manager.TextureManager;
 import com.github.fauu.helix.system.RenderingSystem;
@@ -36,7 +36,7 @@ public class Overworld implements Screen {
 
   private World world;
 
-  private PerspectiveCamera camera;
+  private HelixCamera camera;
 
   private AssetManager assetManager;
 
@@ -47,7 +47,7 @@ public class Overworld implements Screen {
   public Overworld() {
     assetManager = new AssetManager();
 
-    camera = new PerspectiveCamera(40,
+    camera = new HelixCamera(40,
                                    Gdx.graphics.getWidth(), 
                                    Gdx.graphics.getHeight());
 
@@ -73,7 +73,7 @@ public class Overworld implements Screen {
     world.setSystem(new TileHighlightingSystem());
     world.setSystem(new TilePermissionsEditingSystem());
     world.setSystem(new SpatialUpdateSystem());
-    world.setSystem(new RenderingSystem());
+    world.setSystem(new RenderingSystem(null));
 
     world.initialize();
   }

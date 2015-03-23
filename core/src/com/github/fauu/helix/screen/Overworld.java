@@ -13,44 +13,38 @@
 
 package com.github.fauu.helix.screen;
 
-import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.managers.GroupManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.github.fauu.helix.Direction;
-import com.github.fauu.helix.component.*;
+import com.github.fauu.helix.graphics.HelixCamera;
+import com.github.fauu.helix.graphics.ParticleEffect;
 import com.github.fauu.helix.manager.AreaManager;
+import com.github.fauu.helix.manager.PlayerManager;
 import com.github.fauu.helix.manager.TextureManager;
-import com.github.fauu.helix.spatial.CharacterSpatial;
+import com.github.fauu.helix.manager.WeatherManager;
+import com.github.fauu.helix.system.CameraClientsUpdateSystem;
 import com.github.fauu.helix.system.PlayerMovementSystem;
 import com.github.fauu.helix.system.RenderingSystem;
 import com.github.fauu.helix.system.SpatialUpdateSystem;
-import com.github.fauu.helix.util.IntVector3;
 
 public class Overworld implements Screen {
 
   private World world;
 
-  private PerspectiveCamera camera;
+  private HelixCamera camera;
 
   private AssetManager assetManager;
+
+  public ParticleEffect rain;
 
   public Overworld() {
     assetManager = new AssetManager();
 
-    camera = new PerspectiveCamera(30, Gdx.graphics.getWidth(),
-                                          Gdx.graphics.getHeight());
-
-    camera.near = 0.1f;
-    camera.far = 300f;
-    camera.translate(0, -14, 17);
-    camera.lookAt(0, 0, 0);
+    camera = new HelixCamera();
 
     camera.translate(16 + 0.5f, 16 + 0.6f, 0);
     
@@ -61,6 +55,7 @@ public class Overworld implements Screen {
     world = new World(worldConfiguration);
 
     world.setSystem(new PlayerMovementSystem());
+    world.setSystem(new CameraClientsUpdateSystem());
     world.setSystem(new SpatialUpdateSystem());
     world.setSystem(new RenderingSystem());
 
@@ -69,27 +64,14 @@ public class Overworld implements Screen {
     world.setManager(new GroupManager());
     world.setManager(new TagManager());
     world.setManager(new AreaManager());
-
-    IntVector3 playerPosition = new IntVector3(16, 16, 0);
-    Direction playerOrientation = Direction.SOUTH;
-    float playerMovementSpeed = 4.5f;
-
+    world.setManager(new PlayerManager());
+    world.setManager(new WeatherManager());
     world.initialize();
-    
+
     world.getManager(AreaManager.class).load("area1");
 
-    Entity player
-        = world.createEntity()
-        .edit()
-        .add(new OrientationComponent(playerOrientation))
-        .add(new MovementSpeedComponent(playerMovementSpeed))
-        .add(new PositionComponent(playerPosition))
-        .add(new SpatialFormComponent(
-            new CharacterSpatial(playerPosition, "player")))
-        .add(new VisibilityComponent())
-        .getEntity();
-    world.getManager(TagManager.class).register("player", player);
-
+    world.getManager(WeatherManager.class)
+         .setType(WeatherManager.WeatherType.OVERCAST);
   }
 
   @Override

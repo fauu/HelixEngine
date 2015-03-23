@@ -20,7 +20,6 @@ import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
 import com.artemis.systems.EntityProcessingSystem;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
@@ -30,6 +29,7 @@ import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.datum.SpatialUpdateRequest;
 import com.github.fauu.helix.datum.Tile;
 import com.github.fauu.helix.editor.spatial.TileHighlightSpatial;
+import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.spatial.Spatial;
 import com.github.fauu.helix.util.IntVector2;
 
@@ -45,7 +45,7 @@ public class TileHighlightingSystem extends EntityProcessingSystem {
   private ComponentMapper<TilesComponent> tilesMapper;
 
   @Wire
-  private PerspectiveCamera camera;
+  private HelixCamera camera;
 
   private Tile highlightedTile;
 

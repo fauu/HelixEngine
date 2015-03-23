@@ -30,6 +30,7 @@ public class CharacterSpatial extends DecalSpatial {
 
     animations = new AnimationSet(animationSetName);
 
+
     AnimatedDecal decal
         = AnimatedDecal.newAnimatedDecal(DEFAULT_DIMENSIONS.x,
                                          DEFAULT_DIMENSIONS.y,

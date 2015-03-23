@@ -20,12 +20,13 @@ import com.artemis.managers.TagManager;
 import com.artemis.systems.VoidEntitySystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.Direction;
 import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.datum.Tile;
 import com.github.fauu.helix.graphics.AnimationType;
+import com.github.fauu.helix.graphics.HelixCamera;
+import com.github.fauu.helix.manager.PlayerManager;
 import com.github.fauu.helix.spatial.Spatial;
 import com.github.fauu.helix.spatial.update.dto.AnimationUpdateDTO;
 import com.github.fauu.helix.util.IntVector2;
@@ -38,6 +39,9 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
   @Wire
   private TagManager tagManager;
+
+  @Wire
+  private PlayerManager playerManager;
 
   @Wire
   private ComponentMapper<MovementSpeedComponent> movementSpeedMapper;
@@ -54,8 +58,8 @@ public class PlayerMovementSystem extends VoidEntitySystem {
   @Wire
   private ComponentMapper<TilesComponent> tilesMapper;
 
-  @Wire
-  private PerspectiveCamera camera;
+  @Wire(injectInherited = true)
+  private HelixCamera camera;
 
   private static final float MOVEMENT_START_DELAY;
 
@@ -88,7 +92,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
   // FIXME: Obstacles aren't accounted for properly
   @Override
   protected void processSystem() {
-    Entity player = tagManager.getEntity("player");
+    Entity player = playerManager.getPlayer();
 
     Direction orientation = orientationMapper.get(player).get();
 

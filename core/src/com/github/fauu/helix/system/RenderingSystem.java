@@ -21,18 +21,20 @@ import com.artemis.annotations.Wire;
 import com.artemis.managers.UuidEntityManager;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.VertexAttributes;
-import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
-import com.badlogic.gdx.graphics.g3d.utils.*;
-import com.github.fauu.helix.component.SpatialFormComponent;
-import com.github.fauu.helix.component.VisibilityComponent;
+import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
+import com.badlogic.gdx.graphics.g3d.utils.DefaultTextureBinder;
+import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
+import com.github.fauu.helix.component.*;
+import com.github.fauu.helix.graphics.HelixCamera;
+import com.github.fauu.helix.graphics.HelixRenderableSorter;
+import com.github.fauu.helix.graphics.ParticleEffect;
+import com.github.fauu.helix.manager.WeatherManager;
 import com.github.fauu.helix.postprocessing.Bloom;
 import com.github.fauu.helix.spatial.DecalSpatial;
 import com.github.fauu.helix.spatial.ModelSpatial;
@@ -43,12 +45,24 @@ import java.util.Map;
 import java.util.UUID;
 
 public class RenderingSystem extends EntitySystem {
+
+  @Wire
+  private WeatherManager weatherManager;
+
+  @Wire
+  private ComponentMapper<BloomComponent> bloomMapper;
+
+  @Wire
+  private ComponentMapper<EnvironmentComponent> environmentMapper;
+
+  @Wire
+  private ComponentMapper<ParticleEffectComponent> particleEffectMapper;
   
   @Wire
   private ComponentMapper<SpatialFormComponent> spatialFormMapper;
   
   @Wire
-  private PerspectiveCamera camera;
+  private HelixCamera camera;
   
   private Map<UUID, ModelSpatial> modelSpatials;
 
@@ -57,16 +71,12 @@ public class RenderingSystem extends EntitySystem {
   private UuidEntityManager uuidEntityManager;
   
   private RenderContext renderContext;
-  
+
   private ModelBatch modelBatch;
 
   private DecalBatch decalBatch;
-  
-  private ModelInstance axes;
-  
-  private Bloom bloom;
 
-  private static final boolean bloomEnabled = true;
+  private SpriteBatch spriteBatch;
 
   @SuppressWarnings("unchecked")
   public RenderingSystem() {
@@ -84,42 +94,54 @@ public class RenderingSystem extends EntitySystem {
 
     renderContext = new RenderContext(
         new DefaultTextureBinder(DefaultTextureBinder.WEIGHTED));
+    renderContext.setCullFace(GL20.GL_BACK);
 
-    modelBatch = new ModelBatch(renderContext, new DefaultShaderProvider());
+    modelBatch = new ModelBatch(renderContext,
+                                new DefaultShaderProvider(),
+                                new HelixRenderableSorter());
 
     decalBatch = new DecalBatch(new CameraGroupStrategy(camera));
 
-    bloom = new Bloom();
-    bloom.setBloomIntesity(0.6f);
-    bloom.setOriginalIntesity(1);
-
-    axes = buildAxes();
-  };
+    spriteBatch = new SpriteBatch();
+  }
 
   @Override
   protected void processEntities(IntBag entities) {
     camera.update();
-    
+
+    Environment environment = null;
+    Bloom bloom = null;
+    ParticleEffect particleEffect = null;
+
+    Entity weather = weatherManager.getWeather();
+
+    if (weather != null) {
+      environment = environmentMapper.get(weather).get();
+
+      if (bloomMapper.has(weather)) {
+        bloom = bloomMapper.get(weather).get();
+      }
+
+      if (particleEffectMapper.has(weather)) {
+        particleEffect = particleEffectMapper.get(weather).get();
+      }
+    } else {
+      environment = new Environment();
+    }
+
     GL20 gl = Gdx.graphics.getGL20();
 
-    gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     gl.glClearColor(0.53f, 0.8f, 0.92f, 1);
     gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-    gl.glEnable(GL20.GL_BLEND);
-    gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
-    if (bloomEnabled) {
+    if (bloom != null) {
       bloom.capture();
     }
 
     renderContext.begin();
     modelBatch.begin(camera);
 
-    modelBatch.render(axes);
-
-    for (ModelSpatial spatial : modelSpatials.values()) {
-      modelBatch.render(spatial);
-    }
+    modelBatch.render(modelSpatials.values(), environment);
 
     modelBatch.end();
     renderContext.end();
@@ -130,9 +152,16 @@ public class RenderingSystem extends EntitySystem {
 
     decalBatch.flush();
 
-    if (bloomEnabled) {
+    spriteBatch.begin();
+    if (particleEffect != null) {
+      particleEffect.draw(spriteBatch, Gdx.graphics.getDeltaTime());
+    }
+    spriteBatch.end();
+
+    if (bloom != null) {
       bloom.render();
     }
+
   }
   
   @Override
@@ -155,27 +184,6 @@ public class RenderingSystem extends EntitySystem {
     } else {
       decalSpatials.remove(uuid);
     }
-  }
-  
-  private ModelInstance buildAxes() {
-    ModelBuilder builder = new ModelBuilder();
-
-    builder.begin();
-
-    MeshPartBuilder partBuilder 
-        = builder.part("axes", 
-                       GL20.GL_LINES,
-                       VertexAttributes.Usage.Position | 
-                       VertexAttributes.Usage.ColorUnpacked, 
-                       new Material());
-    partBuilder.setColor(Color.RED);
-    partBuilder.line(0, 0, 0, 100, 0, 0);
-    partBuilder.setColor(Color.GREEN);
-    partBuilder.line(0, 0, 0, 0, 100, 0);
-    partBuilder.setColor(Color.BLUE);
-    partBuilder.line(0, 0, 0, 0, 0, 100);
-
-    return new ModelInstance(builder.end());
   }
 
 }
