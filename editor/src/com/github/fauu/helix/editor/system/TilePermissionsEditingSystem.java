@@ -140,8 +140,6 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
                     new SpatialUpdateRequest(Spatial.UpdateType.TILES_PARTIAL,
                                              updatedTilesWithIndex));
 
-            Gdx.app.debug("", "updated " + x + "" + y);
-
             lastUpdatedTile = tile;
 
             break;

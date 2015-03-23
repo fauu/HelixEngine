@@ -27,13 +27,17 @@ public class IntVector2 {
     set(x, y);
   }
 
+  public IntVector2(IntVector2 source) {
+    set(source);
+  }
+
   public void set(int x, int y) {
     this.x = x;
     this.y = y;
   }
 
   public void set(IntVector2 source) {
-    set(x, y);
+    set(source.x, source.y);
   }
 
   public IntVector2 add(IntVector2 other) {

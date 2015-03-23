@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class TilePermissionsGridSpatial extends ModelSpatial {
 
-  private static final float Z_OFFSET = -0.002f;
+  private static final float Z_OFFSET = -0.02f;
 
   private TextureAtlas atlas;
 

@@ -26,22 +26,51 @@ public abstract class DecalSpatial extends Spatial {
 
   protected static final Vector3 DEFAULT_DISPLACEMENT;
 
+  protected static final Vector2 DEFAULT_SHADOW_DIMENSIONS;
+
+  protected static final Vector3 DEFAULT_SHADOW_DISPLACEMENT;
+
+  protected Decal mainDecal;
+
+  protected Decal shadowDecal;
+
+  private Decal[] decals;
+
   static {
     DEFAULT_DIMENSIONS = new Vector2(1.95f, 1.95f);
     DEFAULT_ROTATION = 45;
     DEFAULT_DISPLACEMENT = new Vector3(0.52f, 0.5f, 1.01f);
+
+    DEFAULT_SHADOW_DIMENSIONS = new Vector2(1, .8f);
+    DEFAULT_SHADOW_DISPLACEMENT = new Vector3(.55f, .17f, .05f);
   }
 
-  protected Decal decal;
-
-  public DecalSpatial(IntVector3 position) { }
-
-  public Decal getDecal() {
-    return decal;
+  public DecalSpatial(IntVector3 position) {
+    decals = new Decal[2];
   }
 
-  public void setDecal(Decal decal) {
-    this.decal = decal;
+  public Decal[] getDecals() {
+    return decals;
+  }
+
+  public Decal getMainDecal() {
+    return mainDecal;
+  }
+
+  public void setMainDecal(Decal decal) {
+    mainDecal = decal;
+
+    decals[0] = mainDecal;
+  }
+
+  public Decal getShadowDecal() {
+    return shadowDecal;
+  }
+
+  public void setShadowDecal(Decal decal) {
+    shadowDecal = decal;
+
+    decals[1] = shadowDecal;
   }
 
 }

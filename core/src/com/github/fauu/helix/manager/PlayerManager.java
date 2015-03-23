@@ -15,12 +15,19 @@ package com.github.fauu.helix.manager;
 
 import com.artemis.Entity;
 import com.artemis.Manager;
+import com.artemis.annotations.Wire;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.github.fauu.helix.Direction;
 import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.spatial.CharacterSpatial;
 import com.github.fauu.helix.util.IntVector3;
 
 public class PlayerManager extends Manager {
+
+  @Wire
+  private AssetManager assetManager;
 
   private Entity player;
 
@@ -30,13 +37,25 @@ public class PlayerManager extends Manager {
     Direction playerOrientation = Direction.SOUTH;
     float playerMovementSpeed = 4.5f;
 
+    if (!assetManager.isLoaded("texture-atlas/shadow.png")) {
+      assetManager.load("texture-atlas/shadow.png", Texture.class);
+      assetManager.finishLoading();
+    }
+
+    TextureRegion shadowTexture
+        = new TextureRegion(assetManager.get("texture-atlas/shadow.png",
+                                             Texture.class));
+
     player = world.createEntity()
                   .edit()
                   .add(new OrientationComponent(playerOrientation))
                   .add(new MovementSpeedComponent(playerMovementSpeed))
                   .add(new PositionComponent(playerPosition))
+                  .add(new ShadowComponent())
                   .add(new SpatialFormComponent(
-                      new CharacterSpatial(playerPosition, "player")))
+                      new CharacterSpatial(playerPosition,
+                          "player",
+                          shadowTexture)))
                   .add(new VisibilityComponent())
                   .getEntity();
   }

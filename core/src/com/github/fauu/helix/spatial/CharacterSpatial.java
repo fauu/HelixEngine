@@ -13,6 +13,11 @@
 
 package com.github.fauu.helix.spatial;
 
+import com.artemis.annotations.Wire;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.Direction;
 import com.github.fauu.helix.graphics.AnimatedDecal;
@@ -23,9 +28,14 @@ import com.github.fauu.helix.util.IntVector3;
 
 public class CharacterSpatial extends DecalSpatial {
 
+  @Wire
+  private AssetManager assetManager;
+
   protected AnimationSet animations;
 
-  public CharacterSpatial(IntVector3 ownerPosition, String animationSetName) {
+  public CharacterSpatial(IntVector3 ownerPosition,
+                          String animationSetName,
+                          TextureRegion shadowTexture) {
     super(ownerPosition);
 
     animations = new AnimationSet(animationSetName);
@@ -36,17 +46,30 @@ public class CharacterSpatial extends DecalSpatial {
                                          DEFAULT_DIMENSIONS.y,
                                          animations.getDefault(),
                                          true);
+
     decal.setKeepSize(true);
     decal.setPosition(ownerPosition.toVector3());
-    decal.getPosition().add(DEFAULT_DISPLACEMENT);
+    decal.translate(DEFAULT_DISPLACEMENT);
     decal.rotateX(DEFAULT_ROTATION);
 
-    setDecal(decal);
+    setMainDecal(decal);
+
+    Decal shadow = new Decal();
+
+    shadow.setPosition(ownerPosition.toVector3());
+    shadow.translate(DEFAULT_SHADOW_DISPLACEMENT);
+    shadow.setDimensions(DEFAULT_SHADOW_DIMENSIONS.x,
+        DEFAULT_SHADOW_DIMENSIONS.y);
+    shadow.setColor(1, 1, 1, 1);
+    shadow.setTextureRegion(shadowTexture);
+    shadow.setBlending(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+    setShadowDecal(shadow);
   }
 
   @Override
   public void update(UpdateType type, Object value) {
-    AnimatedDecal decal = ((AnimatedDecal) this.decal);
+    AnimatedDecal decal = ((AnimatedDecal) this.mainDecal);
 
     switch (type) {
       case ORIENTATION:
@@ -55,7 +78,8 @@ public class CharacterSpatial extends DecalSpatial {
         decal.play();
         break;
       case POSITION:
-        decal.translate((Vector3) value);
+          mainDecal.translate((Vector3) value);
+          shadowDecal.translate((Vector3) value);
         break;
       case ANIMATION:
         AnimationUpdateDTO updateDTO = (AnimationUpdateDTO) value;

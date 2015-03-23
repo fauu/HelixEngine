@@ -58,10 +58,10 @@ public class PlayerMovementSystem extends VoidEntitySystem {
   @Wire
   private ComponentMapper<TilesComponent> tilesMapper;
 
-  @Wire(injectInherited = true)
+  @Wire
   private HelixCamera camera;
 
-  private static final float MOVEMENT_START_DELAY;
+  private static final float START_DELAY;
 
   private static final HashMap<Direction, Integer> DIRECTION_KEYS;
 
@@ -78,7 +78,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
   private int walkAnimationCycleCounter;
 
   static {
-    MOVEMENT_START_DELAY = 0.1f;
+    START_DELAY = 0.1f;
 
     DIRECTION_KEYS = new HashMap<Direction, Integer>();
     DIRECTION_KEYS.put(Direction.NORTH, Input.Keys.W);
@@ -125,7 +125,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
         startDelayCounter += Gdx.graphics.getDeltaTime();
 
-        if (startDelayCounter >= MOVEMENT_START_DELAY) {
+        if (startDelayCounter >= START_DELAY) {
           startDelayCounter = 0;
 
           IntVector3 position = positionMapper.get(player).get();
@@ -152,8 +152,8 @@ public class PlayerMovementSystem extends VoidEntitySystem {
                                               targetTile.getPermissions()
                                                         .getElevation()));
           }
-        } // end "if startDelayCounter >= MOVEMENT_START_DELAY"
-      } // end "if requestedDirection == direction"
+        } // end "if startDelayCounter >= START_DELAY"
+      } // end "if requestedDirection != null"
     } // end "if !moving"
 
     if (moving) {
@@ -187,7 +187,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
         if (movementDuration - progressCounter < 0 &&
             requestedDirection != null) {
-          startDelayCounter = MOVEMENT_START_DELAY;
+          startDelayCounter = START_DELAY;
 
           spatial.update(Spatial.UpdateType.ORIENTATION,
                          requestedDirection);

@@ -21,14 +21,17 @@ public class HelixCamera extends PerspectiveCamera {
 
   private Vector3 positionDelta;
 
-  public HelixCamera() {
-    super(30, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+  public HelixCamera(float fieldOfView,
+                     Vector3 initialPosition,
+                     float near,
+                     float far) {
+    super(fieldOfView, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
     positionDelta = new Vector3();
 
-    this.near = 0.1f;
-    this.far = 35f;
-    this.translate(0, -14, 17);
+    this.near = near;
+    this.far = far;
+    this.translate(initialPosition);
     this.lookAt(0, 0, 0);
   }
 

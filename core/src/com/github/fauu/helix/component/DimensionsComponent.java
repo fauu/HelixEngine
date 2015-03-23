@@ -25,9 +25,7 @@ public class DimensionsComponent extends Component {
   }
   
   public DimensionsComponent(IntVector2 dimensions) {
-    this();
-
-    this.dimensions.set(dimensions);
+    this.dimensions = new IntVector2(dimensions);
   }
   
   public IntVector2 get() {

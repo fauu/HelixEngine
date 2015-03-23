@@ -61,6 +61,8 @@ public class HelixEditor extends Game {
 
     Gdx.input.setInputProcessor(
         new InputMultiplexer(ui.getStage(), new EditorInputEventProcessor()));
+
+    loadAreaAction("area1");
   }
 
   public static HelixEditor getInstance() {

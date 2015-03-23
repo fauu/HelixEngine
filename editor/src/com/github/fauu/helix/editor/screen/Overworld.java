@@ -18,9 +18,9 @@ import com.artemis.WorldConfiguration;
 import com.artemis.managers.GroupManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.editor.manager.CameraIntermediary;
 import com.github.fauu.helix.editor.manager.SpatialIntermediary;
 import com.github.fauu.helix.editor.system.CameraControlSystem;
@@ -29,6 +29,7 @@ import com.github.fauu.helix.editor.system.TilePermissionsEditingSystem;
 import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.manager.TextureManager;
+import com.github.fauu.helix.manager.WeatherManager;
 import com.github.fauu.helix.system.RenderingSystem;
 import com.github.fauu.helix.system.SpatialUpdateSystem;
 
@@ -47,14 +48,7 @@ public class Overworld implements Screen {
   public Overworld() {
     assetManager = new AssetManager();
 
-    camera = new HelixCamera(40,
-                                   Gdx.graphics.getWidth(), 
-                                   Gdx.graphics.getHeight());
-
-    camera.near = 0.1f;
-    camera.far = 300f;
-    camera.translate(0, -30, 30);
-    camera.lookAt(0, 0, 0);
+    camera = new HelixCamera(60, new Vector3(0, -30, 30), .01f, 300);
 
     WorldConfiguration worldConfiguration 
         = new WorldConfiguration().register(assetManager)
@@ -66,6 +60,7 @@ public class Overworld implements Screen {
     world.setManager(new TagManager());
     world.setManager(new GroupManager());
     world.setManager(new AreaManager());
+    world.setManager(new WeatherManager());
     world.setManager(spatialIntermediary = new SpatialIntermediary());
     world.setManager(cameraIntermediary = new CameraIntermediary());
 
@@ -73,7 +68,7 @@ public class Overworld implements Screen {
     world.setSystem(new TileHighlightingSystem());
     world.setSystem(new TilePermissionsEditingSystem());
     world.setSystem(new SpatialUpdateSystem());
-    world.setSystem(new RenderingSystem(null));
+    world.setSystem(new RenderingSystem());
 
     world.initialize();
   }

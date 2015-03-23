@@ -25,7 +25,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultTextureBinder;
@@ -127,6 +129,8 @@ public class RenderingSystem extends EntitySystem {
       }
     } else {
       environment = new Environment();
+      environment.set(
+          new ColorAttribute(ColorAttribute.AmbientLight, 1, 1, 1, 1));
     }
 
     GL20 gl = Gdx.graphics.getGL20();
@@ -147,7 +151,9 @@ public class RenderingSystem extends EntitySystem {
     renderContext.end();
 
     for (DecalSpatial spatial : decalSpatials.values()) {
-      decalBatch.add(spatial.getDecal());
+      for (Decal d : spatial.getDecals()) {
+        decalBatch.add(d);
+      }
     }
 
     decalBatch.flush();

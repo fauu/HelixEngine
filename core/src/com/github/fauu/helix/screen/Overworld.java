@@ -20,16 +20,14 @@ import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.graphics.ParticleEffect;
 import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.manager.PlayerManager;
 import com.github.fauu.helix.manager.TextureManager;
 import com.github.fauu.helix.manager.WeatherManager;
-import com.github.fauu.helix.system.CameraClientsUpdateSystem;
-import com.github.fauu.helix.system.PlayerMovementSystem;
-import com.github.fauu.helix.system.RenderingSystem;
-import com.github.fauu.helix.system.SpatialUpdateSystem;
+import com.github.fauu.helix.system.*;
 
 public class Overworld implements Screen {
 
@@ -44,7 +42,7 @@ public class Overworld implements Screen {
   public Overworld() {
     assetManager = new AssetManager();
 
-    camera = new HelixCamera();
+    camera = new HelixCamera(30, new Vector3(0, -13, 17), .1f, 35);
 
     camera.translate(16 + 0.5f, 16 + 0.6f, 0);
     
@@ -57,6 +55,7 @@ public class Overworld implements Screen {
     world.setSystem(new PlayerMovementSystem());
     world.setSystem(new CameraClientsUpdateSystem());
     world.setSystem(new SpatialUpdateSystem());
+    world.setSystem(new ShadowIntensityUpdateSystem());
     world.setSystem(new RenderingSystem());
 
     world.setManager(new UuidEntityManager());
