@@ -69,9 +69,11 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
   private boolean moving;
 
-  private float movementStartDelayCounter;
+  private Direction direction;
 
-  private float movementProgressCounter;
+  private float startDelayCounter;
+
+  private float progressCounter;
 
   private int walkAnimationCycleCounter;
 
@@ -89,12 +91,10 @@ public class PlayerMovementSystem extends VoidEntitySystem {
     WALK_ANIMATION_CYCLE[1] = AnimationType.STEP_LEFT_LEG;
   }
 
-  // FIXME: Obstacles aren't accounted for properly
+  // FIXME: Not responsive enough when changing direction without stopping
   @Override
   protected void processSystem() {
     Entity player = playerManager.getPlayer();
-
-    Direction orientation = orientationMapper.get(player).get();
 
     Spatial spatial = spatialFormMapper.get(player).get();
 
@@ -102,44 +102,46 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
     float movementDuration = 1 / movementSpeed;
 
-    Direction requestedMovementDirection = null;
+    Direction requestedDirection = null;
 
     for (Map.Entry<Direction, Integer> dk : DIRECTION_KEYS.entrySet()) {
       if (Gdx.input.isKeyPressed(dk.getValue())) {
-        requestedMovementDirection = dk.getKey();
+        requestedDirection = dk.getKey();
         break;
       }
     }
 
     if (!moving) {
-      if (requestedMovementDirection == null) {
-        movementStartDelayCounter = 0;
+      if (requestedDirection == null) {
+        startDelayCounter = 0;
       } else {
-        if (movementStartDelayCounter == 0) {
-          orientationMapper.get(player).set(requestedMovementDirection);
+        if (startDelayCounter == 0) {
+          orientationMapper.get(player).set(requestedDirection);
           spatial.update(Spatial.UpdateType.ORIENTATION,
-                         requestedMovementDirection);
+                         requestedDirection);
+
+          direction = requestedDirection;
         }
 
-        movementStartDelayCounter += Gdx.graphics.getDeltaTime();
+        startDelayCounter += Gdx.graphics.getDeltaTime();
 
-        if (movementStartDelayCounter >= MOVEMENT_START_DELAY) {
+        if (startDelayCounter >= MOVEMENT_START_DELAY) {
+          startDelayCounter = 0;
+
           IntVector3 position = positionMapper.get(player).get();
           IntVector2 targetPosition
-              = position.toIntVector2()
-                        .add(requestedMovementDirection.getVector());
+              = position.toIntVector2().add(direction.getVector());
 
           Tile[][] tiles = tilesMapper.get(tagManager.getEntity("area")).get();
           Tile currentTile = tiles[position.x][position.y];
           Tile targetTile = tiles[targetPosition.x][targetPosition.y];
           if (targetTile.getPermissions() == currentTile.getPermissions()) {
             moving = true;
-            movementStartDelayCounter = 0;
 
             spatial.update(Spatial.UpdateType.ANIMATION,
                 new AnimationUpdateDTO(
                     WALK_ANIMATION_CYCLE[walkAnimationCycleCounter++],
-                    requestedMovementDirection,
+                    direction,
                     movementDuration));
 
             walkAnimationCycleCounter %= 2;
@@ -150,31 +152,29 @@ public class PlayerMovementSystem extends VoidEntitySystem {
                                               targetTile.getPermissions()
                                                         .getElevation()));
           }
-        } // end "if movementStartDelayCounter >= MOVEMENT_START_DELAY"
-      } // end "if requestedMovementDirection != null"
+        } // end "if startDelayCounter >= MOVEMENT_START_DELAY"
+      } // end "if requestedDirection == direction"
     } // end "if !moving"
 
     if (moving) {
-      Direction movementDirection = orientation;
-
-      if (movementProgressCounter >= movementDuration) {
+      if (progressCounter >= movementDuration) {
         moving = false;
-        movementProgressCounter = 0;
+        progressCounter = 0;
 
         spatial.update(Spatial.UpdateType.ANIMATION,
             new AnimationUpdateDTO(AnimationType.IDLE,
-                                   movementDirection,
+                                   direction,
                                    movementDuration));
       } else {
         float delta = Gdx.graphics.getDeltaTime();
 
-        if (movementProgressCounter + delta > movementDuration) {
-          delta = movementDuration - movementProgressCounter;
+        if (progressCounter + delta > movementDuration) {
+          delta = movementDuration - progressCounter;
         }
 
-        movementProgressCounter += Gdx.graphics.getDeltaTime();
+        progressCounter += Gdx.graphics.getDeltaTime();
 
-        IntVector2 movementDirectionVector = movementDirection.getVector();
+        IntVector2 movementDirectionVector = direction.getVector();
 
         Vector3 translation = new Vector3(movementDirectionVector.x,
                                           movementDirectionVector.y,
@@ -185,16 +185,17 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
         camera.translate(translation);
 
-        if (movementProgressCounter >= movementDuration &&
-            requestedMovementDirection != null) {
-          movementStartDelayCounter = MOVEMENT_START_DELAY;
+        if (movementDuration - progressCounter < 0 &&
+            requestedDirection != null) {
+          startDelayCounter = MOVEMENT_START_DELAY;
 
           spatial.update(Spatial.UpdateType.ORIENTATION,
-                         requestedMovementDirection);
+                         requestedDirection);
+          orientationMapper.get(player).set(requestedDirection);
 
-          orientationMapper.get(player).set(requestedMovementDirection);
+          direction = requestedDirection;
         }
-      } // end "if movementProgressCounter < movementDuration"
+      } // end "if progressCounter < movementDuration"
     } // end "if moving"
   }
 
