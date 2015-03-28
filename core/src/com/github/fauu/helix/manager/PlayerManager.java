@@ -51,7 +51,6 @@ public class PlayerManager extends Manager {
                   .add(new OrientationComponent(playerOrientation))
                   .add(new MovementSpeedComponent(playerMovementSpeed))
                   .add(new PositionComponent(playerPosition))
-                  .add(new ShadowComponent())
                   .add(new SpatialFormComponent(
                       new CharacterSpatial(playerPosition,
                           "player",

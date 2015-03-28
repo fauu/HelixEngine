@@ -23,6 +23,7 @@ import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
@@ -33,6 +34,8 @@ public class AreaSpatial extends ModelSpatial {
 
   public AreaSpatial(Model model) {
     instance = new ModelInstance(model);
+
+    animationController = new AnimationController(instance);
 
     instance.transform.rotate(new Vector3(0, 0, 1), -180);
     instance.transform.rotate(new Vector3(1, 0, 0), 90);
@@ -57,13 +60,16 @@ public class AreaSpatial extends ModelSpatial {
   @Override
   public void update(UpdateType type, Object value) {
     switch (type) {
+      case ANIMATION:
+        animationController.setAnimation((String) value);
+        break;
       case OPACITY:
-          for (Material material : instance.materials) {
-            BlendingAttribute ba
-                = (BlendingAttribute) material.get(BlendingAttribute.Type);
+        for (Material material : instance.materials) {
+          BlendingAttribute ba
+              = (BlendingAttribute) material.get(BlendingAttribute.Type);
 
-            ba.opacity = (Float) value;
-          }
+          ba.opacity = (Float) value;
+        }
         break;
       default: throw new UnsupportedOperationException();
     }
@@ -74,4 +80,5 @@ public class AreaSpatial extends ModelSpatial {
                              Pool<Renderable> pool) {
     instance.getRenderables(renderables, pool);
   }
+
 }

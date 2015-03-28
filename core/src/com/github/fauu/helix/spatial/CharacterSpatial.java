@@ -60,7 +60,7 @@ public class CharacterSpatial extends DecalSpatial {
     shadow.translate(DEFAULT_SHADOW_DISPLACEMENT);
     shadow.setDimensions(DEFAULT_SHADOW_DIMENSIONS.x,
         DEFAULT_SHADOW_DIMENSIONS.y);
-    shadow.setColor(1, 1, 1, 1);
+    shadow.setColor(1, 1, 1, .35f);
     shadow.setTextureRegion(shadowTexture);
     shadow.setBlending(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 

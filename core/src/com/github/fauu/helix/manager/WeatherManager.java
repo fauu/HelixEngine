@@ -21,7 +21,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.github.fauu.helix.component.BloomComponent;
 import com.github.fauu.helix.component.EnvironmentComponent;
 import com.github.fauu.helix.component.ParticleEffectComponent;
-import com.github.fauu.helix.component.ShadowIntensityComponent;
 import com.github.fauu.helix.graphics.ParticleEffect;
 import com.github.fauu.helix.postprocessing.Bloom;
 
@@ -34,7 +33,6 @@ public class WeatherManager extends Manager {
     Environment environment = new Environment();
     Bloom bloom = null;
     ParticleEffect precipitationEffect = null;
-    float shadowIntensity = 1;
 
     switch (type) {
       case SUNNY:
@@ -44,8 +42,6 @@ public class WeatherManager extends Manager {
 
         environment.set(
             new ColorAttribute(ColorAttribute.AmbientLight, 1, 1, 1, 1));
-
-        shadowIntensity = .8f;
         break;
       case OVERCAST:
         bloom = new Bloom();
@@ -54,8 +50,6 @@ public class WeatherManager extends Manager {
 
         environment.set(
             new ColorAttribute(ColorAttribute.AmbientLight, .8f, .8f, .8f, 1));
-
-        shadowIntensity = .5f;
         break;
       case RAINSTORM:
         bloom = new Bloom();
@@ -73,8 +67,6 @@ public class WeatherManager extends Manager {
         precipitationEffect.setPosition(Gdx.graphics.getWidth() / 2,
                                         Gdx.graphics.getHeight() / 2);
         precipitationEffect.start();
-
-        shadowIntensity = .2f;
         break;
       default: throw new IllegalStateException();
     }
@@ -83,7 +75,6 @@ public class WeatherManager extends Manager {
       weather = world.createEntity()
                      .edit()
                      .add(new EnvironmentComponent(environment))
-                     .add(new ShadowIntensityComponent(shadowIntensity))
                      .getEntity();
     }
 

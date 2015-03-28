@@ -55,7 +55,7 @@ public class Overworld implements Screen {
     world.setSystem(new PlayerMovementSystem());
     world.setSystem(new CameraClientsUpdateSystem());
     world.setSystem(new SpatialUpdateSystem());
-    world.setSystem(new ShadowIntensityUpdateSystem());
+    world.setSystem(new SpatialAnimationUpdateSystem());
     world.setSystem(new RenderingSystem());
 
     world.setManager(new UuidEntityManager());
@@ -70,7 +70,7 @@ public class Overworld implements Screen {
     world.getManager(AreaManager.class).load("area1");
 
     world.getManager(WeatherManager.class)
-         .setType(WeatherManager.WeatherType.RAINSTORM);
+         .setType(WeatherManager.WeatherType.OVERCAST);
   }
 
   @Override

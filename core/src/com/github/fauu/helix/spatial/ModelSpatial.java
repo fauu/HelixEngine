@@ -14,6 +14,15 @@
 package com.github.fauu.helix.spatial;
 
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 
 public abstract class ModelSpatial extends Spatial
-                                   implements RenderableProvider { }
+                                   implements RenderableProvider {
+
+  protected AnimationController animationController;
+
+  public AnimationController getAnimationController() {
+    return animationController;
+  }
+
+}

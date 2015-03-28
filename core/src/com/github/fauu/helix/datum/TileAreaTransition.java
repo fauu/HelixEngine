@@ -11,8 +11,14 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.component;
+package com.github.fauu.helix.datum;
 
-import com.artemis.Component;
+public class TileAreaTransition {
 
-public class ShadowComponent extends Component { }
+  private Type type;
+
+  public enum Type {
+    INSTANT, DELAYED;
+  }
+
+}

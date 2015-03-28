@@ -33,6 +33,7 @@ import com.github.fauu.helix.util.IntVector2;
 import com.github.fauu.helix.util.IntVector3;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 public class PlayerMovementSystem extends VoidEntitySystem {
@@ -77,6 +78,12 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
   private int walkAnimationCycleCounter;
 
+  private LinkedList<Direction> autoMoveQueue;
+
+  private float autoMoveDelay;
+
+  private float autoMoveDelayCounter;
+
   static {
     START_DELAY = 0.1f;
 
@@ -91,7 +98,13 @@ public class PlayerMovementSystem extends VoidEntitySystem {
     WALK_ANIMATION_CYCLE[1] = AnimationType.STEP_LEFT_LEG;
   }
 
+  @Override
+  public void initialize() {
+    autoMoveQueue = new LinkedList<Direction>();
+  }
+
   // FIXME: Not responsive enough when changing direction without stopping
+  // TODO: Use move queue for everything
   @Override
   protected void processSystem() {
     Entity player = playerManager.getPlayer();
@@ -112,48 +125,80 @@ public class PlayerMovementSystem extends VoidEntitySystem {
     }
 
     if (!moving) {
-      if (requestedDirection == null) {
-        startDelayCounter = 0;
-      } else {
-        if (startDelayCounter == 0) {
-          orientationMapper.get(player).set(requestedDirection);
-          spatial.update(Spatial.UpdateType.ORIENTATION,
-                         requestedDirection);
+      Direction autoMoveDirection = autoMoveQueue.peek();
 
-          direction = requestedDirection;
-        }
+      if (autoMoveDirection != null) {
+        autoMoveDelayCounter += Gdx.graphics.getDeltaTime();
 
-        startDelayCounter += Gdx.graphics.getDeltaTime();
-
-        if (startDelayCounter >= START_DELAY) {
-          startDelayCounter = 0;
+        if (autoMoveDelayCounter > autoMoveDelay) {
+          autoMoveDelay = 0;
+          autoMoveDelayCounter = 0;
 
           IntVector3 position = positionMapper.get(player).get();
           IntVector2 targetPosition
-              = position.toIntVector2().add(direction.getVector());
+              = position.toIntVector2().add(autoMoveDirection.getVector());
 
           Tile[][] tiles = tilesMapper.get(tagManager.getEntity("area")).get();
-          Tile currentTile = tiles[position.x][position.y];
           Tile targetTile = tiles[targetPosition.x][targetPosition.y];
-          if (targetTile.getPermissions() == currentTile.getPermissions()) {
-            moving = true;
 
-            spatial.update(Spatial.UpdateType.ANIMATION,
-                new AnimationUpdateDTO(
-                    WALK_ANIMATION_CYCLE[walkAnimationCycleCounter++],
-                    direction,
-                    movementDuration));
+          launchMovement(player,
+              spatial,
+              movementDuration,
+              targetTile,
+              targetPosition);
 
-            walkAnimationCycleCounter %= 2;
+          direction = autoMoveDirection;
 
-            positionMapper.get(player)
-                          .set(new IntVector3(targetPosition.x,
-                                              targetPosition.y,
-                                              targetTile.getPermissions()
-                                                        .getElevation()));
+          autoMoveQueue.remove();
+        }
+      } else {
+        if (requestedDirection == null) {
+          startDelayCounter = 0;
+        } else {
+          if (startDelayCounter == 0) {
+            orientationMapper.get(player).set(requestedDirection);
+            spatial.update(Spatial.UpdateType.ORIENTATION,
+                requestedDirection);
+
+            direction = requestedDirection;
           }
-        } // end "if startDelayCounter >= START_DELAY"
-      } // end "if requestedDirection != null"
+
+          startDelayCounter += Gdx.graphics.getDeltaTime();
+
+          if (startDelayCounter >= START_DELAY) {
+            startDelayCounter = 0;
+
+            IntVector3 position = positionMapper.get(player).get();
+            IntVector2 targetPosition
+                = position.toIntVector2().add(direction.getVector());
+
+            Tile[][] tiles = tilesMapper.get(tagManager.getEntity("area")).get();
+            Tile currentTile = tiles[position.x][position.y];
+            Tile targetTile = tiles[targetPosition.x][targetPosition.y];
+            if (targetTile.getPermissions() == currentTile.getPermissions()) {
+              launchMovement(player,
+                  spatial,
+                  movementDuration,
+                  targetTile,
+                  targetPosition);
+            } else {
+              /* tmp */
+              if (targetPosition.x == 16 && targetPosition.y == 17) {
+                Spatial areaSpatial
+                    = spatialFormMapper.get(tagManager.getEntity("area")).get();
+
+                areaSpatial.update(Spatial.UpdateType.ANIMATION,
+                    "House.Doors|open");
+
+                autoMoveDelay = 1;
+                autoMoveQueue.push(Direction.NORTH);
+                autoMoveQueue.push(Direction.NORTH);
+              }
+              /* end tmp */
+            }
+          } // end "if startDelayCounter >= START_DELAY"
+        } // end "if requestedDirection != null"
+      } // end "if autoMoveDirection == null"
     } // end "if !moving"
 
     if (moving) {
@@ -190,13 +235,35 @@ public class PlayerMovementSystem extends VoidEntitySystem {
           startDelayCounter = START_DELAY;
 
           spatial.update(Spatial.UpdateType.ORIENTATION,
-                         requestedDirection);
+              requestedDirection);
           orientationMapper.get(player).set(requestedDirection);
 
           direction = requestedDirection;
         }
       } // end "if progressCounter < movementDuration"
     } // end "if moving"
+  }
+
+  private void launchMovement(Entity player,
+                              Spatial spatial,
+                              float duration,
+                              Tile targetTile,
+                              IntVector2 targetPosition) {
+    moving = true;
+
+    spatial.update(Spatial.UpdateType.ANIMATION,
+        new AnimationUpdateDTO(
+            WALK_ANIMATION_CYCLE[walkAnimationCycleCounter++],
+            direction,
+            duration));
+
+    walkAnimationCycleCounter %= 2;
+
+    positionMapper.get(player)
+        .set(new IntVector3(targetPosition.x,
+            targetPosition.y,
+            targetTile.getPermissions()
+                .getElevation()));
   }
 
 }
