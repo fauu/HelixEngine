@@ -32,6 +32,7 @@ import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultTextureBinder;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
+import com.badlogic.gdx.utils.Array;
 import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.graphics.HelixRenderableSorter;
@@ -42,9 +43,7 @@ import com.github.fauu.helix.spatial.DecalSpatial;
 import com.github.fauu.helix.spatial.ModelSpatial;
 import com.github.fauu.helix.spatial.Spatial;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.Iterator;
 
 public class RenderingSystem extends EntitySystem {
 
@@ -66,9 +65,11 @@ public class RenderingSystem extends EntitySystem {
   @Wire
   private HelixCamera camera;
   
-  private Map<UUID, ModelSpatial> modelSpatials;
+  private Array<ModelSpatial> modelSpatials;
 
-  private Map<UUID, DecalSpatial> decalSpatials;
+  private Array<DecalSpatial> decalSpatials;
+
+  private Array<Array<? extends Spatial>> spatialCollections;
   
   private UuidEntityManager uuidEntityManager;
   
@@ -90,9 +91,13 @@ public class RenderingSystem extends EntitySystem {
   protected void initialize() {
     uuidEntityManager = world.getManager(UuidEntityManager.class);
 
-    modelSpatials = new HashMap<UUID, ModelSpatial>();
+    spatialCollections = new Array<Array<? extends Spatial>>();
 
-    decalSpatials = new HashMap<UUID, DecalSpatial>();
+    modelSpatials = new Array<ModelSpatial>();
+    spatialCollections.add(modelSpatials);
+
+    decalSpatials = new Array<DecalSpatial>();
+    spatialCollections.add(decalSpatials);
 
     renderContext = new RenderContext(
         new DefaultTextureBinder(DefaultTextureBinder.WEIGHTED));
@@ -145,12 +150,12 @@ public class RenderingSystem extends EntitySystem {
     renderContext.begin();
     modelBatch.begin(camera);
 
-    modelBatch.render(modelSpatials.values(), environment);
+    modelBatch.render(modelSpatials, environment);
 
     modelBatch.end();
     renderContext.end();
 
-    for (DecalSpatial spatial : decalSpatials.values()) {
+    for (DecalSpatial spatial : decalSpatials) {
       for (Decal d : spatial.getDecals()) {
         decalBatch.add(d);
       }
@@ -175,20 +180,24 @@ public class RenderingSystem extends EntitySystem {
     Spatial spatial = spatialFormMapper.get(e).get();
 
     if (spatial instanceof ModelSpatial) {
-      modelSpatials.put(uuidEntityManager.getUuid(e), (ModelSpatial) spatial);
+      modelSpatials.add((ModelSpatial) spatial);
     } else if (spatial instanceof DecalSpatial) {
-      decalSpatials.put(uuidEntityManager.getUuid(e), (DecalSpatial) spatial);
+      decalSpatials.add((DecalSpatial) spatial);
     }
   }
   
   @Override
   protected void removed(Entity e) {
-    UUID uuid = uuidEntityManager.getUuid(e);
+    Spatial spatialToRemove = spatialFormMapper.get(e).get();
 
-    if (modelSpatials.containsKey(uuid)) {
-      modelSpatials.remove(uuid);
-    } else {
-      decalSpatials.remove(uuid);
+    for (Array<? extends Spatial> spatialCollection : spatialCollections) {
+      Iterator<? extends Spatial> it = spatialCollection.iterator();
+
+      while (it.hasNext()) {
+        if (it.next().equals(spatialToRemove)) {
+          it.remove();
+        }
+      }
     }
   }
 

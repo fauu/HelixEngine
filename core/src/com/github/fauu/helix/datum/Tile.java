@@ -19,7 +19,7 @@ public class Tile {
 
   private TilePermission permissions;
 
-  private TileAreaTransition areaTransition;
+  private TileAreaPassage areaPassage;
 
   public Tile() {
     setPermissions(TilePermission.LEVEL0);
@@ -33,12 +33,12 @@ public class Tile {
     this.permissions = permissions;
   }
 
-  public TileAreaTransition getAreaTransition() {
-    return areaTransition;
+  public TileAreaPassage getAreaPassage() {
+    return areaPassage;
   }
 
-  public void setAreaTransition(TileAreaTransition transition) {
-    areaTransition = transition;
+  public void setAreaPassage(TileAreaPassage passage) {
+    areaPassage = passage;
   }
 
 }

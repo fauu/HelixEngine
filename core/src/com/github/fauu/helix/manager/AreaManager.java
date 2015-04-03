@@ -139,6 +139,7 @@ public class AreaManager extends Manager {
   public void unloadCurrent() {
     if (area != null) {
       area.deleteFromWorld();
+      world.getManager(TagManager.class).getEntity("area").deleteFromWorld();
 
       area = null;
     }
@@ -146,6 +147,10 @@ public class AreaManager extends Manager {
 
   public boolean isAreaLoaded() {
     return area != null;
+  }
+
+  public Entity getArea() {
+    return area;
   }
 
 }

@@ -13,11 +13,13 @@
 
 package com.github.fauu.helix.editor;
 
+import com.artemis.managers.TagManager;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.assets.AssetManager;
 import com.github.fauu.helix.TilePermission;
+import com.github.fauu.helix.editor.event.AreaLoadedEvent;
+import com.github.fauu.helix.editor.event.AreaUnloadedEvent;
 import com.github.fauu.helix.editor.screen.Overworld;
 import com.github.fauu.helix.editor.state.TilePermissionListState;
 import com.github.fauu.helix.editor.state.ToolbarState;
@@ -28,12 +30,10 @@ import com.google.common.eventbus.EventBus;
 public class HelixEditor extends Game {
 
   private static HelixEditor instance;
-  
-  private Overworld overworld;
-  
-  private EventBus editorToUIEventBus;
 
-  private EventBus editorToWorldEventBus;
+  private EventBus uiEventBus;
+
+  private EventBus worldEventBus;
 
   private UI ui;
 
@@ -41,15 +41,18 @@ public class HelixEditor extends Game {
 
   private TilePermissionListState tilePermissionListState;
 
+  private Overworld overworld;
+
+  private TagManager tagManager;
+
+  private AreaManager areaManager;
+
   @Override
   public void create() {
     instance = this;
     
-    editorToUIEventBus = new EventBus();
-    editorToWorldEventBus = new EventBus();
-    
-    overworld = new Overworld();
-    setScreen(overworld);
+    uiEventBus = new EventBus();
+    worldEventBus = new EventBus();
 
     toolbarState = new ToolbarState();
     toolbarState.initialize(ToolType.TILE_PERMISSIONS);
@@ -61,6 +64,12 @@ public class HelixEditor extends Game {
 
     Gdx.input.setInputProcessor(
         new InputMultiplexer(ui.getStage(), new EditorInputEventProcessor()));
+
+    overworld = new Overworld();
+    setScreen(overworld);
+
+    tagManager = overworld.getWorld().getManager(TagManager.class);
+    areaManager = overworld.getWorld().getManager(AreaManager.class);
 
     loadAreaAction("area1");
   }
@@ -82,7 +91,11 @@ public class HelixEditor extends Game {
   }
 
   public void closeCurrentAreaAction() {
-    overworld.getWorld().getManager(AreaManager.class).unloadCurrent();
+    areaManager.unloadCurrent();
+
+    worldEventBus.post(new AreaUnloadedEvent());
+
+    tagManager.getEntity("tilePermissionsGrid").deleteFromWorld();
 
     ui.setSidebarVisibility(false);
   }
@@ -92,7 +105,9 @@ public class HelixEditor extends Game {
   }
 
   public void loadAreaAction(String name) {
-    overworld.getWorld().getManager(AreaManager.class).load(name);
+    areaManager.load(name);
+
+    worldEventBus.post(new AreaLoadedEvent());
 
     ui.setSidebarVisibility(true);
 
@@ -102,7 +117,7 @@ public class HelixEditor extends Game {
   }
 
   public void saveAreaAction() {
-    overworld.getWorld().getManager(AreaManager.class).save();
+    areaManager.save();
   }
 
   public void exitAction() {
@@ -118,26 +133,21 @@ public class HelixEditor extends Game {
   }
 
   public void toolSelected(ToolType type) {
-    boolean areaLoaded
-        = overworld.getWorld().getManager(AreaManager.class).isAreaLoaded();
-
-    if (type == ToolType.TILE_PERMISSIONS && areaLoaded) {
+    if (type == ToolType.TILE_PERMISSIONS &&
+        areaManager != null &&
+        areaManager.isAreaLoaded()) {
       fadeAreaModelAction(true);
     }
   }
 
   public EventBus getUIEventBus() {
-    return editorToUIEventBus;
+    return uiEventBus;
   }
 
   public EventBus getWorldEventBus() {
-    return editorToWorldEventBus;
+    return worldEventBus;
   }
   
-  public AssetManager getAssetManager() {
-    return overworld.getAssetManager();
-  }
-
   public ToolbarState getToolbarState() {
     return toolbarState;
   }

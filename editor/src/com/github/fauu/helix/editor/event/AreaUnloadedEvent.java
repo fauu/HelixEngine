@@ -11,14 +11,6 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.datum;
+package com.github.fauu.helix.editor.event;
 
-public class TileAreaTransition {
-
-  private Type type;
-
-  public enum Type {
-    INSTANT, DELAYED;
-  }
-
-}
+public class AreaUnloadedEvent { }

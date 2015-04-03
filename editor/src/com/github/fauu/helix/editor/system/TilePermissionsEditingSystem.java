@@ -31,8 +31,11 @@ import com.github.fauu.helix.component.VisibilityComponent;
 import com.github.fauu.helix.datum.SpatialUpdateRequest;
 import com.github.fauu.helix.datum.Tile;
 import com.github.fauu.helix.editor.HelixEditor;
+import com.github.fauu.helix.editor.event.AreaLoadedEvent;
+import com.github.fauu.helix.editor.event.AreaUnloadedEvent;
 import com.github.fauu.helix.editor.event.TilePermissionListStateChangedEvent;
 import com.github.fauu.helix.editor.spatial.TilePermissionsGridSpatial;
+import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.spatial.Spatial;
 import com.google.common.eventbus.Subscribe;
 
@@ -41,6 +44,12 @@ import java.util.HashMap;
 public class TilePermissionsEditingSystem extends EntityProcessingSystem {
 
   private static final String atlasPath = "texture-atlas/tile-permissions.atlas";
+
+  @Wire
+  private AreaManager areaManager;
+
+  @Wire
+  private TagManager tagManager;
 
   @Wire
   private ComponentMapper<DimensionsComponent> dimensionsMapper;
@@ -57,8 +66,6 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
   @Wire
   private AssetManager assetManager;
 
-  private boolean ready;
-
   private Tile highlightedTile;
 
   private Tile lastUpdatedTile;
@@ -67,47 +74,38 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
 
   @SuppressWarnings("unchecked")
   public TilePermissionsEditingSystem() {
-    super(Aspect.getAspectForAll(TilesComponent.class,
-                                 DimensionsComponent.class));
+    super(Aspect.getAspectForAll(TilesComponent.class));
   }
 
   @Override
   protected void initialize() {
     HelixEditor.getInstance().getWorldEventBus().register(this);
 
+    areaManager = world.getManager(AreaManager.class);
+    tagManager = world.getManager(TagManager.class);
+
     assetManager.load(atlasPath, TextureAtlas.class);
     assetManager.finishLoading();
-
-    Entity grid = world.createEntity()
-                       .edit()
-                       .getEntity();
-
-    world.getManager(TagManager.class)
-         .register("tilePermissionsGrid", grid);
   }
 
-  private void consumeArea() {
-    Entity area = world.getManager(TagManager.class).getEntity("area");
+  private void createGrid() {
+    Entity area = areaManager.getArea();
 
-    Entity grid = world.getManager(TagManager.class)
-                       .getEntity("tilePermissionsGrid");
-    grid.edit()
+    Entity grid = world.createEntity()
+        .edit()
         .add(new DimensionsComponent(dimensionsMapper.get(area).get()))
         .add(new SpatialFormComponent(
             new TilePermissionsGridSpatial(
                 tilesMapper.get(area).get(),
                 assetManager.get(atlasPath, TextureAtlas.class))))
-        .add(new VisibilityComponent());
+        .add(new VisibilityComponent())
+        .getEntity();
+
+    tagManager.register("tilePermissionsGrid", grid);
   }
 
   @Override
   protected void process(Entity e) {
-    if (!ready) {
-      consumeArea();
-
-      ready = true;
-    }
-
     Tile highlightedTile = tileHighlightingSystem.getHighlightedTile();
 
     if (highlightedTile != this.highlightedTile) {
@@ -117,7 +115,7 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
     if (lastUpdatedTile != highlightedTile &&
         highlightedTile != null &&
         Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-      Entity area = world.getManager(TagManager.class).getEntity("area");
+      Entity area = areaManager.getArea();
 
       Tile[][] tiles = tilesMapper.get(area).get();
 
@@ -131,8 +129,7 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
             HashMap<Integer, Tile> updatedTilesWithIndex = new HashMap<>();
             updatedTilesWithIndex.put(x + y * tiles.length, tile);
 
-            Entity grid = world.getManager(TagManager.class)
-                               .getEntity("tilePermissionsGrid");
+            Entity grid = tagManager.getEntity("tilePermissionsGrid");
 
             spatialFormMapper
                 .get(grid)
@@ -147,6 +144,16 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
         }
       }
     }
+  }
+
+  @Subscribe
+  public void AreaLodaded(AreaLoadedEvent e) {
+    createGrid();
+  }
+
+  @Subscribe
+  public void AreaUnloaded(AreaUnloadedEvent e) {
+    tagManager.getEntity("tilePermissionsGrid").deleteFromWorld();
   }
 
   @Subscribe
