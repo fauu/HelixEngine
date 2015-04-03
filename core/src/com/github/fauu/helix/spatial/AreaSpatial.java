@@ -37,7 +37,6 @@ public class AreaSpatial extends ModelSpatial {
 
     animationController = new AnimationController(instance);
 
-    instance.transform.rotate(new Vector3(0, 0, 1), -180);
     instance.transform.rotate(new Vector3(1, 0, 0), 90);
 
     for (Material material : instance.materials) {

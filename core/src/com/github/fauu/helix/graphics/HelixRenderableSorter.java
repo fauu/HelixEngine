@@ -25,35 +25,37 @@ public class HelixRenderableSorter implements RenderableSorter,
                                               Comparator<Renderable> {
 	private Camera camera;
 
-	private Vector3 scale1 = new Vector3();
-  private Vector3 position1 = new Vector3();
-
-	private Vector3 scale2 = new Vector3();
-  private Vector3 position2 = new Vector3();
+  private Vector3 translation1 = new Vector3();
+  private Vector3 translation2 = new Vector3();
 
 	@Override
-	public void sort (Camera camera, Array<Renderable> renderables) {
+	public void sort(Camera camera, Array<Renderable> renderables) {
 		this.camera = camera;
 
 		renderables.sort(this);
 	}
 
 	@Override
-	public int compare (Renderable o1, Renderable o2) {
-		o1.worldTransform.getScale(scale1);
-    o2.worldTransform.getScale(scale2);
+	public int compare(Renderable r1, Renderable r2) {
+		r1.worldTransform.getTranslation(translation1);
+    r2.worldTransform.getTranslation(translation2);
 
-    if (scale1.len() > 20f) {
-      return 1;
-    } else if (scale2.len() > 20f) {
-      return -1;
-    } else {
-      // This makes no sense but works for now
-      float dst = (int) (1000f * camera.position.dst2(scale1)) -
-                  (int)  (1000f * camera.position.dst2(scale2));
+		float z1 = translation1.z;
+		float z2 = translation2.z;
 
-      return dst < 0 ? -1 : (dst > 0 ? 1 : 0);
-    }
+		if (z1 < 0 && z2 > 0) {
+			return -1;
+		} else if (z1 > 0 && z2 < 0) {
+			return 1;
+		} else {
+			if (z1 < z2) {
+				return 1;
+			} else if (z1 > z2) {
+				return -1;
+			} else {
+				return 0;
+			}
+		}
 	}
 
 }

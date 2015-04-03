@@ -55,10 +55,10 @@ public class TilePermissionsGridSpatial extends ModelSpatial {
         meshBuilder.setUVRange(
             atlas.findRegion(tiles[x][y].getPermissions().name()));
 
-        meshBuilder.rect(x,     y,     Z_OFFSET,
-                         x + 1, y,     Z_OFFSET,
-                         x + 1, y + 1, Z_OFFSET,
-                         x,     y + 1, Z_OFFSET,
+        meshBuilder.rect(x,     y,     0,
+                         x + 1, y,     0,
+                         x + 1, y + 1, 0,
+                         x,     y + 1, 0,
                          0,     0,     1);
       }
     }
@@ -76,6 +76,7 @@ public class TilePermissionsGridSpatial extends ModelSpatial {
                                                                   .first()))));
 
     instance = new ModelInstance(modelBuilder.end());
+    instance.transform.translate(0, 0, Z_OFFSET);
   }
 
   @Override
