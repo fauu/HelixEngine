@@ -92,7 +92,7 @@ public class TileHighlightingSystem extends EntityProcessingSystem {
         boundingBox.mul(transformation);
 
         if (Intersector.intersectRayBoundsFast(ray, boundingBox)) {
-          if (tiles[x][y] != highlightedTile) {
+         if (tiles[y][x] != highlightedTile) {
             spatialFormMapper
                 .get(highlight)
                 .requestUpdate(
@@ -101,7 +101,7 @@ public class TileHighlightingSystem extends EntityProcessingSystem {
 
             highlight.edit().create(VisibilityComponent.class);
 
-            highlightedTile = tiles[x][y];
+            highlightedTile = tiles[y][x];
           }
 
           hovering = true;

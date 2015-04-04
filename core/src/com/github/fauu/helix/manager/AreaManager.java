@@ -27,10 +27,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.github.fauu.helix.TilePermission;
-import com.github.fauu.helix.component.DimensionsComponent;
-import com.github.fauu.helix.component.SpatialFormComponent;
-import com.github.fauu.helix.component.TilesComponent;
-import com.github.fauu.helix.component.VisibilityComponent;
+import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.datum.Tile;
 import com.github.fauu.helix.json.wrapper.AreaWrapper;
 import com.github.fauu.helix.json.wrapper.TileWrapper;
@@ -44,6 +41,9 @@ public class AreaManager extends Manager {
 
   @Wire
   private ComponentMapper<DimensionsComponent> dimensionsMapper;
+
+  @Wire
+  private ComponentMapper<NameComponent> nameMapper;
 
   @Wire
   private ComponentMapper<SpatialFormComponent> spatialFormMapper;
@@ -99,14 +99,14 @@ public class AreaManager extends Manager {
 
     AreaWrapper areaWrapper = json.fromJson(AreaWrapper.class, file);
 
-    Tile[][] tiles = new Tile[areaWrapper.width][areaWrapper.length];
+    Tile[][] tiles = new Tile[areaWrapper.length][areaWrapper.width];
     int i = 0;
     for (TileWrapper wrapper : areaWrapper.tiles) {
       Tile tile = new Tile();
 
       tile.setPermissions(wrapper.permissions);
 
-      tiles[i % areaWrapper.width][i / areaWrapper.width] = tile;
+      tiles[i / areaWrapper.width][i % areaWrapper.width] = tile;
 
       i++;
     }
@@ -127,6 +127,7 @@ public class AreaManager extends Manager {
                        .add(new DimensionsComponent(
                            new IntVector2(areaWrapper.width,
                                           areaWrapper.length)))
+                       .add(new NameComponent(name))
                        .add(new SpatialFormComponent(new AreaSpatial(model)))
                        .add(new VisibilityComponent())
                        .getEntity();
@@ -138,9 +139,11 @@ public class AreaManager extends Manager {
   public void save() {
     Json json = new Json();
 
-    IntVector2 dimensions = dimensionsMapper.get(area).get();
+    String name = nameMapper.get(area).get();
 
-    FileHandle file = Gdx.files.internal("area/FIXME.json");
+    FileHandle file = Gdx.files.internal("area/" + name + ".json");
+
+    IntVector2 dimensions = dimensionsMapper.get(area).get();
 
     try {
       json.setWriter(new JsonWriter(new FileWriter(file.file())));
@@ -156,7 +159,7 @@ public class AreaManager extends Manager {
     for (int y = 0; y < dimensions.y; y++) {
       for (int x = 0; x < dimensions.x; x++) {
         json.writeObjectStart();
-        json.writeValue("permissions", tiles[x][y].getPermissions().toString());
+        json.writeValue("permissions", tiles[y][x].getPermissions().toString());
         json.writeObjectEnd();
       }
     }

@@ -72,6 +72,8 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
 
   private TilePermission selectedTilePermission;
 
+  private boolean running;
+
   @SuppressWarnings("unchecked")
   public TilePermissionsEditingSystem() {
     super(Aspect.getAspectForAll(TilesComponent.class));
@@ -121,7 +123,7 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
 
       for (int y = 0; y < tiles.length; y++) {
         for (int x = 0; x < tiles[y].length; x++) {
-          Tile tile = tiles[x][y];
+          Tile tile = tiles[y][x];
 
           if (tile == highlightedTile) {
             tile.setPermissions(selectedTilePermission);
@@ -146,18 +148,27 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
     }
   }
 
-  @Subscribe
-  public void AreaLodaded(AreaLoadedEvent e) {
-    createGrid();
+  @Override
+  public boolean checkProcessing() {
+    return running;
   }
 
   @Subscribe
-  public void AreaUnloaded(AreaUnloadedEvent e) {
+  public void areaLodaded(AreaLoadedEvent e) {
+    createGrid();
+
+    running = true;
+  }
+
+  @Subscribe
+  public void areaUnloaded(AreaUnloadedEvent e) {
+    running = false;
+
     tagManager.getEntity("tilePermissionsGrid").deleteFromWorld();
   }
 
   @Subscribe
-  public void TilePermissionListStateChanged(
+  public void tilePermissionListStateChanged(
       TilePermissionListStateChangedEvent e) {
     selectedTilePermission = e.getMessage();
   }

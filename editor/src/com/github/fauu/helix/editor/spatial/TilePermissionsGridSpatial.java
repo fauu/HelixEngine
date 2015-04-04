@@ -53,7 +53,7 @@ public class TilePermissionsGridSpatial extends ModelSpatial {
       for (int x = 0; x < tiles[y].length; x++) {
         // TODO: Cache regions
         meshBuilder.setUVRange(
-            atlas.findRegion(tiles[x][y].getPermissions().name()));
+            atlas.findRegion(tiles[y][x].getPermissions().name()));
 
         meshBuilder.rect(x,     y,     0,
                          x + 1, y,     0,

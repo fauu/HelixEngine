@@ -54,6 +54,9 @@ public class HelixEditor extends Game {
     uiEventBus = new EventBus();
     worldEventBus = new EventBus();
 
+    overworld = new Overworld();
+    setScreen(overworld);
+
     toolbarState = new ToolbarState();
     toolbarState.initialize(ToolType.TILE_PERMISSIONS);
 
@@ -64,9 +67,6 @@ public class HelixEditor extends Game {
 
     Gdx.input.setInputProcessor(
         new InputMultiplexer(ui.getStage(), new EditorInputEventProcessor()));
-
-    overworld = new Overworld();
-    setScreen(overworld);
 
     tagManager = overworld.getWorld().getManager(TagManager.class);
     areaManager = overworld.getWorld().getManager(AreaManager.class);
@@ -122,8 +122,6 @@ public class HelixEditor extends Game {
     areaManager.unloadCurrent();
 
     worldEventBus.post(new AreaUnloadedEvent());
-
-    tagManager.getEntity("tilePermissionsGrid").deleteFromWorld();
 
     ui.setSidebarVisibility(false);
   }

@@ -35,6 +35,10 @@ public class WeatherManager extends Manager {
     ParticleEffect precipitationEffect = null;
 
     switch (type) {
+      case NONE:
+        environment.set(
+            new ColorAttribute(ColorAttribute.AmbientLight, 1, 1, 1, 1));
+        break;
       case SUNNY:
         bloom = new Bloom();
         bloom.setBloomIntesity(1.1f);
@@ -92,7 +96,7 @@ public class WeatherManager extends Manager {
   }
 
   public enum WeatherType {
-    SUNNY, OVERCAST, RAINSTORM;
+    NONE, SUNNY, OVERCAST, RAINSTORM;
   }
 
 }
