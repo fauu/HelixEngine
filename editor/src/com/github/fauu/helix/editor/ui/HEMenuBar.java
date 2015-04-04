@@ -29,15 +29,25 @@ public class HEMenuBar extends MenuBar {
 
     Menu fileMenu = new Menu("File");
 
-    MenuItem openMapRegionMenuItem = new MenuItem("Open Area...",
+    MenuItem newAreaMenuItem = new MenuItem("New Area...",
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            HelixEditor.getInstance().newAreaAction();
+          }
+        });
+    newAreaMenuItem.setShortcut(Input.Keys.CONTROL_LEFT, Input.Keys.N);
+    fileMenu.addItem(newAreaMenuItem);
+
+    MenuItem openAreaMenuItem = new MenuItem("Open Area...",
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             HelixEditor.getInstance().openAreaAction();
           }
         });
-    openMapRegionMenuItem.setShortcut(Input.Keys.CONTROL_LEFT, Input.Keys.O);
-    fileMenu.addItem(openMapRegionMenuItem);
+    openAreaMenuItem.setShortcut(Input.Keys.CONTROL_LEFT, Input.Keys.O);
+    fileMenu.addItem(openAreaMenuItem);
 
     MenuItem saveAreaMenuItem = new MenuItem("Save Area",
         new ChangeListener() {

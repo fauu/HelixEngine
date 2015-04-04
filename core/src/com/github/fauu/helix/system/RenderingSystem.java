@@ -140,7 +140,7 @@ public class RenderingSystem extends EntitySystem {
 
     GL20 gl = Gdx.graphics.getGL20();
 
-    gl.glClearColor(0.53f, 0.8f, 0.92f, 1);
+    gl.glClearColor(0, 0, 0, 1);
     gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
     if (bloom != null) {

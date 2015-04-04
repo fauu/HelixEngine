@@ -26,6 +26,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
+import com.github.fauu.helix.TilePermission;
 import com.github.fauu.helix.component.DimensionsComponent;
 import com.github.fauu.helix.component.SpatialFormComponent;
 import com.github.fauu.helix.component.TilesComponent;
@@ -54,6 +55,40 @@ public class AreaManager extends Manager {
   private AssetManager assetManager;
 
   private Entity area;
+
+  public void create(String name, int width, int length) {
+    Json json = new Json();
+
+    IntVector2 dimensions = new IntVector2(width, length);
+
+    FileHandle file = Gdx.files.internal("area/" + name + ".json");
+
+    try {
+      json.setWriter(new JsonWriter(new FileWriter(file.file())));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    json.writeObjectStart();
+    json.writeValue("width", dimensions.x);
+    json.writeValue("length", dimensions.y);
+    json.writeArrayStart("tiles");
+    for (int y = 0; y < dimensions.y; y++) {
+      for (int x = 0; x < dimensions.x; x++) {
+        json.writeObjectStart();
+        json.writeValue("permissions", TilePermission.LEVEL0.toString());
+        json.writeObjectEnd();
+      }
+    }
+    json.writeArrayEnd();
+    json.writeObjectEnd();
+
+    try {
+      json.getWriter().close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
   public void load(String name) {
     loadFromFile(Gdx.files.internal("area/" + name + ".json"), name);
@@ -105,7 +140,7 @@ public class AreaManager extends Manager {
 
     IntVector2 dimensions = dimensionsMapper.get(area).get();
 
-    FileHandle file = Gdx.files.internal("area/area1.json");
+    FileHandle file = Gdx.files.internal("area/FIXME.json");
 
     try {
       json.setWriter(new JsonWriter(new FileWriter(file.file())));
@@ -133,7 +168,6 @@ public class AreaManager extends Manager {
     } catch (IOException e) {
       e.printStackTrace();
     }
-
   }
   
   public void unloadCurrent() {

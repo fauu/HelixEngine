@@ -71,7 +71,7 @@ public class HelixEditor extends Game {
     tagManager = overworld.getWorld().getManager(TagManager.class);
     areaManager = overworld.getWorld().getManager(AreaManager.class);
 
-    loadAreaAction("area1");
+    loadAreaAction("house1-interior");
   }
 
   public static HelixEditor getInstance() {
@@ -90,14 +90,12 @@ public class HelixEditor extends Game {
     ui.dispose();
   }
 
-  public void closeCurrentAreaAction() {
-    areaManager.unloadCurrent();
+  public void newAreaAction() {
+    ui.showNewAreaDialog();
+  }
 
-    worldEventBus.post(new AreaUnloadedEvent());
-
-    tagManager.getEntity("tilePermissionsGrid").deleteFromWorld();
-
-    ui.setSidebarVisibility(false);
+  public void createAreaAction(String name, int width, int length) {
+    areaManager.create(name, width, length);
   }
 
   public void openAreaAction() {
@@ -120,12 +118,23 @@ public class HelixEditor extends Game {
     areaManager.save();
   }
 
+  public void closeCurrentAreaAction() {
+    areaManager.unloadCurrent();
+
+    worldEventBus.post(new AreaUnloadedEvent());
+
+    tagManager.getEntity("tilePermissionsGrid").deleteFromWorld();
+
+    ui.setSidebarVisibility(false);
+  }
+
+
   public void exitAction() {
     Gdx.app.exit();
   }
 
   public void fadeAreaModelAction(boolean on) {
-    overworld.getSpatialIntermediary().setAreaSpatialOpacity(on ? 0.75f : 1);
+    overworld.getSpatialIntermediary().setAreaSpatialOpacity(on ? 0.6f : 1);
   }
 
   public void centerCameraOnAreaAction() {

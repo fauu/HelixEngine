@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.github.fauu.helix.editor.HelixEditor;
+import com.github.fauu.helix.editor.ui.dialog.NewAreaDialog;
 import com.github.fauu.helix.editor.util.FileExtensionFilter;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.file.FileChooser;
@@ -55,6 +56,10 @@ public class UI {
   public void dispose() {
     stage.dispose();
     VisUI.dispose();
+  }
+
+  public void showNewAreaDialog() {
+    stage.addActor((new NewAreaDialog()).fadeIn());
   }
 
   public void showOpenAreaFileChooser() {

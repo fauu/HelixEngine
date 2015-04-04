@@ -79,6 +79,7 @@ public class TilePermissionsGridSpatial extends ModelSpatial {
     instance.transform.translate(0, 0, Z_OFFSET);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public void update(UpdateType type, Object value) {
     switch (type) {
@@ -99,10 +100,10 @@ public class TilePermissionsGridSpatial extends ModelSpatial {
 
           TextureRegion region = atlas.findRegion(tile.getPermissions().name());
 
-          float[] uv = new float[] { region.getU(), region.getV2(),
+          float[] uv = new float[] { region.getU() , region.getV2(),
                                      region.getU2(), region.getV2(),
                                      region.getU2(), region.getV(),
-                                     region.getU(), region.getV() };
+                                     region.getU() , region.getV() };
 
           for (int i = 0; i < 4; i++) {
             vertices[i * 5 + 3] = uv[i * 2];
