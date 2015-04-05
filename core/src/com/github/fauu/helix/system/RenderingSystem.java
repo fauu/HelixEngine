@@ -34,14 +34,14 @@ import com.badlogic.gdx.graphics.g3d.utils.DefaultTextureBinder;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.utils.Array;
 import com.github.fauu.helix.component.*;
+import com.github.fauu.helix.displayable.DecalDisplayable;
+import com.github.fauu.helix.displayable.Displayable;
+import com.github.fauu.helix.displayable.ModelDisplayable;
 import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.graphics.HelixRenderableSorter;
 import com.github.fauu.helix.graphics.ParticleEffect;
 import com.github.fauu.helix.manager.WeatherManager;
 import com.github.fauu.helix.postprocessing.Bloom;
-import com.github.fauu.helix.spatial.DecalSpatial;
-import com.github.fauu.helix.spatial.ModelSpatial;
-import com.github.fauu.helix.spatial.Spatial;
 
 import java.util.Iterator;
 
@@ -60,16 +60,16 @@ public class RenderingSystem extends EntitySystem {
   private ComponentMapper<ParticleEffectComponent> particleEffectMapper;
   
   @Wire
-  private ComponentMapper<SpatialFormComponent> spatialFormMapper;
+  private ComponentMapper<DisplayableComponent> displayableMapper;
   
   @Wire
   private HelixCamera camera;
   
-  private Array<ModelSpatial> modelSpatials;
+  private Array<ModelDisplayable> modelDisplayables;
 
-  private Array<DecalSpatial> decalSpatials;
+  private Array<DecalDisplayable> decalDisplayables;
 
-  private Array<Array<? extends Spatial>> spatialCollections;
+  private Array<Array<? extends Displayable>> displayableCollections;
   
   private UuidEntityManager uuidEntityManager;
   
@@ -83,7 +83,7 @@ public class RenderingSystem extends EntitySystem {
 
   @SuppressWarnings("unchecked")
   public RenderingSystem() {
-    super(Aspect.getAspectForAll(SpatialFormComponent.class,
+    super(Aspect.getAspectForAll(DisplayableComponent.class,
                                  VisibilityComponent.class));
   }
   
@@ -91,13 +91,13 @@ public class RenderingSystem extends EntitySystem {
   protected void initialize() {
     uuidEntityManager = world.getManager(UuidEntityManager.class);
 
-    spatialCollections = new Array<Array<? extends Spatial>>();
+    displayableCollections = new Array<Array<? extends Displayable>>();
 
-    modelSpatials = new Array<ModelSpatial>();
-    spatialCollections.add(modelSpatials);
+    modelDisplayables = new Array<ModelDisplayable>();
+    displayableCollections.add(modelDisplayables);
 
-    decalSpatials = new Array<DecalSpatial>();
-    spatialCollections.add(decalSpatials);
+    decalDisplayables = new Array<DecalDisplayable>();
+    displayableCollections.add(decalDisplayables);
 
     renderContext = new RenderContext(
         new DefaultTextureBinder(DefaultTextureBinder.WEIGHTED));
@@ -150,13 +150,13 @@ public class RenderingSystem extends EntitySystem {
     renderContext.begin();
     modelBatch.begin(camera);
 
-    modelBatch.render(modelSpatials, environment);
+    modelBatch.render(modelDisplayables, environment);
 
     modelBatch.end();
     renderContext.end();
 
-    for (DecalSpatial spatial : decalSpatials) {
-      for (Decal d : spatial.getDecals()) {
+    for (DecalDisplayable displayable : decalDisplayables) {
+      for (Decal d : displayable.getDecals()) {
         decalBatch.add(d);
       }
     }
@@ -172,29 +172,28 @@ public class RenderingSystem extends EntitySystem {
     if (bloom != null) {
       bloom.render();
     }
-
   }
   
   @Override
   protected void inserted(Entity e) {
-    Spatial spatial = spatialFormMapper.get(e).get();
+    Displayable displayable = displayableMapper.get(e).get();
 
-    if (spatial instanceof ModelSpatial) {
-      modelSpatials.add((ModelSpatial) spatial);
-    } else if (spatial instanceof DecalSpatial) {
-      decalSpatials.add((DecalSpatial) spatial);
+    if (displayable instanceof ModelDisplayable) {
+      modelDisplayables.add((ModelDisplayable) displayable);
+    } else if (displayable instanceof DecalDisplayable) {
+      decalDisplayables.add((DecalDisplayable) displayable);
     }
   }
   
   @Override
   protected void removed(Entity e) {
-    Spatial spatialToRemove = spatialFormMapper.get(e).get();
+    Displayable displayableToRemove = displayableMapper.get(e).get();
 
-    for (Array<? extends Spatial> spatialCollection : spatialCollections) {
-      Iterator<? extends Spatial> it = spatialCollection.iterator();
+    for (Array<? extends Displayable> displayableCollection : displayableCollections) {
+      Iterator<? extends Displayable> it = displayableCollection.iterator();
 
       while (it.hasNext()) {
-        if (it.next().equals(spatialToRemove)) {
+        if (it.next().equals(displayableToRemove)) {
           it.remove();
         }
       }

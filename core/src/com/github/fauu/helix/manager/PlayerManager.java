@@ -21,7 +21,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.github.fauu.helix.Direction;
 import com.github.fauu.helix.component.*;
-import com.github.fauu.helix.spatial.CharacterSpatial;
+import com.github.fauu.helix.displayable.CharacterDisplayable;
 import com.github.fauu.helix.util.IntVector3;
 
 public class PlayerManager extends Manager {
@@ -51,8 +51,8 @@ public class PlayerManager extends Manager {
                   .add(new OrientationComponent(playerOrientation))
                   .add(new MovementSpeedComponent(playerMovementSpeed))
                   .add(new PositionComponent(playerPosition))
-                  .add(new SpatialFormComponent(
-                      new CharacterSpatial(playerPosition,
+                  .add(new DisplayableComponent(
+                      new CharacterDisplayable(playerPosition,
                           "player",
                           shadowTexture)))
                   .add(new VisibilityComponent())

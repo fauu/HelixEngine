@@ -19,27 +19,27 @@ import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.EntityProcessingSystem;
 import com.badlogic.gdx.Gdx;
-import com.github.fauu.helix.component.SpatialFormComponent;
-import com.github.fauu.helix.spatial.ModelSpatial;
-import com.github.fauu.helix.spatial.Spatial;
+import com.github.fauu.helix.component.DisplayableComponent;
+import com.github.fauu.helix.displayable.Displayable;
+import com.github.fauu.helix.displayable.ModelDisplayable;
 
 // TODO: Cache animation controllers
-public class SpatialAnimationUpdateSystem extends EntityProcessingSystem {
+public class DisplayableAnimationUpdateSystem extends EntityProcessingSystem {
 
   @Wire
-  private ComponentMapper<SpatialFormComponent> spatialFormMapper;
+  private ComponentMapper<DisplayableComponent> displayableMapper;
 
-  public SpatialAnimationUpdateSystem() {
-    super(Aspect.getAspectForAll(SpatialFormComponent.class));
+  public DisplayableAnimationUpdateSystem() {
+    super(Aspect.getAspectForAll(DisplayableComponent.class));
   }
 
   @Override
   protected void process(Entity e) {
-    Spatial spatial = spatialFormMapper.get(e).get();
+    Displayable displayable = displayableMapper.get(e).get();
 
-    if (spatial instanceof ModelSpatial) {
-      ((ModelSpatial) spatial).getAnimationController()
-                              .update(Gdx.graphics.getDeltaTime());
+    if (displayable instanceof ModelDisplayable) {
+      ((ModelDisplayable) displayable).getAnimationController()
+                                      .update(Gdx.graphics.getDeltaTime());
     }
   }
 

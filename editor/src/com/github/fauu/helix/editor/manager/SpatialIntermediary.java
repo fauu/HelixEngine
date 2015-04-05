@@ -18,21 +18,21 @@ import com.artemis.Entity;
 import com.artemis.Manager;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
-import com.github.fauu.helix.component.SpatialFormComponent;
-import com.github.fauu.helix.datum.SpatialUpdateRequest;
-import com.github.fauu.helix.spatial.Spatial;
+import com.github.fauu.helix.component.DisplayableComponent;
+import com.github.fauu.helix.datum.DisplayableUpdateRequest;
+import com.github.fauu.helix.displayable.Displayable;
 
-public class SpatialIntermediary extends Manager {
+public class DisplayableIntermediary extends Manager {
 
   @Wire
-  private ComponentMapper<SpatialFormComponent> spatialFormMapper;
+  private ComponentMapper<DisplayableComponent> displayableMapper;
 
-  public void setAreaSpatialOpacity(float value) {
+  public void setAreaDisplayableOpacity(float value) {
     Entity area = world.getManager(TagManager.class).getEntity("area");
 
-    spatialFormMapper.get(area)
+    displayableMapper.get(area)
                      .requestUpdate(
-                         new SpatialUpdateRequest(Spatial.UpdateType.OPACITY,
+                         new DisplayableUpdateRequest(Displayable.UpdateType.OPACITY,
                                                   value));
   }
 

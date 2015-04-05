@@ -26,12 +26,13 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
+import com.github.fauu.helix.PassageAction;
 import com.github.fauu.helix.TilePermission;
 import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.datum.Tile;
+import com.github.fauu.helix.displayable.AreaDisplayable;
 import com.github.fauu.helix.json.wrapper.AreaWrapper;
 import com.github.fauu.helix.json.wrapper.TileWrapper;
-import com.github.fauu.helix.spatial.AreaSpatial;
 import com.github.fauu.helix.util.IntVector2;
 
 import java.io.FileWriter;
@@ -43,10 +44,10 @@ public class AreaManager extends Manager {
   private ComponentMapper<DimensionsComponent> dimensionsMapper;
 
   @Wire
-  private ComponentMapper<NameComponent> nameMapper;
+  private ComponentMapper<DisplayableComponent> displayableMapper;
 
   @Wire
-  private ComponentMapper<SpatialFormComponent> spatialFormMapper;
+  private ComponentMapper<NameComponent> nameMapper;
 
   @Wire
   private ComponentMapper<TilesComponent> tilesMapper;
@@ -128,7 +129,7 @@ public class AreaManager extends Manager {
                            new IntVector2(areaWrapper.width,
                                           areaWrapper.length)))
                        .add(new NameComponent(name))
-                       .add(new SpatialFormComponent(new AreaSpatial(model)))
+                       .add(new DisplayableComponent(new AreaDisplayable(model)))
                        .add(new VisibilityComponent())
                        .getEntity();
     world.getManager(TagManager.class).register("area", area);
@@ -176,10 +177,17 @@ public class AreaManager extends Manager {
   public void unloadCurrent() {
     if (area != null) {
       area.deleteFromWorld();
-      world.getManager(TagManager.class).getEntity("area").deleteFromWorld();
 
       area = null;
     }
+  }
+
+  public static String constructPassageAnimationId(IntVector2 passageCoords,
+                                                   PassageAction action) {
+    return "passage-" +
+           action.toString().toLowerCase() +
+           "-" + String.valueOf(passageCoords.x) +
+           "-" + String.valueOf(passageCoords.y);
   }
 
   public boolean isAreaLoaded() {

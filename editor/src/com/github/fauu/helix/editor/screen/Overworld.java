@@ -22,7 +22,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.editor.manager.CameraIntermediary;
-import com.github.fauu.helix.editor.manager.SpatialIntermediary;
+import com.github.fauu.helix.editor.manager.DisplayableIntermediary;
 import com.github.fauu.helix.editor.system.CameraControlSystem;
 import com.github.fauu.helix.editor.system.TileHighlightingSystem;
 import com.github.fauu.helix.editor.system.TilePermissionsEditingSystem;
@@ -30,8 +30,8 @@ import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.manager.TextureManager;
 import com.github.fauu.helix.manager.WeatherManager;
+import com.github.fauu.helix.system.DisplayableUpdateSystem;
 import com.github.fauu.helix.system.RenderingSystem;
-import com.github.fauu.helix.system.SpatialUpdateSystem;
 
 public class Overworld implements Screen {
 
@@ -41,7 +41,7 @@ public class Overworld implements Screen {
 
   private AssetManager assetManager;
 
-  private SpatialIntermediary spatialIntermediary;
+  private DisplayableIntermediary displayableIntermediary;
 
   private CameraIntermediary cameraIntermediary;
 
@@ -61,13 +61,13 @@ public class Overworld implements Screen {
     world.setManager(new GroupManager());
     world.setManager(new AreaManager());
     world.setManager(new WeatherManager());
-    world.setManager(spatialIntermediary = new SpatialIntermediary());
+    world.setManager(displayableIntermediary = new DisplayableIntermediary());
     world.setManager(cameraIntermediary = new CameraIntermediary());
 
     world.setSystem(new CameraControlSystem());
     world.setSystem(new TileHighlightingSystem());
     world.setSystem(new TilePermissionsEditingSystem());
-    world.setSystem(new SpatialUpdateSystem());
+    world.setSystem(new DisplayableUpdateSystem());
     world.setSystem(new RenderingSystem());
 
     world.initialize();
@@ -108,8 +108,8 @@ public class Overworld implements Screen {
     return assetManager;
   }
 
-  public SpatialIntermediary getSpatialIntermediary() {
-    return spatialIntermediary;
+  public DisplayableIntermediary getDisplayableIntermediary() {
+    return displayableIntermediary;
   }
 
   public CameraIntermediary getCameraIntermediary() {

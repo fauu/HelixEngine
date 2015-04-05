@@ -13,24 +13,24 @@
 
 package com.github.fauu.helix.datum;
 
-import com.github.fauu.helix.spatial.Spatial;
+import com.github.fauu.helix.displayable.Displayable;
 
-public class SpatialUpdateRequest {
+public class DisplayableUpdateRequest {
 
-  private Spatial.UpdateType type;
+  private Displayable.UpdateType type;
   
   private Object value;
   
-  public SpatialUpdateRequest(Spatial.UpdateType type, Object value) {
+  public DisplayableUpdateRequest(Displayable.UpdateType type, Object value) {
     setType(type);
     setValue(value);
   }
 
-  public Spatial.UpdateType getType() {
+  public Displayable.UpdateType getType() {
     return type;
   }
 
-  public void setType(Spatial.UpdateType type) {
+  public void setType(Displayable.UpdateType type) {
     this.type = type;
   }
 

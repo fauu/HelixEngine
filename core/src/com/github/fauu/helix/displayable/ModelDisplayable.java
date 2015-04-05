@@ -11,12 +11,12 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.spatial;
+package com.github.fauu.helix.displayable;
 
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 
-public abstract class ModelSpatial extends Spatial
+public abstract class ModelDisplayable extends Displayable
                                    implements RenderableProvider {
 
   protected AnimationController animationController;

@@ -22,7 +22,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.graphics.HelixCamera;
-import com.github.fauu.helix.graphics.ParticleEffect;
 import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.manager.PlayerManager;
 import com.github.fauu.helix.manager.TextureManager;
@@ -36,8 +35,6 @@ public class Overworld implements Screen {
   private HelixCamera camera;
 
   private AssetManager assetManager;
-
-  public ParticleEffect rain;
 
   public Overworld() {
     assetManager = new AssetManager();
@@ -54,9 +51,10 @@ public class Overworld implements Screen {
 
     world.setSystem(new PlayerMovementSystem());
     world.setSystem(new CameraClientsUpdateSystem());
-    world.setSystem(new SpatialUpdateSystem());
-    world.setSystem(new SpatialAnimationUpdateSystem());
+    world.setSystem(new DisplayableUpdateSystem());
+    world.setSystem(new DisplayableAnimationUpdateSystem());
     world.setSystem(new RenderingSystem());
+    world.setSystem(new ScreenFadingSystem());
 
     world.setManager(new UuidEntityManager());
     world.setManager(new TextureManager());

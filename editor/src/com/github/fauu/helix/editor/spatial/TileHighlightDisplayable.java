@@ -11,7 +11,7 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.editor.spatial;
+package com.github.fauu.helix.editor.displayable;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -26,9 +26,9 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
-import com.github.fauu.helix.spatial.ModelSpatial;
+import com.github.fauu.helix.displayable.ModelDisplayable;
 
-public class TileHighlightSpatial extends ModelSpatial {
+public class TileHighlightDisplayable extends ModelDisplayable {
 
   private static final float Z_OFFSET = -0.01f;
 
@@ -36,7 +36,7 @@ public class TileHighlightSpatial extends ModelSpatial {
 
   private ModelInstance instance;
 
-  public TileHighlightSpatial() {
+  public TileHighlightDisplayable() {
     ModelBuilder modelBuilder = new ModelBuilder();
 
     Model model

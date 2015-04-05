@@ -26,11 +26,11 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.github.fauu.helix.component.*;
-import com.github.fauu.helix.datum.SpatialUpdateRequest;
+import com.github.fauu.helix.datum.DisplayableUpdateRequest;
 import com.github.fauu.helix.datum.Tile;
-import com.github.fauu.helix.editor.spatial.TileHighlightSpatial;
+import com.github.fauu.helix.displayable.Displayable;
+import com.github.fauu.helix.editor.displayable.TileHighlightDisplayable;
 import com.github.fauu.helix.graphics.HelixCamera;
-import com.github.fauu.helix.spatial.Spatial;
 import com.github.fauu.helix.util.IntVector2;
 
 public class TileHighlightingSystem extends EntityProcessingSystem {
@@ -39,7 +39,7 @@ public class TileHighlightingSystem extends EntityProcessingSystem {
   private TagManager tagManager;
 
   @Wire
-  private ComponentMapper<SpatialFormComponent> spatialFormMapper;
+  private ComponentMapper<DisplayableComponent> displayableMapper;
 
   @Wire
   private ComponentMapper<TilesComponent> tilesMapper;
@@ -61,8 +61,8 @@ public class TileHighlightingSystem extends EntityProcessingSystem {
                             .edit()
                             .add(new PositionComponent())
                             .add(new DimensionsComponent(new IntVector2(1, 1)))
-                            .add(new SpatialFormComponent(
-                                new TileHighlightSpatial()))
+                            .add(new DisplayableComponent(
+                                new TileHighlightDisplayable()))
                             .getEntity();
     world.getManager(TagManager.class).register("tileHighlight", highlight);
   }
@@ -93,10 +93,10 @@ public class TileHighlightingSystem extends EntityProcessingSystem {
 
         if (Intersector.intersectRayBoundsFast(ray, boundingBox)) {
          if (tiles[y][x] != highlightedTile) {
-            spatialFormMapper
+            displayableMapper
                 .get(highlight)
                 .requestUpdate(
-                    new SpatialUpdateRequest(Spatial.UpdateType.POSITION,
+                    new DisplayableUpdateRequest(Displayable.UpdateType.POSITION,
                         new Vector3(x, y, 0)));
 
             highlight.edit().create(VisibilityComponent.class);

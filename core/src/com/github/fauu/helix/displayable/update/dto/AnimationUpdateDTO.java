@@ -11,7 +11,7 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.spatial.update.dto;
+package com.github.fauu.helix.displayable.update.dto;
 
 import com.github.fauu.helix.Direction;
 import com.github.fauu.helix.graphics.AnimationType;

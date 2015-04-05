@@ -11,7 +11,7 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.spatial;
+package com.github.fauu.helix.displayable;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -23,16 +23,17 @@ import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 
-public class AreaSpatial extends ModelSpatial {
+public class AreaDisplayable extends ModelDisplayable {
 
   private ModelInstance instance;
 
-  public AreaSpatial(Model model) {
+  public AreaDisplayable(Model model) {
     instance = new ModelInstance(model);
 
     animationController = new AnimationController(instance);
@@ -54,6 +55,16 @@ public class AreaSpatial extends ModelSpatial {
 
       material.set(ba);
     }
+  }
+
+  public boolean animationExists(String id) {
+    for (Animation animation : instance.animations) {
+      if (animation.id.equalsIgnoreCase(id)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @Override

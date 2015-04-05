@@ -71,7 +71,7 @@ public class HelixEditor extends Game {
     tagManager = overworld.getWorld().getManager(TagManager.class);
     areaManager = overworld.getWorld().getManager(AreaManager.class);
 
-    loadAreaAction("house1-interior");
+    loadAreaAction("area1");
   }
 
   public static HelixEditor getInstance() {
@@ -103,6 +103,10 @@ public class HelixEditor extends Game {
   }
 
   public void loadAreaAction(String name) {
+    if (areaManager.isAreaLoaded()) {
+      closeCurrentAreaAction();
+    }
+
     areaManager.load(name);
 
     worldEventBus.post(new AreaLoadedEvent());
@@ -132,7 +136,7 @@ public class HelixEditor extends Game {
   }
 
   public void fadeAreaModelAction(boolean on) {
-    overworld.getSpatialIntermediary().setAreaSpatialOpacity(on ? 0.6f : 1);
+    overworld.getDisplayableIntermediary().setAreaDisplayableOpacity(on ? 0.6f : 1);
   }
 
   public void centerCameraOnAreaAction() {

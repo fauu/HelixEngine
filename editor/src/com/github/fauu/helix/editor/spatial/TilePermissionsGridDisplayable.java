@@ -11,7 +11,7 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.editor.spatial;
+package com.github.fauu.helix.editor.displayable;
 
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
@@ -27,12 +27,12 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.github.fauu.helix.datum.Tile;
-import com.github.fauu.helix.spatial.ModelSpatial;
+import com.github.fauu.helix.displayable.ModelDisplayable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class TilePermissionsGridSpatial extends ModelSpatial {
+public class TilePermissionsGridDisplayable extends ModelDisplayable {
 
   private static final float Z_OFFSET = -0.02f;
 
@@ -40,7 +40,7 @@ public class TilePermissionsGridSpatial extends ModelSpatial {
 
   private ModelInstance instance;
 
-  public TilePermissionsGridSpatial(Tile[][] tiles, TextureAtlas atlas) {
+  public TilePermissionsGridDisplayable(Tile[][] tiles, TextureAtlas atlas) {
     this.atlas = atlas;
 
     MeshBuilder meshBuilder = new MeshBuilder();

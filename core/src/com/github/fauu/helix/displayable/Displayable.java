@@ -11,9 +11,9 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.spatial;
+package com.github.fauu.helix.displayable;
 
-public abstract class Spatial {
+public abstract class Displayable {
 
   public abstract void update(UpdateType type, Object value);
   

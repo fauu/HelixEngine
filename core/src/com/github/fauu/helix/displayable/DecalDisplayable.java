@@ -11,14 +11,14 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.spatial;
+package com.github.fauu.helix.displayable;
 
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.util.IntVector3;
 
-public abstract class DecalSpatial extends Spatial {
+public abstract class DecalDisplayable extends Displayable {
 
   protected static final Vector2 DEFAULT_DIMENSIONS;
 
@@ -45,7 +45,7 @@ public abstract class DecalSpatial extends Spatial {
     DEFAULT_SHADOW_DISPLACEMENT = new Vector3(.55f, .17f, .05f);
   }
 
-  public DecalSpatial(IntVector3 position) {
+  public DecalDisplayable(IntVector3 position) {
     decals = new Decal[2];
   }
 

@@ -25,18 +25,18 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.github.fauu.helix.TilePermission;
 import com.github.fauu.helix.component.DimensionsComponent;
-import com.github.fauu.helix.component.SpatialFormComponent;
+import com.github.fauu.helix.component.DisplayableComponent;
 import com.github.fauu.helix.component.TilesComponent;
 import com.github.fauu.helix.component.VisibilityComponent;
-import com.github.fauu.helix.datum.SpatialUpdateRequest;
+import com.github.fauu.helix.datum.DisplayableUpdateRequest;
 import com.github.fauu.helix.datum.Tile;
+import com.github.fauu.helix.displayable.Displayable;
 import com.github.fauu.helix.editor.HelixEditor;
+import com.github.fauu.helix.editor.displayable.TilePermissionsGridDisplayable;
 import com.github.fauu.helix.editor.event.AreaLoadedEvent;
 import com.github.fauu.helix.editor.event.AreaUnloadedEvent;
 import com.github.fauu.helix.editor.event.TilePermissionListStateChangedEvent;
-import com.github.fauu.helix.editor.spatial.TilePermissionsGridSpatial;
 import com.github.fauu.helix.manager.AreaManager;
-import com.github.fauu.helix.spatial.Spatial;
 import com.google.common.eventbus.Subscribe;
 
 import java.util.HashMap;
@@ -55,7 +55,7 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
   private ComponentMapper<DimensionsComponent> dimensionsMapper;
 
   @Wire
-  private ComponentMapper<SpatialFormComponent> spatialFormMapper;
+  private ComponentMapper<DisplayableComponent> displayableMapper;
 
   @Wire
   private ComponentMapper<TilesComponent> tilesMapper;
@@ -96,8 +96,8 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
     Entity grid = world.createEntity()
         .edit()
         .add(new DimensionsComponent(dimensionsMapper.get(area).get()))
-        .add(new SpatialFormComponent(
-            new TilePermissionsGridSpatial(
+        .add(new DisplayableComponent(
+            new TilePermissionsGridDisplayable(
                 tilesMapper.get(area).get(),
                 assetManager.get(atlasPath, TextureAtlas.class))))
         .add(new VisibilityComponent())
@@ -133,10 +133,10 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
 
             Entity grid = tagManager.getEntity("tilePermissionsGrid");
 
-            spatialFormMapper
+            displayableMapper
                 .get(grid)
                 .requestUpdate(
-                    new SpatialUpdateRequest(Spatial.UpdateType.TILES_PARTIAL,
+                    new DisplayableUpdateRequest(Displayable.UpdateType.TILES_PARTIAL,
                                              updatedTilesWithIndex));
 
             lastUpdatedTile = tile;

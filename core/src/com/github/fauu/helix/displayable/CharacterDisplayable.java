@@ -11,7 +11,7 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.spatial;
+package com.github.fauu.helix.displayable;
 
 import com.artemis.annotations.Wire;
 import com.badlogic.gdx.assets.AssetManager;
@@ -20,22 +20,22 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.Direction;
+import com.github.fauu.helix.displayable.update.dto.AnimationUpdateDTO;
 import com.github.fauu.helix.graphics.AnimatedDecal;
 import com.github.fauu.helix.graphics.AnimationSet;
 import com.github.fauu.helix.graphics.AnimationType;
-import com.github.fauu.helix.spatial.update.dto.AnimationUpdateDTO;
 import com.github.fauu.helix.util.IntVector3;
 
-public class CharacterSpatial extends DecalSpatial {
+public class CharacterDisplayable extends DecalDisplayable {
 
   @Wire
   private AssetManager assetManager;
 
   protected AnimationSet animations;
 
-  public CharacterSpatial(IntVector3 ownerPosition,
-                          String animationSetName,
-                          TextureRegion shadowTexture) {
+  public CharacterDisplayable(IntVector3 ownerPosition,
+                              String animationSetName,
+                              TextureRegion shadowTexture) {
     super(ownerPosition);
 
     animations = new AnimationSet(animationSetName);

@@ -18,25 +18,25 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.EntityProcessingSystem;
-import com.github.fauu.helix.component.SpatialFormComponent;
-import com.github.fauu.helix.datum.SpatialUpdateRequest;
+import com.github.fauu.helix.component.DisplayableComponent;
+import com.github.fauu.helix.datum.DisplayableUpdateRequest;
 
-public class SpatialUpdateSystem extends EntityProcessingSystem {
+public class DisplayableUpdateSystem extends EntityProcessingSystem {
 
   @Wire
-  private ComponentMapper<SpatialFormComponent> spatialFormMapper;
+  private ComponentMapper<DisplayableComponent> displayableMapper;
 
   @SuppressWarnings("unchecked")
-  public SpatialUpdateSystem() {
-    super(Aspect.getAspectForOne(SpatialFormComponent.class));
+  public DisplayableUpdateSystem() {
+    super(Aspect.getAspectForOne(DisplayableComponent.class));
   }
 
   @Override
   protected void process(Entity e) {
-    SpatialUpdateRequest request;
+    DisplayableUpdateRequest request;
 
-    while ((request = spatialFormMapper.get(e).pollUpdateRequest()) != null) {
-      spatialFormMapper.get(e)
+    while ((request = displayableMapper.get(e).pollUpdateRequest()) != null) {
+      displayableMapper.get(e)
                        .get()
                        .update(request.getType(), request.getValue());
     }
