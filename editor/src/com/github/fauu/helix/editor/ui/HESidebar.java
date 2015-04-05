@@ -37,6 +37,10 @@ public class HESidebar extends VisTable {
 
     row();
 
+    add(new HEAreaPassageSettingsPanel()).fill().expandX().padTop(-5);
+
+    row();
+
     pack();
   }
 

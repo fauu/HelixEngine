@@ -24,12 +24,14 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.github.fauu.helix.PassageAction;
 import com.github.fauu.helix.TilePermission;
 import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.datum.Tile;
+import com.github.fauu.helix.datum.TileAreaPassage;
 import com.github.fauu.helix.displayable.AreaDisplayable;
 import com.github.fauu.helix.json.wrapper.AreaWrapper;
 import com.github.fauu.helix.json.wrapper.TileWrapper;
@@ -97,6 +99,7 @@ public class AreaManager extends Manager {
   
   public void loadFromFile(FileHandle file, String name) {
     Json json = new Json();
+    json.setIgnoreUnknownFields(true);
 
     AreaWrapper areaWrapper = json.fromJson(AreaWrapper.class, file);
 
@@ -106,6 +109,17 @@ public class AreaManager extends Manager {
       Tile tile = new Tile();
 
       tile.setPermissions(wrapper.permissions);
+
+      if (wrapper.passage != null) {
+        TileAreaPassage areaPassage = new TileAreaPassage();
+
+        areaPassage.setTargetAreaName(wrapper.passage.area);
+        areaPassage.setTargetPosition(
+            new IntVector2(wrapper.passage.position.x,
+                           wrapper.passage.position.y));
+
+        tile.setAreaPassage(areaPassage);
+      }
 
       tiles[i / areaWrapper.width][i % areaWrapper.width] = tile;
 
@@ -159,8 +173,27 @@ public class AreaManager extends Manager {
     Tile[][] tiles = tilesMapper.get(area).get();
     for (int y = 0; y < dimensions.y; y++) {
       for (int x = 0; x < dimensions.x; x++) {
+        Tile tile = tiles[y][x];
+
         json.writeObjectStart();
-        json.writeValue("permissions", tiles[y][x].getPermissions().toString());
+
+        json.writeValue("permissions", tile.getPermissions().toString());
+
+        if (tile.getAreaPassage() != null) {
+          TileAreaPassage passage = tile.getAreaPassage();
+
+          json.writeObjectStart("passage");
+
+          json.writeValue("area", passage.getTargetAreaName());
+
+          json.writeObjectStart("position");
+          json.writeValue("x", passage.getTargetPosition().x);
+          json.writeValue("y", passage.getTargetPosition().y);
+          json.writeObjectEnd();
+
+          json.writeObjectEnd();
+        }
+
         json.writeObjectEnd();
       }
     }
@@ -196,6 +229,20 @@ public class AreaManager extends Manager {
 
   public Entity getArea() {
     return area;
+  }
+
+  public Array<String> getAllNames() {
+    Array<String> names = new Array<String>();
+
+    FileHandle directory = Gdx.files.internal("area");
+
+    for (FileHandle entry : directory.list()) {
+      if (entry.extension().equalsIgnoreCase("json")) {
+        names.add(entry.nameWithoutExtension());
+      }
+    }
+
+    return names;
   }
 
 }

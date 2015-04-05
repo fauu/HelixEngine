@@ -27,6 +27,7 @@ import com.github.fauu.helix.PassageAction;
 import com.github.fauu.helix.TilePermission;
 import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.datum.Tile;
+import com.github.fauu.helix.datum.TileAreaPassage;
 import com.github.fauu.helix.displayable.AreaDisplayable;
 import com.github.fauu.helix.displayable.Displayable;
 import com.github.fauu.helix.displayable.update.dto.AnimationUpdateDTO;
@@ -53,6 +54,12 @@ public class PlayerMovementSystem extends VoidEntitySystem {
   private PlayerManager playerManager;
 
   @Wire
+  private ComponentMapper<DimensionsComponent> dimensionsMapper;
+
+  @Wire
+  private ComponentMapper<DisplayableComponent> displayableMapper;
+
+  @Wire
   private ComponentMapper<MovementSpeedComponent> movementSpeedMapper;
 
   @Wire
@@ -60,9 +67,6 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
   @Wire
   private ComponentMapper<PositionComponent> positionMapper;
-
-  @Wire
-  private ComponentMapper<DisplayableComponent> displayableMapper;
 
   @Wire
   private ComponentMapper<TilesComponent> tilesMapper;
@@ -110,8 +114,13 @@ public class PlayerMovementSystem extends VoidEntitySystem {
     autoMoveQueue = new LinkedList<Direction>();
   }
 
+  @Override
+  protected boolean checkProcessing() {
+    return enabled;
+  }
+
   // FIXME: Not responsive enough when changing direction without stopping
-  // TODO: Use move queue for everything
+  // TODO: Use move queue for everything?
   @Override
   protected void processSystem() {
     final Entity player = playerManager.getPlayer();
@@ -143,10 +152,10 @@ public class PlayerMovementSystem extends VoidEntitySystem {
         Tile targetTile = tiles[targetPosition.y][targetPosition.x];
 
         launchMovement(player,
-                       displayable,
-                       movementDuration,
-                       targetTile,
-                       targetPosition);
+            displayable,
+            movementDuration,
+            targetTile,
+            targetPosition);
 
         direction = autoMoveDirection;
       } else {
@@ -170,31 +179,43 @@ public class PlayerMovementSystem extends VoidEntitySystem {
             final IntVector2 targetPosition
                 = position.toIntVector2().add(direction.getVector());
 
-            Tile[][] tiles = tilesMapper.get(areaManager.getArea()).get();
-            Tile currentTile = tiles[position.y][position.x];
-            Tile targetTile = tiles[targetPosition.y][targetPosition.x];
-            if (targetTile.getPermissions() == currentTile.getPermissions()) {
-              launchMovement(player,
-                             displayable,
-                             movementDuration,
-                             targetTile,
-                             targetPosition);
-            } else if (targetTile.getPermissions() == TilePermission.PASSAGE) {
-              final AreaDisplayable areaDisplayable
-                  = (AreaDisplayable) displayableMapper.get(areaManager.getArea())
-                                                   .get();
+            Entity area = areaManager.getArea();
 
-              String passageAnimationId
-                  = AreaManager.constructPassageAnimationId(targetPosition,
-                                                            PassageAction.ENTRY);
+            IntVector2 areaDimensions = dimensionsMapper.get(area).get();
 
-              if (areaDisplayable.animationExists(passageAnimationId)) {
-                areaDisplayable.update(Displayable.UpdateType.ANIMATION,
-                                   passageAnimationId);
+            if ((targetPosition.x >= 0 && targetPosition.x < areaDimensions.x) &&
+                (targetPosition.y >= 0 && targetPosition.y < areaDimensions.y)) {
+              Tile[][] tiles = tilesMapper.get(area).get();
+
+              Tile currentTile = tiles[position.y][position.x];
+              Tile targetTile = tiles[targetPosition.y][targetPosition.x];
+
+              if (targetTile.getPermissions() == currentTile.getPermissions()) {
+                launchMovement(player,
+                               displayable,
+                               movementDuration,
+                               targetTile,
+                               targetPosition);
+              } else if (targetTile.getPermissions() == TilePermission.PASSAGE) {
+                final AreaDisplayable areaDisplayable
+                    = (AreaDisplayable) displayableMapper.get(area).get();
+
+                String passageAnimationId
+                    = AreaManager.constructPassageAnimationId(targetPosition,
+                                                              PassageAction.ENTRY);
 
                 final Direction scheduledMoveDirection = requestedDirection;
 
                 enabled = false;
+
+                float areaTransitionDelay = 0;
+
+                if (areaDisplayable.animationExists(passageAnimationId)) {
+                  areaDisplayable.update(Displayable.UpdateType.ANIMATION,
+                                         passageAnimationId);
+
+                  areaTransitionDelay = 1;
+                }
 
                 Timer.schedule(new Timer.Task() {
                       @Override
@@ -206,22 +227,26 @@ public class PlayerMovementSystem extends VoidEntitySystem {
                         world.getSystem(ScreenFadingSystem.class)
                              .fade(ScreenFadingSystem.FadeType.FADE_OUT, .3f);
                       }
-                    }, 1);
+                    }, areaTransitionDelay);
+
+                final TileAreaPassage passage = targetTile.getAreaPassage();
+
+                final IntVector3 newPosition
+                    = new IntVector3(passage.getTargetPosition());
 
                 Timer.schedule(new Timer.Task() {
                       @Override
                       public void run() {
                         areaManager.unloadCurrent();
 
-                        areaManager.load("house1-interior");
+                        areaManager.load(passage.getTargetAreaName());
 
-                        positionMapper.get(player)
-                                      .set(new IntVector3(3, 1, 0));
+                        positionMapper.get(player).set(newPosition);
 
                         Vector3 translation
-                            = new Vector3(-targetPosition.x + 3,
-                                          -targetPosition.y - 1 + 1,
-                                          0);
+                            = new Vector3(-targetPosition.x + newPosition.x,
+                                          -targetPosition.y + newPosition.y,
+                                          newPosition.z);
 
                         displayable.update(Displayable.UpdateType.POSITION,
                                            translation);
@@ -233,9 +258,9 @@ public class PlayerMovementSystem extends VoidEntitySystem {
                         world.getSystem(ScreenFadingSystem.class)
                              .fade(ScreenFadingSystem.FadeType.FADE_IN, .3f);
                       }
-                    }, 1 + 1);
-              } // end "if areaDisplayable.animationExists(passageAnimationId)"
-            } // end "if targetTile.getPermissions() == TilePermission.PASSAGE"
+                    }, areaTransitionDelay + 1);
+              } // end "if targetTile.getPermissions() == TilePermission.PASSAGE"
+            } // end "if targetPosition is not outside the area"
           } // end "if startDelayCounter >= START_DELAY"
         } // end "if requestedDirection != null"
       } // end "if autoMoveDirection == null"
@@ -301,9 +326,9 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
     positionMapper.get(player)
                   .set(new IntVector3(targetPosition.x,
-                      targetPosition.y,
-                      targetTile.getPermissions()
-                          .getElevation()));
+                       targetPosition.y,
+                       targetTile.getPermissions()
+                                 .getElevation()));
   }
 
 }

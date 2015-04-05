@@ -30,13 +30,14 @@ import com.github.fauu.helix.component.TilesComponent;
 import com.github.fauu.helix.component.VisibilityComponent;
 import com.github.fauu.helix.datum.DisplayableUpdateRequest;
 import com.github.fauu.helix.datum.Tile;
+import com.github.fauu.helix.datum.TileAreaPassage;
 import com.github.fauu.helix.displayable.Displayable;
 import com.github.fauu.helix.editor.HelixEditor;
 import com.github.fauu.helix.editor.displayable.TilePermissionsGridDisplayable;
 import com.github.fauu.helix.editor.event.AreaLoadedEvent;
 import com.github.fauu.helix.editor.event.AreaUnloadedEvent;
-import com.github.fauu.helix.editor.event.TilePermissionListStateChangedEvent;
 import com.github.fauu.helix.manager.AreaManager;
+import com.github.fauu.helix.util.IntVector2;
 import com.google.common.eventbus.Subscribe;
 
 import java.util.HashMap;
@@ -69,8 +70,6 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
   private Tile highlightedTile;
 
   private Tile lastUpdatedTile;
-
-  private TilePermission selectedTilePermission;
 
   private boolean running;
 
@@ -126,7 +125,23 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
           Tile tile = tiles[y][x];
 
           if (tile == highlightedTile) {
+            HelixEditor editor = HelixEditor.getInstance();
+
+            TilePermission selectedTilePermission
+                = editor.getTilePermissionListState().getSelected();
             tile.setPermissions(selectedTilePermission);
+
+            if (selectedTilePermission == TilePermission.PASSAGE) {
+              String selectedAreaName
+                  = editor.getTilePassageAreaListState().getSelected();
+
+              IntVector2 targetPosition
+                  = editor.getTilePassageTargetPositionFieldState()
+                          .getPosition();
+
+              tile.setAreaPassage(
+                  new TileAreaPassage(selectedAreaName, targetPosition));
+            }
 
             HashMap<Integer, Tile> updatedTilesWithIndex = new HashMap<>();
             updatedTilesWithIndex.put(x + y * tiles.length, tile);
@@ -137,7 +152,7 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
                 .get(grid)
                 .requestUpdate(
                     new DisplayableUpdateRequest(Displayable.UpdateType.TILES_PARTIAL,
-                                             updatedTilesWithIndex));
+                                                 updatedTilesWithIndex));
 
             lastUpdatedTile = tile;
 
@@ -165,12 +180,6 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
     running = false;
 
     tagManager.getEntity("tilePermissionsGrid").deleteFromWorld();
-  }
-
-  @Subscribe
-  public void tilePermissionListStateChanged(
-      TilePermissionListStateChangedEvent e) {
-    selectedTilePermission = e.getMessage();
   }
 
 }

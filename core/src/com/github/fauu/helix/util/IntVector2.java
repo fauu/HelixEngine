@@ -54,4 +54,9 @@ public class IntVector2 {
     return new Vector2(x, y);
   }
 
+  @Override
+  public String toString() {
+    return "[" + x + "," + y + "]";
+  }
+
 }

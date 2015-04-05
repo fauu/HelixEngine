@@ -29,6 +29,10 @@ public class IntVector3 {
     set(x, y, z);
   }
 
+  public IntVector3(IntVector2 source) {
+    set(source.x, source.y, 0);
+  }
+
   public void set(int x, int y, int z) {
     this.x = x;
     this.y = y;

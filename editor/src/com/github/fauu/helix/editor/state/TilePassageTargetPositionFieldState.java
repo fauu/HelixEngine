@@ -13,27 +13,28 @@
 
 package com.github.fauu.helix.editor.state;
 
-import com.github.fauu.helix.TilePermission;
 import com.github.fauu.helix.editor.HelixEditor;
-import com.github.fauu.helix.editor.event.TilePermissionListStateChangedEvent;
+import com.github.fauu.helix.editor.event.TilePassageTargetPositionFieldStateChangedEvent;
+import com.github.fauu.helix.util.IntVector2;
 
-public class TilePermissionListState {
+public class TilePassageTargetPositionFieldState {
 
-  private TilePermission selectedPermission;
+  private IntVector2 position;
 
-  public void initialize(TilePermission permission) {
-    selectedPermission = permission;
+  public TilePassageTargetPositionFieldState() {
+    position = new IntVector2();
   }
 
-  public TilePermission getSelected() {
-    return selectedPermission;
+  public IntVector2 getPosition() {
+    return position;
   }
 
-  public void setSelected(TilePermission permission) {
-    this.selectedPermission = permission;
+  public void setPosition(IntVector2 position) {
+    this.position.set(position);
 
     HelixEditor.getInstance()
                .getUIEventBus()
-               .post(new TilePermissionListStateChangedEvent(permission));
+               .post(new TilePassageTargetPositionFieldStateChangedEvent(this));
   }
+
 }

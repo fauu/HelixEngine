@@ -19,11 +19,13 @@ public class TileAreaPassage {
 
   private String targetAreaName;
 
-  private IntVector2 targetTileCoords;
+  private IntVector2 targetPosition;
 
-  public TileAreaPassage(String targetAreaName, IntVector2 targetTileCoords) {
+  public TileAreaPassage() { }
+
+  public TileAreaPassage(String targetAreaName, IntVector2 targetPosition) {
     this.targetAreaName = targetAreaName;
-    this.targetTileCoords = targetTileCoords;
+    this.targetPosition = targetPosition;
   }
 
   public String getTargetAreaName() {
@@ -34,12 +36,12 @@ public class TileAreaPassage {
     this.targetAreaName = targetAreaName;
   }
 
-  public IntVector2 getTargetTileCoords() {
-    return targetTileCoords;
+  public IntVector2 getTargetPosition() {
+    return targetPosition;
   }
 
-  public void setTargetTileCoords(IntVector2 targetTileCoords) {
-    this.targetTileCoords = targetTileCoords;
+  public void setTargetPosition(IntVector2 targetPosition) {
+    this.targetPosition = targetPosition;
   }
 
 }

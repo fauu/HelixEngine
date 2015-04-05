@@ -30,10 +30,10 @@ public class DisplayableIntermediary extends Manager {
   public void setAreaDisplayableOpacity(float value) {
     Entity area = world.getManager(TagManager.class).getEntity("area");
 
-    displayableMapper.get(area)
-                     .requestUpdate(
-                         new DisplayableUpdateRequest(Displayable.UpdateType.OPACITY,
-                                                  value));
+    DisplayableUpdateRequest request
+        = new DisplayableUpdateRequest(Displayable.UpdateType.OPACITY, value);
+
+    displayableMapper.get(area).requestUpdate(request);
   }
 
 }

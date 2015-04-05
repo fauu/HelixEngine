@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 Helix Engine Developers 
+ * Copyright (C) 2014, 2015 Helix Engine Developers
  * (http://github.com/fauu/HelixEngine)
  *
  * This software is licensed under the GNU General Public License
@@ -13,12 +13,10 @@
 
 package com.github.fauu.helix.json.wrapper;
 
-import com.github.fauu.helix.TilePermission;
+public class TileAreaPassageWrapper {
 
-public class TileWrapper {
+  public String area;
 
-  public TilePermission permissions;
-
-  public TileAreaPassageWrapper passage;
+  public IntVector2Wrapper position;
 
 }

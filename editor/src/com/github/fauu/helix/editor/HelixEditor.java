@@ -17,10 +17,13 @@ import com.artemis.managers.TagManager;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.utils.Array;
 import com.github.fauu.helix.TilePermission;
 import com.github.fauu.helix.editor.event.AreaLoadedEvent;
 import com.github.fauu.helix.editor.event.AreaUnloadedEvent;
 import com.github.fauu.helix.editor.screen.Overworld;
+import com.github.fauu.helix.editor.state.TilePassageAreaListState;
+import com.github.fauu.helix.editor.state.TilePassageTargetPositionFieldState;
 import com.github.fauu.helix.editor.state.TilePermissionListState;
 import com.github.fauu.helix.editor.state.ToolbarState;
 import com.github.fauu.helix.editor.ui.UI;
@@ -37,9 +40,14 @@ public class HelixEditor extends Game {
 
   private UI ui;
 
-  private ToolbarState toolbarState;
+  private TilePassageAreaListState tilePassageAreaListState;
+
+  private TilePassageTargetPositionFieldState
+          tilePassageTargetPositionFieldState;
 
   private TilePermissionListState tilePermissionListState;
+
+  private ToolbarState toolbarState;
 
   private Overworld overworld;
 
@@ -57,19 +65,26 @@ public class HelixEditor extends Game {
     overworld = new Overworld();
     setScreen(overworld);
 
-    toolbarState = new ToolbarState();
-    toolbarState.initialize(ToolType.TILE_PERMISSIONS);
+    tagManager = overworld.getWorld().getManager(TagManager.class);
+    areaManager = overworld.getWorld().getManager(AreaManager.class);
+
+    tilePassageTargetPositionFieldState
+        = new TilePassageTargetPositionFieldState();
 
     tilePermissionListState = new TilePermissionListState();
     tilePermissionListState.initialize(TilePermission.LEVEL0);
 
+    toolbarState = new ToolbarState();
+    toolbarState.initialize(ToolType.TILE_PERMISSIONS);
+
     ui = new UI();
+
+    tilePassageAreaListState = new TilePassageAreaListState();
+    Array<String> areaNames = areaManager.getAllNames();
+    tilePassageAreaListState.initialize(areaNames, areaNames.first());
 
     Gdx.input.setInputProcessor(
         new InputMultiplexer(ui.getStage(), new EditorInputEventProcessor()));
-
-    tagManager = overworld.getWorld().getManager(TagManager.class);
-    areaManager = overworld.getWorld().getManager(AreaManager.class);
 
     loadAreaAction("area1");
   }
@@ -158,13 +173,22 @@ public class HelixEditor extends Game {
   public EventBus getWorldEventBus() {
     return worldEventBus;
   }
-  
-  public ToolbarState getToolbarState() {
-    return toolbarState;
+
+  public TilePassageAreaListState getTilePassageAreaListState() {
+    return tilePassageAreaListState;
+  }
+
+  public TilePassageTargetPositionFieldState
+         getTilePassageTargetPositionFieldState() {
+    return tilePassageTargetPositionFieldState;
   }
 
   public TilePermissionListState getTilePermissionListState() {
     return tilePermissionListState;
+  }
+
+  public ToolbarState getToolbarState() {
+    return toolbarState;
   }
 
 }

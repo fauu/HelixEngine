@@ -48,7 +48,6 @@ public class ScreenFadingSystem extends VoidEntitySystem {
 
     Gdx.gl.glEnable(GL20.GL_BLEND);
 
-    shapeRenderer.setProjectionMatrix(camera.combined); //
     shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
       shapeRenderer.setColor(0, 0, 0, fadeLevel / fadeDuration);
       shapeRenderer.rect(0, 0,

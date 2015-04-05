@@ -35,14 +35,15 @@ public class HETilePermissionPanel extends VisTable {
 
     final VisList<String> permissionsList = new VisList<>();
     permissionsList.addListener(new ChangeListener() {
-        @Override
-        public void changed(ChangeEvent event, Actor actor) {
-          HelixEditor.getInstance()
-                     .getTilePermissionListState()
-                     .setSelected(
-                         TilePermission.fromString(permissionsList.getSelected()));
-        }
-      });
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            HelixEditor.getInstance()
+                       .getTilePermissionListState()
+                       .setSelected(
+                           TilePermission.fromString(
+                               permissionsList.getSelected()));
+          }
+        });
 
     Array<String> permissionNames = new Array<>();
     for (TilePermission permission : TilePermission.values()) {
@@ -53,6 +54,8 @@ public class HETilePermissionPanel extends VisTable {
     ScrollPane permissionsListScrollPane = new VisScrollPane(permissionsList);
 
     add(permissionsListScrollPane);
+
+    pack();
   }
 
 }
