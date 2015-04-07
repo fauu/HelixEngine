@@ -29,7 +29,7 @@ import com.github.fauu.helix.editor.system.TilePermissionsEditingSystem;
 import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.manager.TextureManager;
-import com.github.fauu.helix.manager.WeatherManager;
+import com.github.fauu.helix.manager.WeatherMan;
 import com.github.fauu.helix.system.DisplayableUpdateSystem;
 import com.github.fauu.helix.system.RenderingSystem;
 
@@ -60,7 +60,7 @@ public class Overworld implements Screen {
     world.setManager(new TagManager());
     world.setManager(new GroupManager());
     world.setManager(new AreaManager());
-    world.setManager(new WeatherManager());
+    world.setManager(new WeatherMan());
     world.setManager(displayableIntermediary = new DisplayableIntermediary());
     world.setManager(cameraIntermediary = new CameraIntermediary());
 

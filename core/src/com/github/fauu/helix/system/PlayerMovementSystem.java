@@ -86,6 +86,8 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
   private Direction direction;
 
+  private Vector3 movementVector;
+
   private float startDelayCounter;
 
   private float progressCounter;
@@ -111,6 +113,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
   @Override
   public void initialize() {
     enabled = true;
+    movementVector = new Vector3();
     autoMoveQueue = new LinkedList<Direction>();
   }
 
@@ -119,6 +122,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
     return enabled;
   }
 
+  // FIXME: REFACTOR THIS WORLD CLASS PIECE OF SPAGHETTI ASAP
   // FIXME: Not responsive enough when changing direction without stopping
   // TODO: Use move queue for everything?
   @Override
@@ -152,10 +156,10 @@ public class PlayerMovementSystem extends VoidEntitySystem {
         Tile targetTile = tiles[targetPosition.y][targetPosition.x];
 
         launchMovement(player,
-            displayable,
-            movementDuration,
-            targetTile,
-            targetPosition);
+                       displayable,
+                       movementDuration,
+                       targetTile,
+                       targetPosition);
 
         direction = autoMoveDirection;
       } else {
@@ -190,14 +194,92 @@ public class PlayerMovementSystem extends VoidEntitySystem {
               Tile currentTile = tiles[position.y][position.x];
               Tile targetTile = tiles[targetPosition.y][targetPosition.x];
 
-              if (targetTile.getPermissions() == currentTile.getPermissions()) {
-                launchMovement(player,
-                               displayable,
-                               movementDuration,
-                               targetTile,
-                               targetPosition);
-              } else if (targetTile.getPermissions() == TilePermission.PASSAGE) {
-                final AreaDisplayable areaDisplayable
+              if (targetTile.getPermissions() != TilePermission.PASSAGE &&
+                  targetTile.getPermissions() != TilePermission.OBSTACLE) {
+                boolean launchMovement = true;
+
+                if (targetTile.getPermissions() == currentTile.getPermissions()) {
+                  movementVector.set(direction.getVector().x,
+                                     direction.getVector().y,
+                                     0);
+                } else if (targetTile.getPermissions() == TilePermission.RAMP) {
+                  IntVector2 tileAfterRampPosition = targetPosition.cpy();
+
+                  Tile tileAfterRamp;
+                  do {
+                    tileAfterRamp = tiles[tileAfterRampPosition.y]
+                                         [tileAfterRampPosition.x];
+
+                    tileAfterRampPosition.add(direction.getVector());
+                  }
+                  while (tileAfterRamp.getPermissions() == TilePermission.RAMP);
+
+                  float newMovementVectorZ = movementVector.z;
+
+                  if (currentTile.getPermissions() != TilePermission.RAMP) {
+                    int currentElevation
+                        = currentTile.getPermissions().getElevation();
+                    int afterRampElevation
+                        = tileAfterRamp.getPermissions().getElevation();
+
+                    newMovementVectorZ
+                        = currentElevation < afterRampElevation ? .5f : -.5f;
+                  }
+
+                  movementVector.set(direction.getVector().x,
+                                     direction.getVector().y,
+                                     newMovementVectorZ);
+                } else if (currentTile.getPermissions() == TilePermission.RAMP) {
+                  IntVector2 tileBeforeRampPosition = position.toIntVector2();
+
+                  Tile tileBeforeRamp;
+                  do {
+                    tileBeforeRamp = tiles[tileBeforeRampPosition.y]
+                                          [tileBeforeRampPosition.x];
+
+                    tileBeforeRampPosition.add(direction.getVector().cpy().scl(-1));
+                  }
+                  while (tileBeforeRamp.getPermissions() == TilePermission.RAMP);
+
+                  IntVector2 tileAfterRampPosition = targetPosition.cpy();
+
+                  Tile tileAfterRamp;
+                  do {
+                    tileAfterRamp = tiles[tileAfterRampPosition.y]
+                                         [tileAfterRampPosition.x];
+
+                    tileAfterRampPosition.add(direction.getVector());
+                  }
+                  while (tileAfterRamp.getPermissions() == TilePermission.RAMP);
+
+                  int beforeRampElevation
+                      = tileBeforeRamp.getPermissions().getElevation();
+                  int afterRampElevation
+                      = tileAfterRamp.getPermissions().getElevation();
+
+                  float newMovementVectorZ
+                      = beforeRampElevation < afterRampElevation ? .5f : -.5f;
+
+                  movementVector.set(direction.getVector().x,
+                                     direction.getVector().y,
+                                     newMovementVectorZ);
+                } else {
+                  launchMovement = false;
+                }
+
+                if (launchMovement) {
+                  launchMovement(player,
+                      displayable,
+                      movementDuration,
+                      targetTile,
+                      targetPosition);
+                }
+              } else {
+                movementVector.set(direction.getVector().x,
+                                   direction.getVector().y,
+                                   0);
+
+                final AreaDisplayable initlialAreaDisplayable
                     = (AreaDisplayable) displayableMapper.get(area).get();
 
                 String passageAnimationId
@@ -208,13 +290,13 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
                 enabled = false;
 
-                float areaTransitionDelay = 0;
+                float entryDelay = 0;
 
-                if (areaDisplayable.animationExists(passageAnimationId)) {
-                  areaDisplayable.update(Displayable.UpdateType.ANIMATION,
-                                         passageAnimationId);
+                if (initlialAreaDisplayable.animationExists(passageAnimationId)) {
+                  initlialAreaDisplayable.update(Displayable.UpdateType.ANIMATION,
+                      passageAnimationId);
 
-                  areaTransitionDelay = 1;
+                  entryDelay = 1;
                 }
 
                 Timer.schedule(new Timer.Task() {
@@ -227,7 +309,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
                         world.getSystem(ScreenFadingSystem.class)
                              .fade(ScreenFadingSystem.FadeType.FADE_OUT, .3f);
                       }
-                    }, areaTransitionDelay);
+                    }, entryDelay);
 
                 final TileAreaPassage passage = targetTile.getAreaPassage();
 
@@ -241,6 +323,11 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
                         areaManager.load(passage.getTargetAreaName());
 
+                        Entity newArea = areaManager.getArea();
+
+                        AreaDisplayable finalAreaDisplayable
+                            = (AreaDisplayable) displayableMapper.get(newArea).get();
+
                         positionMapper.get(player).set(newPosition);
 
                         Vector3 translation
@@ -248,17 +335,36 @@ public class PlayerMovementSystem extends VoidEntitySystem {
                                           -targetPosition.y + newPosition.y,
                                           newPosition.z);
 
+                        float exitDelay = 0;
+
+                        String passageAnimationId
+                            = AreaManager.constructPassageAnimationId(passage.getTargetPosition(),
+                                                                      PassageAction.EXIT);
+
+
+                        if (finalAreaDisplayable.animationExists(passageAnimationId)) {
+                          finalAreaDisplayable.update(Displayable.UpdateType.ANIMATION,
+                                                      passageAnimationId);
+
+                          exitDelay = .2f;
+                        }
+
                         displayable.update(Displayable.UpdateType.POSITION,
                                            translation);
 
                         camera.translate(translation);
 
-                        autoMoveQueue.push(scheduledMoveDirection);
-
                         world.getSystem(ScreenFadingSystem.class)
                              .fade(ScreenFadingSystem.FadeType.FADE_IN, .3f);
+
+                        Timer.schedule(new Timer.Task() {
+                              @Override
+                              public void run() {
+                                autoMoveQueue.push(scheduledMoveDirection);
+                              }
+                            }, exitDelay);
                       }
-                    }, areaTransitionDelay + 1);
+                    }, entryDelay + 1);
               } // end "if targetTile.getPermissions() == TilePermission.PASSAGE"
             } // end "if targetPosition is not outside the area"
           } // end "if startDelayCounter >= START_DELAY"
@@ -284,14 +390,14 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
         progressCounter += Gdx.graphics.getDeltaTime();
 
-        IntVector2 movementDirectionVector = direction.getVector();
-
-        Vector3 translation = new Vector3(movementDirectionVector.x,
-                                          movementDirectionVector.y,
-                                          0);
+        Vector3 translation = new Vector3(movementVector.x,
+                                          movementVector.y,
+                                          movementVector.z);
         translation.scl(delta * movementSpeed);
 
         displayable.update(Displayable.UpdateType.POSITION, translation);
+
+        translation.y += translation.z * (-13 / 17);
 
         camera.translate(translation);
 

@@ -22,6 +22,7 @@ public enum TilePermission {
 
   OBSTACLE("Obstacle", -1),
   PASSAGE("Area Passage", -1),
+  RAMP("Ramp", -1),
   LEVEL0("Level 0", 0),
   LEVEL1("Level 1", 1),
   LEVEL2("Level 2", 2),

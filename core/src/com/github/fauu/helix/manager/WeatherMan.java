@@ -25,7 +25,7 @@ import com.github.fauu.helix.graphics.ParticleEffect;
 import com.github.fauu.helix.postprocessing.Bloom;
 
 // TODO: Think of a more elegant way to handle this
-public class WeatherManager extends Manager {
+public class WeatherMan extends Manager {
 
   private Entity weather;
 
@@ -83,6 +83,8 @@ public class WeatherManager extends Manager {
     }
 
     if (bloom != null) {
+      bloom.setClearColor(0, 0, 0, 1);
+
       weather.edit().add(new BloomComponent(bloom));
     }
 

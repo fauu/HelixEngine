@@ -25,7 +25,7 @@ import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.manager.PlayerManager;
 import com.github.fauu.helix.manager.TextureManager;
-import com.github.fauu.helix.manager.WeatherManager;
+import com.github.fauu.helix.manager.WeatherMan;
 import com.github.fauu.helix.system.*;
 
 public class Overworld implements Screen {
@@ -62,13 +62,13 @@ public class Overworld implements Screen {
     world.setManager(new TagManager());
     world.setManager(new AreaManager());
     world.setManager(new PlayerManager());
-    world.setManager(new WeatherManager());
+    world.setManager(new WeatherMan());
     world.initialize();
 
     world.getManager(AreaManager.class).load("area1");
 
-    world.getManager(WeatherManager.class)
-         .setType(WeatherManager.WeatherType.NONE);
+    world.getManager(WeatherMan.class)
+         .setType(WeatherMan.WeatherType.OVERCAST);
   }
 
   @Override

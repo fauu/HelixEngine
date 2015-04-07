@@ -40,7 +40,7 @@ import com.github.fauu.helix.displayable.ModelDisplayable;
 import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.graphics.HelixRenderableSorter;
 import com.github.fauu.helix.graphics.ParticleEffect;
-import com.github.fauu.helix.manager.WeatherManager;
+import com.github.fauu.helix.manager.WeatherMan;
 import com.github.fauu.helix.postprocessing.Bloom;
 
 import java.util.Iterator;
@@ -48,7 +48,7 @@ import java.util.Iterator;
 public class RenderingSystem extends EntitySystem {
 
   @Wire
-  private WeatherManager weatherManager;
+  private WeatherMan weatherMan;
 
   @Wire
   private ComponentMapper<BloomComponent> bloomMapper;
@@ -120,7 +120,7 @@ public class RenderingSystem extends EntitySystem {
     Bloom bloom = null;
     ParticleEffect particleEffect = null;
 
-    Entity weather = weatherManager.getWeather();
+    Entity weather = weatherMan.getWeather();
 
     if (weather != null) {
       environment = environmentMapper.get(weather).get();

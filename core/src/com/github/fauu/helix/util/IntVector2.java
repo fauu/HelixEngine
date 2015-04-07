@@ -50,6 +50,13 @@ public class IntVector2 {
     return new IntVector2(x, y);
   }
 
+  public IntVector2 scl(int value) {
+    x *= value;
+    y  *= value;
+
+    return this;
+  }
+
   public Vector2 toVector2() {
     return new Vector2(x, y);
   }
