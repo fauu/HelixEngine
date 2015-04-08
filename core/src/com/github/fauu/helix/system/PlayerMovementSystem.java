@@ -21,14 +21,10 @@ import com.artemis.systems.VoidEntitySystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Timer;
 import com.github.fauu.helix.Direction;
-import com.github.fauu.helix.PassageAction;
-import com.github.fauu.helix.TilePermission;
 import com.github.fauu.helix.component.*;
+import com.github.fauu.helix.datum.Move;
 import com.github.fauu.helix.datum.Tile;
-import com.github.fauu.helix.datum.TileAreaPassage;
-import com.github.fauu.helix.displayable.AreaDisplayable;
 import com.github.fauu.helix.displayable.Displayable;
 import com.github.fauu.helix.displayable.update.dto.AnimationUpdateDTO;
 import com.github.fauu.helix.graphics.AnimationType;
@@ -82,19 +78,13 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
   private boolean enabled;
 
-  private boolean moving;
-
-  private Direction direction;
-
-  private Vector3 movementVector;
+  private Move currentMove;
 
   private float startDelayCounter;
 
-  private float progressCounter;
-
   private int walkAnimationCycleCounter;
 
-  private LinkedList<Direction> autoMoveQueue;
+  private LinkedList<Move> queue;
 
   static {
     START_DELAY = 0.1f;
@@ -113,8 +103,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
   @Override
   public void initialize() {
     enabled = true;
-    movementVector = new Vector3();
-    autoMoveQueue = new LinkedList<Direction>();
+    queue = new LinkedList<Move>();
   }
 
   @Override
@@ -122,319 +111,108 @@ public class PlayerMovementSystem extends VoidEntitySystem {
     return enabled;
   }
 
-  // FIXME: REFACTOR THIS WORLD CLASS PIECE OF SPAGHETTI ASAP
-  // FIXME: Not responsive enough when changing direction without stopping
-  // TODO: Use move queue for everything?
+  // FIXME: Seamless movement is apparently not completely seamless
   @Override
   protected void processSystem() {
-    final Entity player = playerManager.getPlayer();
+    Entity player = playerManager.getPlayer();
+    Displayable displayable = displayableMapper.get(player).get();
 
-    final Displayable displayable = displayableMapper.get(player).get();
+    if (!isMoving()) {
+      Direction pressedDirection = pollPressedDirection();
+      if(pressedDirection != null) {
+        if (startDelayCounter == 0) {
+          orientationMapper.get(player).set(pressedDirection);
+          displayable.update(Displayable.UpdateType.ORIENTATION, pressedDirection);
+        }
 
-    float movementSpeed =  movementSpeedMapper.get(player).get();
+        startDelayCounter += Gdx.graphics.getDeltaTime();
 
-    float movementDuration = 1 / movementSpeed;
+        if (startDelayCounter >= START_DELAY) {
+          Move move = new Move();
 
-    Direction requestedDirection = null;
+          move.setDirection(pressedDirection);
+          move.setVector(move.getDirection().getVector().toVector3());
+          move.setSpeed(movementSpeedMapper.get(player).get());
+          move.setDuration(1 / move.getSpeed());
 
-    for (Map.Entry<Direction, Integer> dk : DIRECTION_KEYS.entrySet()) {
-      if (Gdx.input.isKeyPressed(dk.getValue())) {
-        requestedDirection = dk.getKey();
-        break;
+          queue.push(move);
+        }
+      } else {
+        startDelayCounter = 0;
+      }
+
+      Move nextMove = queue.poll();
+      if (nextMove != null) {
+        currentMove = nextMove;
       }
     }
 
-    if (!moving) {
-      Direction autoMoveDirection = autoMoveQueue.poll();
+    if (isMoving()) {
+      processMove(player, displayable);
+    }
+  }
 
-      if (autoMoveDirection != null) {
+  private void processMove(Entity player, Displayable displayable) {
+    if (!currentMove.hasFinished()) {
+      if (!currentMove.hasStarted()) {
         IntVector3 position = positionMapper.get(player).get();
         IntVector2 targetPosition
-            = position.toIntVector2().add(autoMoveDirection.getVector());
+            = position.toIntVector2().add(currentMove.getDirection().getVector());
 
         Tile[][] tiles = tilesMapper.get(areaManager.getArea()).get();
         Tile targetTile = tiles[targetPosition.y][targetPosition.x];
 
-        launchMovement(player,
-                       displayable,
-                       movementDuration,
-                       targetTile,
-                       targetPosition);
-
-        direction = autoMoveDirection;
-      } else {
-        if (requestedDirection == null) {
-          startDelayCounter = 0;
-        } else {
-          if (startDelayCounter == 0) {
-            orientationMapper.get(player).set(requestedDirection);
-            displayable.update(Displayable.UpdateType.ORIENTATION,
-                               requestedDirection);
-
-            direction = requestedDirection;
-          }
-
-          startDelayCounter += Gdx.graphics.getDeltaTime();
-
-          if (startDelayCounter >= START_DELAY) {
-            startDelayCounter = 0;
-
-            IntVector3 position = positionMapper.get(player).get();
-            final IntVector2 targetPosition
-                = position.toIntVector2().add(direction.getVector());
-
-            Entity area = areaManager.getArea();
-
-            IntVector2 areaDimensions = dimensionsMapper.get(area).get();
-
-            if ((targetPosition.x >= 0 && targetPosition.x < areaDimensions.x) &&
-                (targetPosition.y >= 0 && targetPosition.y < areaDimensions.y)) {
-              Tile[][] tiles = tilesMapper.get(area).get();
-
-              Tile currentTile = tiles[position.y][position.x];
-              Tile targetTile = tiles[targetPosition.y][targetPosition.x];
-
-              if (targetTile.getPermissions() != TilePermission.PASSAGE &&
-                  targetTile.getPermissions() != TilePermission.OBSTACLE) {
-                boolean launchMovement = true;
-
-                if (targetTile.getPermissions() == currentTile.getPermissions()) {
-                  movementVector.set(direction.getVector().x,
-                                     direction.getVector().y,
-                                     0);
-                } else if (targetTile.getPermissions() == TilePermission.RAMP) {
-                  IntVector2 tileAfterRampPosition = targetPosition.cpy();
-
-                  Tile tileAfterRamp;
-                  do {
-                    tileAfterRamp = tiles[tileAfterRampPosition.y]
-                                         [tileAfterRampPosition.x];
-
-                    tileAfterRampPosition.add(direction.getVector());
-                  }
-                  while (tileAfterRamp.getPermissions() == TilePermission.RAMP);
-
-                  float newMovementVectorZ = movementVector.z;
-
-                  if (currentTile.getPermissions() != TilePermission.RAMP) {
-                    int currentElevation
-                        = currentTile.getPermissions().getElevation();
-                    int afterRampElevation
-                        = tileAfterRamp.getPermissions().getElevation();
-
-                    newMovementVectorZ
-                        = currentElevation < afterRampElevation ? .5f : -.5f;
-                  }
-
-                  movementVector.set(direction.getVector().x,
-                                     direction.getVector().y,
-                                     newMovementVectorZ);
-                } else if (currentTile.getPermissions() == TilePermission.RAMP) {
-                  IntVector2 tileBeforeRampPosition = position.toIntVector2();
-
-                  Tile tileBeforeRamp;
-                  do {
-                    tileBeforeRamp = tiles[tileBeforeRampPosition.y]
-                                          [tileBeforeRampPosition.x];
-
-                    tileBeforeRampPosition.add(direction.getVector().cpy().scl(-1));
-                  }
-                  while (tileBeforeRamp.getPermissions() == TilePermission.RAMP);
-
-                  IntVector2 tileAfterRampPosition = targetPosition.cpy();
-
-                  Tile tileAfterRamp;
-                  do {
-                    tileAfterRamp = tiles[tileAfterRampPosition.y]
-                                         [tileAfterRampPosition.x];
-
-                    tileAfterRampPosition.add(direction.getVector());
-                  }
-                  while (tileAfterRamp.getPermissions() == TilePermission.RAMP);
-
-                  int beforeRampElevation
-                      = tileBeforeRamp.getPermissions().getElevation();
-                  int afterRampElevation
-                      = tileAfterRamp.getPermissions().getElevation();
-
-                  float newMovementVectorZ
-                      = beforeRampElevation < afterRampElevation ? .5f : -.5f;
-
-                  movementVector.set(direction.getVector().x,
-                                     direction.getVector().y,
-                                     newMovementVectorZ);
-                } else {
-                  launchMovement = false;
-                }
-
-                if (launchMovement) {
-                  launchMovement(player,
-                      displayable,
-                      movementDuration,
-                      targetTile,
-                      targetPosition);
-                }
-              } else {
-                movementVector.set(direction.getVector().x,
-                                   direction.getVector().y,
-                                   0);
-
-                final AreaDisplayable initlialAreaDisplayable
-                    = (AreaDisplayable) displayableMapper.get(area).get();
-
-                String passageAnimationId
-                    = AreaManager.constructPassageAnimationId(targetPosition,
-                                                              PassageAction.ENTRY);
-
-                final Direction scheduledMoveDirection = requestedDirection;
-
-                enabled = false;
-
-                float entryDelay = 0;
-
-                if (initlialAreaDisplayable.animationExists(passageAnimationId)) {
-                  initlialAreaDisplayable.update(Displayable.UpdateType.ANIMATION,
-                      passageAnimationId);
-
-                  entryDelay = 1;
-                }
-
-                Timer.schedule(new Timer.Task() {
-                      @Override
-                      public void run() {
-                        enabled = true;
-
-                        autoMoveQueue.push(scheduledMoveDirection);
-
-                        world.getSystem(ScreenFadingSystem.class)
-                             .fade(ScreenFadingSystem.FadeType.FADE_OUT, .3f);
-                      }
-                    }, entryDelay);
-
-                final TileAreaPassage passage = targetTile.getAreaPassage();
-
-                final IntVector3 newPosition
-                    = new IntVector3(passage.getTargetPosition());
-
-                Timer.schedule(new Timer.Task() {
-                      @Override
-                      public void run() {
-                        areaManager.unloadCurrent();
-
-                        areaManager.load(passage.getTargetAreaName());
-
-                        Entity newArea = areaManager.getArea();
-
-                        AreaDisplayable finalAreaDisplayable
-                            = (AreaDisplayable) displayableMapper.get(newArea).get();
-
-                        positionMapper.get(player).set(newPosition);
-
-                        Vector3 translation
-                            = new Vector3(-targetPosition.x + newPosition.x,
-                                          -targetPosition.y + newPosition.y,
-                                          newPosition.z);
-
-                        float exitDelay = 0;
-
-                        String passageAnimationId
-                            = AreaManager.constructPassageAnimationId(passage.getTargetPosition(),
-                                                                      PassageAction.EXIT);
-
-
-                        if (finalAreaDisplayable.animationExists(passageAnimationId)) {
-                          finalAreaDisplayable.update(Displayable.UpdateType.ANIMATION,
-                                                      passageAnimationId);
-
-                          exitDelay = .2f;
-                        }
-
-                        displayable.update(Displayable.UpdateType.POSITION,
-                                           translation);
-
-                        camera.translate(translation);
-
-                        world.getSystem(ScreenFadingSystem.class)
-                             .fade(ScreenFadingSystem.FadeType.FADE_IN, .3f);
-
-                        Timer.schedule(new Timer.Task() {
-                              @Override
-                              public void run() {
-                                autoMoveQueue.push(scheduledMoveDirection);
-                              }
-                            }, exitDelay);
-                      }
-                    }, entryDelay + 1);
-              } // end "if targetTile.getPermissions() == TilePermission.PASSAGE"
-            } // end "if targetPosition is not outside the area"
-          } // end "if startDelayCounter >= START_DELAY"
-        } // end "if requestedDirection != null"
-      } // end "if autoMoveDirection == null"
-    } // end "if !moving"
-
-    if (moving) {
-      if (progressCounter >= movementDuration) {
-        moving = false;
-        progressCounter = 0;
-
-        displayable.update(Displayable.UpdateType.ANIMATION,
-            new AnimationUpdateDTO(AnimationType.IDLE,
-                                   direction,
-                                   movementDuration));
-      } else {
-        float delta = Gdx.graphics.getDeltaTime();
-
-        if (progressCounter + delta > movementDuration) {
-          delta = movementDuration - progressCounter;
-        }
-
-        progressCounter += Gdx.graphics.getDeltaTime();
-
-        Vector3 translation = new Vector3(movementVector.x,
-                                          movementVector.y,
-                                          movementVector.z);
-        translation.scl(delta * movementSpeed);
-
-        displayable.update(Displayable.UpdateType.POSITION, translation);
-
-        translation.y += translation.z * (-13 / 17);
-
-        camera.translate(translation);
-
-        if (movementDuration - progressCounter < 0 &&
-            requestedDirection != null) {
-          startDelayCounter = START_DELAY;
-
-          displayable.update(Displayable.UpdateType.ORIENTATION,
-              requestedDirection);
-          orientationMapper.get(player).set(requestedDirection);
-
-          direction = requestedDirection;
-        }
-      } // end "if progressCounter < movementDuration"
-    } // end "if moving"
+        AnimationUpdateDTO update
+            = new AnimationUpdateDTO(
+                WALK_ANIMATION_CYCLE[walkAnimationCycleCounter++],
+                currentMove.getDirection(),
+                currentMove.getDuration());
+        displayable.update(Displayable.UpdateType.ANIMATION, update);
+
+        walkAnimationCycleCounter %= 2;
+
+        PositionComponent positionComponent = positionMapper.get(player);
+        IntVector3 newPosition
+            = new IntVector3(targetPosition.x,
+                             targetPosition.y,
+                             targetTile.getPermissions().getElevation());
+        positionComponent.set(newPosition);
+      }
+
+      float delta = currentMove.willHaveBeenFinishedIn(Gdx.graphics.getDeltaTime()) ?
+          currentMove.getRemaining() : Gdx.graphics.getDeltaTime();
+
+      Vector3 translation
+          = currentMove.getVector().cpy().scl(delta * currentMove.getSpeed());
+
+      displayable.update(Displayable.UpdateType.POSITION, translation);
+
+      // TODO: Camera stuff out of here
+      translation.y += translation.z * (-13 / 17);
+      camera.translate(translation);
+
+      currentMove.setElapsed(currentMove.getElapsed() + delta);
+    } else {
+      currentMove = null;
+    }
   }
 
-  private void launchMovement(Entity player,
-                              Displayable displayable,
-                              float duration,
-                              Tile targetTile,
-                              IntVector2 targetPosition) {
-    moving = true;
+  private Direction pollPressedDirection() {
+    Direction pressedDirection = null;
 
-    displayable.update(Displayable.UpdateType.ANIMATION,
-        new AnimationUpdateDTO(
-            WALK_ANIMATION_CYCLE[walkAnimationCycleCounter++],
-            direction,
-            duration));
+    for (Map.Entry<Direction, Integer> dk : DIRECTION_KEYS.entrySet()) {
+      if (Gdx.input.isKeyPressed(dk.getValue())) {
+        pressedDirection = dk.getKey();
 
-    walkAnimationCycleCounter %= 2;
+        break;
+      }
+    }
 
-    positionMapper.get(player)
-                  .set(new IntVector3(targetPosition.x,
-                       targetPosition.y,
-                       targetTile.getPermissions()
-                                 .getElevation()));
+    return pressedDirection;
+  }
+
+  private boolean isMoving() {
+    return currentMove != null;
   }
 
 }

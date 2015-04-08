@@ -14,6 +14,7 @@
 package com.github.fauu.helix.util;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 public class IntVector2 {
 
@@ -59,6 +60,10 @@ public class IntVector2 {
 
   public Vector2 toVector2() {
     return new Vector2(x, y);
+  }
+
+  public Vector3 toVector3() {
+    return new Vector3(x, y, 0);
   }
 
   @Override
