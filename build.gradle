@@ -38,7 +38,6 @@ project(":editor") {
 		compile project(":core")
         compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        compile group: 'com.google.guava', name: 'guava', version: guavaVersion
         compile "com.kotcrab.vis:vis-ui:$visuiVersion"
 	}
 }
@@ -87,6 +86,7 @@ project(":core") {
 
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+        compile group: 'com.google.guava', name: 'guava', version: guavaVersion
         compile "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
     }
 }

@@ -35,7 +35,7 @@ public class PlayerManager extends Manager {
   protected void initialize() {
     IntVector3 playerPosition = new IntVector3(16, 16, 0);
     Direction playerOrientation = Direction.SOUTH;
-    float playerMovementSpeed = 4.5f;
+    float playerMovementSpeed = 5;
 
     if (!assetManager.isLoaded("texture-atlas/shadow.png")) {
       assetManager.load("texture-atlas/shadow.png", Texture.class);

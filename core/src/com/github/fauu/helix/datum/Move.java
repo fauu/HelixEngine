@@ -36,14 +36,11 @@ public class Move {
 
   public void setDirection(Direction direction) {
     this.direction = direction;
+    this.vector = direction.getVector().toVector3();
   }
 
   public Vector3 getVector() {
     return vector;
-  }
-
-  public void setVector(Vector3 vector) {
-    this.vector = vector;
   }
 
   public float getSpeed() {
@@ -52,6 +49,7 @@ public class Move {
 
   public void setSpeed(float speed) {
     this.speed = speed;
+    this.duration = 1 / speed;
   }
 
   public float getElapsed() {
@@ -64,10 +62,6 @@ public class Move {
 
   public float getDuration() {
     return duration;
-  }
-
-  public void setDuration(float duration) {
-    this.duration = duration;
   }
 
   public boolean hasStarted() {

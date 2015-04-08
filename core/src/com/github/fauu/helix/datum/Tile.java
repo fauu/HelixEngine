@@ -14,6 +14,7 @@
 package com.github.fauu.helix.datum;
 
 import com.github.fauu.helix.TilePermission;
+import com.github.fauu.helix.util.IntVector2;
 
 public class Tile {
 
@@ -39,6 +40,10 @@ public class Tile {
 
   public void setAreaPassage(TileAreaPassage passage) {
     areaPassage = passage;
+  }
+
+  public static Tile get(Tile[][] tiles, IntVector2 coords) {
+    return tiles[coords.y][coords.x];
   }
 
 }

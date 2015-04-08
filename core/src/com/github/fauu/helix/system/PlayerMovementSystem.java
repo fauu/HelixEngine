@@ -21,10 +21,15 @@ import com.artemis.systems.VoidEntitySystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Timer;
 import com.github.fauu.helix.Direction;
+import com.github.fauu.helix.PassageAction;
+import com.github.fauu.helix.TilePermission;
 import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.datum.Move;
 import com.github.fauu.helix.datum.Tile;
+import com.github.fauu.helix.datum.TileAreaPassage;
+import com.github.fauu.helix.displayable.AreaDisplayable;
 import com.github.fauu.helix.displayable.Displayable;
 import com.github.fauu.helix.displayable.update.dto.AnimationUpdateDTO;
 import com.github.fauu.helix.graphics.AnimationType;
@@ -33,6 +38,7 @@ import com.github.fauu.helix.manager.AreaManager;
 import com.github.fauu.helix.manager.PlayerManager;
 import com.github.fauu.helix.util.IntVector2;
 import com.github.fauu.helix.util.IntVector3;
+import com.google.common.collect.Range;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -111,7 +117,6 @@ public class PlayerMovementSystem extends VoidEntitySystem {
     return enabled;
   }
 
-  // FIXME: Seamless movement is apparently not completely seamless
   @Override
   protected void processSystem() {
     Entity player = playerManager.getPlayer();
@@ -125,17 +130,10 @@ public class PlayerMovementSystem extends VoidEntitySystem {
           displayable.update(Displayable.UpdateType.ORIENTATION, pressedDirection);
         }
 
-        startDelayCounter += Gdx.graphics.getDeltaTime();
-
-        if (startDelayCounter >= START_DELAY) {
-          Move move = new Move();
-
-          move.setDirection(pressedDirection);
-          move.setVector(move.getDirection().getVector().toVector3());
-          move.setSpeed(movementSpeedMapper.get(player).get());
-          move.setDuration(1 / move.getSpeed());
-
-          queue.push(move);
+        if (queue.size() == 0 && startDelayCounter >= START_DELAY) {
+          tryMoving(player, displayable, pressedDirection);
+        } else {
+          startDelayCounter += Gdx.graphics.getDeltaTime();
         }
       } else {
         startDelayCounter = 0;
@@ -152,12 +150,139 @@ public class PlayerMovementSystem extends VoidEntitySystem {
     }
   }
 
+  private void tryMoving(Entity player,
+                         Displayable displayable,
+                         final Direction direction) {
+    IntVector3 position = positionMapper.get(player).get();
+    IntVector2 targetCoords = position.toIntVector2().add(direction.getVector());
+
+    Entity area = areaManager.getArea();
+
+    if (!coordsInsideArea(targetCoords, area)) {
+      return;
+    }
+
+    Tile[][] tiles = tilesMapper.get(area).get();
+
+    Tile currentTile = Tile.get(tiles, position.toIntVector2());
+    Tile targetTile = Tile.get(tiles, targetCoords);
+
+    if (targetTile.getPermissions() == TilePermission.OBSTACLE) {
+      return;
+    } else if (targetTile.getPermissions() == TilePermission.PASSAGE) {
+      moveThroughAreaPassage(targetTile.getAreaPassage(),
+          player,
+          displayable,
+          area,
+          direction,
+          targetCoords);
+    } else {
+      Move move = new Move();
+
+      move.setDirection(direction);
+      move.setSpeed(movementSpeedMapper.get(player).get());
+
+      queue.push(move);
+    }
+  }
+
+  private void moveThroughAreaPassage(final TileAreaPassage passage,
+                                      final Entity player,
+                                      final Displayable displayable,
+                                      final Entity area,
+                                      final Direction direction,
+                                      final IntVector2 targetCoords) {
+    final AreaDisplayable areaDisplayable
+        = (AreaDisplayable) displayableMapper.get(area).get();
+
+    String entryAnimationId
+        = AreaManager.constructPassageAnimationId(targetCoords,
+                                                  PassageAction.ENTRY);
+
+    float entryAnimationWaitTime = 0;
+
+    if (areaDisplayable.animationExists(entryAnimationId)) {
+      areaDisplayable.update(Displayable.UpdateType.ANIMATION,
+                             entryAnimationId);
+
+      entryAnimationWaitTime = 1;
+    }
+
+    enabled = false;
+
+    final Move entryMove = new Move();
+    entryMove.setDirection(direction);
+    entryMove.setSpeed(movementSpeedMapper.get(player).get());
+    Timer.schedule(new Timer.Task() {
+      @Override
+      public void run() {
+        queue.push(entryMove);
+
+        world.getSystem(ScreenFadingSystem.class)
+             .fade(ScreenFadingSystem.FadeType.FADE_OUT, .3f);
+
+        enabled = true;
+      }
+    }, entryAnimationWaitTime);
+
+    Timer.schedule(new Timer.Task() {
+          @Override
+          public void run() {
+            areaManager.unloadCurrent();
+            areaManager.load(passage.getTargetAreaName());
+            Entity area = areaManager.getArea();
+            AreaDisplayable areaDisplayable
+                = (AreaDisplayable) displayableMapper.get(area).get();
+
+            IntVector3 exitPosition
+                = new IntVector3(passage.getTargetPosition());
+
+            positionMapper.get(player).set(exitPosition);
+
+            Vector3 translation
+                = exitPosition.toVector3()
+                              .sub(targetCoords.x, targetCoords.y, 0);
+
+            float exitAnimationWaitTime = 0;
+
+            String exitAnimationId
+                = AreaManager.constructPassageAnimationId(
+                    passage.getTargetPosition(),
+                    PassageAction.EXIT);
+
+            if (areaDisplayable.animationExists(exitAnimationId)) {
+              areaDisplayable.update(Displayable.UpdateType.ANIMATION,
+                                     exitAnimationId);
+            }
+
+            displayable.update(Displayable.UpdateType.POSITION, translation);
+
+            // TODO: Camera stuff out of here?
+            camera.translate(translation);
+
+            world.getSystem(ScreenFadingSystem.class)
+                 .fade(ScreenFadingSystem.FadeType.FADE_IN, .3f);
+
+            final Move exitMove = new Move();
+            exitMove.setDirection(direction);
+            exitMove.setSpeed(movementSpeedMapper.get(player).get());
+            Timer.schedule(new Timer.Task() {
+                  @Override
+                  public void run() {
+                    queue.push(exitMove);
+                  }
+                }, exitAnimationWaitTime);
+          }
+        }, entryAnimationWaitTime + entryMove.getDuration());
+  }
+
   private void processMove(Entity player, Displayable displayable) {
     if (!currentMove.hasFinished()) {
       if (!currentMove.hasStarted()) {
         IntVector3 position = positionMapper.get(player).get();
         IntVector2 targetPosition
-            = position.toIntVector2().add(currentMove.getDirection().getVector());
+            = position.toIntVector2()
+                      .add(currentMove.getDirection().getVector());
 
         Tile[][] tiles = tilesMapper.get(areaManager.getArea()).get();
         Tile targetTile = tiles[targetPosition.y][targetPosition.x];
@@ -179,8 +304,10 @@ public class PlayerMovementSystem extends VoidEntitySystem {
         positionComponent.set(newPosition);
       }
 
-      float delta = currentMove.willHaveBeenFinishedIn(Gdx.graphics.getDeltaTime()) ?
-          currentMove.getRemaining() : Gdx.graphics.getDeltaTime();
+      // TODO: Find a way for the movement to be less choppy while remaining accurate
+      float delta
+          = currentMove.willHaveBeenFinishedIn(Gdx.graphics.getDeltaTime()) ?
+              currentMove.getRemaining() : Gdx.graphics.getDeltaTime();
 
       Vector3 translation
           = currentMove.getVector().cpy().scl(delta * currentMove.getSpeed());
@@ -209,6 +336,13 @@ public class PlayerMovementSystem extends VoidEntitySystem {
     }
 
     return pressedDirection;
+  }
+
+  private boolean coordsInsideArea(IntVector2 coords, Entity area) {
+    IntVector2 areaDimensions = dimensionsMapper.get(area).get();
+
+    return (Range.closedOpen(0, areaDimensions.x).contains(coords.x) &&
+            Range.closedOpen(0, areaDimensions.y).contains(coords.y));
   }
 
   private boolean isMoving() {
