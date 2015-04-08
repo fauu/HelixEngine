@@ -114,9 +114,9 @@ public class AreaManager extends Manager {
         TileAreaPassage areaPassage = new TileAreaPassage();
 
         areaPassage.setTargetAreaName(wrapper.passage.area);
-        areaPassage.setTargetPosition(
+        areaPassage.setTargetCoords(
             new IntVector2(wrapper.passage.position.x,
-                           wrapper.passage.position.y));
+                wrapper.passage.position.y));
 
         tile.setAreaPassage(areaPassage);
       }
@@ -187,8 +187,8 @@ public class AreaManager extends Manager {
           json.writeValue("area", passage.getTargetAreaName());
 
           json.writeObjectStart("position");
-          json.writeValue("x", passage.getTargetPosition().x);
-          json.writeValue("y", passage.getTargetPosition().y);
+          json.writeValue("x", passage.getTargetCoords().x);
+          json.writeValue("y", passage.getTargetCoords().y);
           json.writeObjectEnd();
 
           json.writeObjectEnd();

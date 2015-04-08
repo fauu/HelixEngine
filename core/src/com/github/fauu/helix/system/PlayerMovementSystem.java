@@ -29,7 +29,6 @@ import com.github.fauu.helix.component.*;
 import com.github.fauu.helix.datum.Move;
 import com.github.fauu.helix.datum.Tile;
 import com.github.fauu.helix.datum.TileAreaPassage;
-import com.github.fauu.helix.displayable.AreaDisplayable;
 import com.github.fauu.helix.displayable.DecalDisplayable;
 import com.github.fauu.helix.displayable.ModelDisplayable;
 import com.github.fauu.helix.graphics.AnimationType;
@@ -92,6 +91,10 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
   private LinkedList<Move> queue;
 
+  private Entity player;
+
+  private DecalDisplayable displayable;
+
   static {
     START_DELAY = 0.1f;
 
@@ -119,9 +122,8 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
   @Override
   protected void processSystem() {
-    Entity player = playerManager.getPlayer();
-    DecalDisplayable displayable
-        = (DecalDisplayable) displayableMapper.get(player).get();
+    player = playerManager.getPlayer();
+    displayable = (DecalDisplayable) displayableMapper.get(player).get();
 
     if (!isMoving()) {
       Direction pressedDirection = pollPressedDirection();
@@ -132,7 +134,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
         }
 
         if (queue.size() == 0 && startDelayCounter >= START_DELAY) {
-          tryMoving(player, displayable, pressedDirection);
+          tryMoving(pressedDirection);
         } else {
           startDelayCounter += Gdx.graphics.getDeltaTime();
         }
@@ -147,13 +149,14 @@ public class PlayerMovementSystem extends VoidEntitySystem {
     }
 
     if (isMoving()) {
-      processMove(player, displayable);
+      advanceMove();
     }
   }
 
-  private void tryMoving(Entity player,
-                         DecalDisplayable displayable,
-                         final Direction direction) {
+  private void tryMoving(Direction direction) {
+    orientationMapper.get(player).set(direction);
+    displayable.orientate(direction);
+
     IntVector3 position = positionMapper.get(player).get();
     IntVector2 targetCoords = position.toIntVector2().add(direction.getVector());
 
@@ -169,14 +172,11 @@ public class PlayerMovementSystem extends VoidEntitySystem {
     Tile targetTile = Tile.get(tiles, targetCoords);
 
     if (targetTile.getPermissions() == TilePermission.OBSTACLE) {
-      return;
+      ;
     } else if (targetTile.getPermissions() == TilePermission.PASSAGE) {
       moveThroughAreaPassage(targetTile.getAreaPassage(),
-          player,
-          displayable,
-          area,
-          direction,
-          targetCoords);
+                             targetCoords,
+                             direction);
     } else {
       Move move = new Move();
 
@@ -188,19 +188,45 @@ public class PlayerMovementSystem extends VoidEntitySystem {
   }
 
   private void moveThroughAreaPassage(final TileAreaPassage passage,
-                                      final Entity player,
-                                      final DecalDisplayable displayable,
-                                      final Entity area,
-                                      final Direction direction,
-                                      final IntVector2 targetCoords) {
+                                      final IntVector2 passageCoords,
+                                      final Direction direction) {
+    float entryDuration = moveIntoAreaPassage(passageCoords, direction);
+
+    Timer.schedule(
+        new Timer.Task() {
+          @Override
+          public void run() {
+            areaManager.unloadCurrent();
+            areaManager.load(passage.getTargetAreaName());
+
+            IntVector3 exitPosition = new IntVector3(passage.getTargetCoords());
+
+            positionMapper.get(player).set(exitPosition);
+
+            Vector3 translation
+                = exitPosition.toVector3()
+                              .sub(passageCoords.x, passageCoords.y, 0);
+
+            displayable.translate(translation);
+
+            // TODO: Camera stuff out of here?
+            camera.translate(translation);
+
+            moveOutOfAreaPassage(passage, direction);
+          }
+        }, entryDuration);
+  }
+
+  private float moveIntoAreaPassage(IntVector2 passageCoords,
+                                    Direction direction) {
     final ModelDisplayable areaDisplayable
-        = (ModelDisplayable) displayableMapper.get(area).get();
+        = (ModelDisplayable) displayableMapper.get(areaManager.getArea()).get();
 
     String entryAnimationId
-        = AreaManager.constructPassageAnimationId(targetCoords,
+        = AreaManager.constructPassageAnimationId(passageCoords,
                                                   PassageAction.ENTRY);
 
-    float entryAnimationWaitTime
+    float entryDelay
         = areaDisplayable.animateIfAnimationExists(entryAnimationId) ? 1 : 0;
 
     enabled = false;
@@ -208,67 +234,51 @@ public class PlayerMovementSystem extends VoidEntitySystem {
     final Move entryMove = new Move();
     entryMove.setDirection(direction);
     entryMove.setSpeed(movementSpeedMapper.get(player).get());
+    Timer.schedule(
+        new Timer.Task() {
+          @Override
+          public void run() {
+            queue.push(entryMove);
+
+            world.getSystem(ScreenFadingSystem.class)
+                 .fade(ScreenFadingSystem.FadeType.FADE_OUT, .3f);
+
+            enabled = true;
+          }
+        }, entryDelay);
+
+    return entryDelay + entryMove.getDuration();
+  }
+
+  private void moveOutOfAreaPassage(TileAreaPassage passage,
+                                    Direction direction) {
+    float exitAnimationWaitTime = 0;
+
+    String exitAnimationId
+        = AreaManager.constructPassageAnimationId(
+            passage.getTargetCoords(),
+            PassageAction.EXIT);
+
+    ModelDisplayable areaDisplayable
+        = (ModelDisplayable) displayableMapper.get(areaManager.getArea()).get();
+
+    areaDisplayable.animateIfAnimationExists(exitAnimationId);
+
+    world.getSystem(ScreenFadingSystem.class)
+        .fade(ScreenFadingSystem.FadeType.FADE_IN, .3f);
+
+    final Move exitMove = new Move();
+    exitMove.setDirection(direction);
+    exitMove.setSpeed(movementSpeedMapper.get(player).get());
     Timer.schedule(new Timer.Task() {
       @Override
       public void run() {
-        queue.push(entryMove);
-
-        world.getSystem(ScreenFadingSystem.class)
-             .fade(ScreenFadingSystem.FadeType.FADE_OUT, .3f);
-
-        enabled = true;
+        queue.push(exitMove);
       }
-    }, entryAnimationWaitTime);
-
-    Timer.schedule(new Timer.Task() {
-          @Override
-          public void run() {
-            areaManager.unloadCurrent();
-            areaManager.load(passage.getTargetAreaName());
-            Entity area = areaManager.getArea();
-            AreaDisplayable areaDisplayable
-                = (AreaDisplayable) displayableMapper.get(area).get();
-
-            IntVector3 exitPosition
-                = new IntVector3(passage.getTargetPosition());
-
-            positionMapper.get(player).set(exitPosition);
-
-            Vector3 translation
-                = exitPosition.toVector3()
-                              .sub(targetCoords.x, targetCoords.y, 0);
-
-            float exitAnimationWaitTime = 0;
-
-            String exitAnimationId
-                = AreaManager.constructPassageAnimationId(
-                    passage.getTargetPosition(),
-                    PassageAction.EXIT);
-
-            areaDisplayable.animateIfAnimationExists(exitAnimationId);
-
-            displayable.translate(translation);
-
-            // TODO: Camera stuff out of here?
-            camera.translate(translation);
-
-            world.getSystem(ScreenFadingSystem.class)
-                 .fade(ScreenFadingSystem.FadeType.FADE_IN, .3f);
-
-            final Move exitMove = new Move();
-            exitMove.setDirection(direction);
-            exitMove.setSpeed(movementSpeedMapper.get(player).get());
-            Timer.schedule(new Timer.Task() {
-                  @Override
-                  public void run() {
-                    queue.push(exitMove);
-                  }
-                }, exitAnimationWaitTime);
-          }
-        }, entryAnimationWaitTime + entryMove.getDuration());
+    }, exitAnimationWaitTime);
   }
 
-  private void processMove(Entity player, DecalDisplayable displayable) {
+  private void advanceMove() {
     if (!currentMove.hasFinished()) {
       if (!currentMove.hasStarted()) {
         IntVector3 position = positionMapper.get(player).get();
