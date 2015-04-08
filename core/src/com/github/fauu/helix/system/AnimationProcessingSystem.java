@@ -24,12 +24,12 @@ import com.github.fauu.helix.displayable.Displayable;
 import com.github.fauu.helix.displayable.ModelDisplayable;
 
 // TODO: Cache animation controllers
-public class DisplayableAnimationUpdateSystem extends EntityProcessingSystem {
+public class AnimationProcessingSystem extends EntityProcessingSystem {
 
   @Wire
   private ComponentMapper<DisplayableComponent> displayableMapper;
 
-  public DisplayableAnimationUpdateSystem() {
+  public AnimationProcessingSystem() {
     super(Aspect.getAspectForAll(DisplayableComponent.class));
   }
 

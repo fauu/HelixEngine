@@ -16,6 +16,8 @@ package com.github.fauu.helix.displayable;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.github.fauu.helix.Direction;
+import com.github.fauu.helix.graphics.AnimationType;
 import com.github.fauu.helix.util.IntVector3;
 
 public abstract class DecalDisplayable extends Displayable {
@@ -71,6 +73,18 @@ public abstract class DecalDisplayable extends Displayable {
     shadowDecal = decal;
 
     decals[1] = shadowDecal;
+  }
+
+  // TODO: Move this into AnimatedDecalDisplayable / make all decals animated / use composition?
+  public abstract void animate(AnimationType type,
+                               Direction direction,
+                               float duration);
+
+  public abstract void orientate(Direction direction);
+
+  public void translate(Vector3 translation) {
+    mainDecal.translate(translation);
+    shadowDecal.translate(translation);
   }
 
 }

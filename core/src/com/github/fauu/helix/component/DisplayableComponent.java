@@ -14,20 +14,13 @@
 package com.github.fauu.helix.component;
 
 import com.artemis.Component;
-import com.github.fauu.helix.datum.DisplayableUpdateRequest;
 import com.github.fauu.helix.displayable.Displayable;
-
-import java.util.LinkedList;
 
 public class DisplayableComponent extends Component {
 
   private Displayable displayable;
   
-  private LinkedList<DisplayableUpdateRequest> updateRequestQueue;
-  
-  public DisplayableComponent() {
-    this.updateRequestQueue = new LinkedList<DisplayableUpdateRequest>();
-  }
+  public DisplayableComponent() { }
   
   public DisplayableComponent(Displayable displayable) {
     this();
@@ -41,14 +34,6 @@ public class DisplayableComponent extends Component {
   
   public void set(Displayable displayable) {
     this.displayable = displayable;
-  }
-
-  public void requestUpdate(DisplayableUpdateRequest request) {
-    updateRequestQueue.add(request);
-  }
-  
-  public DisplayableUpdateRequest pollUpdateRequest() {
-    return updateRequestQueue.poll();
   }
 
 }

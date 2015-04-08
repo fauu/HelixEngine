@@ -23,15 +23,12 @@ import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
-import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 
 public class AreaDisplayable extends ModelDisplayable {
-
-  private ModelInstance instance;
 
   public AreaDisplayable(Model model) {
     instance = new ModelInstance(model);
@@ -54,34 +51,6 @@ public class AreaDisplayable extends ModelDisplayable {
                                                    GL20.GL_ONE_MINUS_SRC_ALPHA);
 
       material.set(ba);
-    }
-  }
-
-  public boolean animationExists(String id) {
-    for (Animation animation : instance.animations) {
-      if (animation.id.equalsIgnoreCase(id)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  @Override
-  public void update(UpdateType type, Object value) {
-    switch (type) {
-      case ANIMATION:
-        animationController.setAnimation((String) value);
-        break;
-      case OPACITY:
-        for (Material material : instance.materials) {
-          BlendingAttribute ba
-              = (BlendingAttribute) material.get(BlendingAttribute.Type);
-
-          ba.opacity = (Float) value;
-        }
-        break;
-      default: throw new UnsupportedOperationException();
     }
   }
 

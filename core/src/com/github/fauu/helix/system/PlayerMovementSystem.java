@@ -30,8 +30,8 @@ import com.github.fauu.helix.datum.Move;
 import com.github.fauu.helix.datum.Tile;
 import com.github.fauu.helix.datum.TileAreaPassage;
 import com.github.fauu.helix.displayable.AreaDisplayable;
-import com.github.fauu.helix.displayable.Displayable;
-import com.github.fauu.helix.displayable.update.dto.AnimationUpdateDTO;
+import com.github.fauu.helix.displayable.DecalDisplayable;
+import com.github.fauu.helix.displayable.ModelDisplayable;
 import com.github.fauu.helix.graphics.AnimationType;
 import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.manager.AreaManager;
@@ -120,14 +120,15 @@ public class PlayerMovementSystem extends VoidEntitySystem {
   @Override
   protected void processSystem() {
     Entity player = playerManager.getPlayer();
-    Displayable displayable = displayableMapper.get(player).get();
+    DecalDisplayable displayable
+        = (DecalDisplayable) displayableMapper.get(player).get();
 
     if (!isMoving()) {
       Direction pressedDirection = pollPressedDirection();
       if(pressedDirection != null) {
         if (startDelayCounter == 0) {
           orientationMapper.get(player).set(pressedDirection);
-          displayable.update(Displayable.UpdateType.ORIENTATION, pressedDirection);
+          displayable.orientate(pressedDirection);
         }
 
         if (queue.size() == 0 && startDelayCounter >= START_DELAY) {
@@ -151,7 +152,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
   }
 
   private void tryMoving(Entity player,
-                         Displayable displayable,
+                         DecalDisplayable displayable,
                          final Direction direction) {
     IntVector3 position = positionMapper.get(player).get();
     IntVector2 targetCoords = position.toIntVector2().add(direction.getVector());
@@ -188,25 +189,19 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
   private void moveThroughAreaPassage(final TileAreaPassage passage,
                                       final Entity player,
-                                      final Displayable displayable,
+                                      final DecalDisplayable displayable,
                                       final Entity area,
                                       final Direction direction,
                                       final IntVector2 targetCoords) {
-    final AreaDisplayable areaDisplayable
-        = (AreaDisplayable) displayableMapper.get(area).get();
+    final ModelDisplayable areaDisplayable
+        = (ModelDisplayable) displayableMapper.get(area).get();
 
     String entryAnimationId
         = AreaManager.constructPassageAnimationId(targetCoords,
                                                   PassageAction.ENTRY);
 
-    float entryAnimationWaitTime = 0;
-
-    if (areaDisplayable.animationExists(entryAnimationId)) {
-      areaDisplayable.update(Displayable.UpdateType.ANIMATION,
-                             entryAnimationId);
-
-      entryAnimationWaitTime = 1;
-    }
+    float entryAnimationWaitTime
+        = areaDisplayable.animateIfAnimationExists(entryAnimationId) ? 1 : 0;
 
     enabled = false;
 
@@ -250,12 +245,9 @@ public class PlayerMovementSystem extends VoidEntitySystem {
                     passage.getTargetPosition(),
                     PassageAction.EXIT);
 
-            if (areaDisplayable.animationExists(exitAnimationId)) {
-              areaDisplayable.update(Displayable.UpdateType.ANIMATION,
-                                     exitAnimationId);
-            }
+            areaDisplayable.animateIfAnimationExists(exitAnimationId);
 
-            displayable.update(Displayable.UpdateType.POSITION, translation);
+            displayable.translate(translation);
 
             // TODO: Camera stuff out of here?
             camera.translate(translation);
@@ -276,7 +268,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
         }, entryAnimationWaitTime + entryMove.getDuration());
   }
 
-  private void processMove(Entity player, Displayable displayable) {
+  private void processMove(Entity player, DecalDisplayable displayable) {
     if (!currentMove.hasFinished()) {
       if (!currentMove.hasStarted()) {
         IntVector3 position = positionMapper.get(player).get();
@@ -287,12 +279,9 @@ public class PlayerMovementSystem extends VoidEntitySystem {
         Tile[][] tiles = tilesMapper.get(areaManager.getArea()).get();
         Tile targetTile = tiles[targetPosition.y][targetPosition.x];
 
-        AnimationUpdateDTO update
-            = new AnimationUpdateDTO(
-                WALK_ANIMATION_CYCLE[walkAnimationCycleCounter++],
-                currentMove.getDirection(),
-                currentMove.getDuration());
-        displayable.update(Displayable.UpdateType.ANIMATION, update);
+        displayable.animate(WALK_ANIMATION_CYCLE[walkAnimationCycleCounter++],
+                            currentMove.getDirection(),
+                            currentMove.getDuration());
 
         walkAnimationCycleCounter %= 2;
 
@@ -312,7 +301,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
       Vector3 translation
           = currentMove.getVector().cpy().scl(delta * currentMove.getSpeed());
 
-      displayable.update(Displayable.UpdateType.POSITION, translation);
+      displayable.translate(translation);
 
       // TODO: Camera stuff out of here
       translation.y += translation.z * (-13 / 17);

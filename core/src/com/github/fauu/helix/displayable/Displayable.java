@@ -13,16 +13,4 @@
 
 package com.github.fauu.helix.displayable;
 
-public abstract class Displayable {
-
-  public abstract void update(UpdateType type, Object value);
-  
-  public enum UpdateType {
-    OPACITY,
-    POSITION,
-    ORIENTATION,
-    ANIMATION,
-    TILES_PARTIAL
-  }
-
-}
+public abstract class Displayable { }

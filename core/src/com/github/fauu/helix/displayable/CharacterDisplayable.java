@@ -18,9 +18,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
-import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.Direction;
-import com.github.fauu.helix.displayable.update.dto.AnimationUpdateDTO;
 import com.github.fauu.helix.graphics.AnimatedDecal;
 import com.github.fauu.helix.graphics.AnimationSet;
 import com.github.fauu.helix.graphics.AnimationType;
@@ -40,7 +38,6 @@ public class CharacterDisplayable extends DecalDisplayable {
 
     animations = new AnimationSet(animationSetName);
 
-
     AnimatedDecal decal
         = AnimatedDecal.newAnimatedDecal(DEFAULT_DIMENSIONS.x,
                                          DEFAULT_DIMENSIONS.y,
@@ -59,7 +56,7 @@ public class CharacterDisplayable extends DecalDisplayable {
     shadow.setPosition(ownerPosition.toVector3());
     shadow.translate(DEFAULT_SHADOW_DISPLACEMENT);
     shadow.setDimensions(DEFAULT_SHADOW_DIMENSIONS.x,
-        DEFAULT_SHADOW_DIMENSIONS.y);
+                         DEFAULT_SHADOW_DIMENSIONS.y);
     shadow.setColor(1, 1, 1, .35f);
     shadow.setTextureRegion(shadowTexture);
     shadow.setBlending(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -68,30 +65,20 @@ public class CharacterDisplayable extends DecalDisplayable {
   }
 
   @Override
-  public void update(UpdateType type, Object value) {
-    AnimatedDecal decal = ((AnimatedDecal) this.mainDecal);
+  public void animate(AnimationType type, Direction direction, float duration) {
+    AnimatedDecal animatedDecal = ((AnimatedDecal) this.mainDecal);
 
-    switch (type) {
-      case ORIENTATION:
-        decal.setAnimated(
-            animations.get(AnimationType.IDLE, (Direction) value));
-        decal.play();
-        break;
-      case POSITION:
-          mainDecal.translate((Vector3) value);
-          shadowDecal.translate((Vector3) value);
-        break;
-      case ANIMATION:
-        AnimationUpdateDTO updateDTO = (AnimationUpdateDTO) value;
+    animatedDecal.stop();
+    animatedDecal.setAnimated(animations.get(type, direction, duration));
+    animatedDecal.play();
+  }
 
-        decal.stop();
-        decal.setAnimated(animations.get(updateDTO.type,
-                                         updateDTO.direction,
-                                         updateDTO.duration));
-        decal.play();
-        break;
-      default: throw new UnsupportedOperationException();
-    }
+  @Override
+  public void orientate(Direction direction) {
+    AnimatedDecal animatedDecal = ((AnimatedDecal) this.mainDecal);
+
+    animatedDecal.setAnimated(animations.get(AnimationType.IDLE, direction));
+    animatedDecal.play();
   }
 
 }

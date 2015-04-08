@@ -23,7 +23,6 @@ import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.github.fauu.helix.displayable.ModelDisplayable;
@@ -56,12 +55,6 @@ public class TileHighlightDisplayable extends ModelDisplayable {
                                   VertexAttributes.Usage.TextureCoordinates);
 
     instance = new ModelInstance(model);
-  }
-
-  @Override
-  public void update(UpdateType type, Object value) {
-    instance.transform.setToTranslation(((Vector3) value).cpy()
-                                                         .add(0, 0, Z_OFFSET));
   }
 
   @Override

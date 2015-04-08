@@ -13,16 +13,48 @@
 
 package com.github.fauu.helix.displayable;
 
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
+import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
+import com.badlogic.gdx.math.Vector3;
 
 public abstract class ModelDisplayable extends Displayable
-                                   implements RenderableProvider {
+                                       implements RenderableProvider {
+
+  protected ModelInstance instance;
 
   protected AnimationController animationController;
 
   public AnimationController getAnimationController() {
     return animationController;
+  }
+
+  public boolean animateIfAnimationExists(String id) {
+    for (Animation animation : instance.animations) {
+      if (animation.id.equalsIgnoreCase(id)) {
+        animationController.setAnimation(id);
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public void updateTranslation(Vector3 translation) {
+    instance.transform.setToTranslation(translation);
+  }
+
+  public void updateOpacity(float opacity) {
+    for (Material material : instance.materials) {
+      BlendingAttribute ba
+          = (BlendingAttribute) material.get(BlendingAttribute.Type);
+
+      ba.opacity = opacity;
+    }
   }
 
 }

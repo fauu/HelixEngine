@@ -67,53 +67,42 @@ public class TilePermissionsGridDisplayable extends ModelDisplayable {
 
     ModelBuilder modelBuilder = new ModelBuilder();
     modelBuilder.begin();
-    modelBuilder.part("grid",
-                      mesh,
-                      GL20.GL_TRIANGLES,
-                      new Material(
-                          new TextureAttribute(
-                              TextureAttribute.createDiffuse(atlas.getTextures()
-                                                                  .first()))));
+
+    TextureAttribute diffuse
+        = TextureAttribute.createDiffuse(atlas.getTextures().first());
+
+    modelBuilder.part("grid", mesh, GL20.GL_TRIANGLES, new Material(diffuse));
 
     instance = new ModelInstance(modelBuilder.end());
+
     instance.transform.translate(0, 0, Z_OFFSET);
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public void update(UpdateType type, Object value) {
-    switch (type) {
-      case TILES_PARTIAL:
-        HashMap<Integer, Tile> tilesWithIndex = (HashMap<Integer, Tile>) value;
+  public void updateTiles(HashMap<Integer, Tile> tilesWithIndices) {
+    Mesh mesh = instance.model.meshes.first();
 
-        Mesh mesh = instance.model.meshes.first();
+    // TODO: Get rid of magic numbers
+    for (Map.Entry<Integer, Tile> tileWithIndex : tilesWithIndices.entrySet()) {
+      int index = tileWithIndex.getKey();
+      Tile tile = tileWithIndex.getValue();
 
-        // TODO: Get rid of magic numbers
-        for (Map.Entry<Integer, Tile> tileWithIndex :
-             tilesWithIndex.entrySet()) {
-          int index = tileWithIndex.getKey();
-          Tile tile = tileWithIndex.getValue();
+      float[] vertices = new float[4 * 5];
 
-          float[] vertices = new float[4 * 5];
+      mesh.getVertices(index * 4 * 5, 4 * 5, vertices);
 
-          mesh.getVertices(index * 4 * 5, 4 * 5, vertices);
+      TextureRegion region = atlas.findRegion(tile.getPermissions().name());
 
-          TextureRegion region = atlas.findRegion(tile.getPermissions().name());
+      float[] uv = new float[] { region.getU() , region.getV2(),
+          region.getU2(), region.getV2(),
+          region.getU2(), region.getV(),
+          region.getU() , region.getV() };
 
-          float[] uv = new float[] { region.getU() , region.getV2(),
-                                     region.getU2(), region.getV2(),
-                                     region.getU2(), region.getV(),
-                                     region.getU() , region.getV() };
+      for (int i = 0; i < 4; i++) {
+        vertices[i * 5 + 3] = uv[i * 2];
+        vertices[i * 5 + 4] = uv[i * 2 + 1];
+      }
 
-          for (int i = 0; i < 4; i++) {
-            vertices[i * 5 + 3] = uv[i * 2];
-            vertices[i * 5 + 4] = uv[i * 2 + 1];
-          }
-
-          mesh.updateVertices(index * 4 * 5, vertices);
-        }
-        break;
-      default: throw new UnsupportedOperationException();
+      mesh.updateVertices(index * 4 * 5, vertices);
     }
   }
 
@@ -122,4 +111,5 @@ public class TilePermissionsGridDisplayable extends ModelDisplayable {
                              Pool<Renderable> pool) {
     instance.getRenderables(renderables, pool);
   }
+
 }

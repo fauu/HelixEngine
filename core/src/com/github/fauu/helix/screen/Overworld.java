@@ -51,8 +51,7 @@ public class Overworld implements Screen {
 
     world.setSystem(new PlayerMovementSystem());
     world.setSystem(new CameraClientsUpdateSystem());
-    world.setSystem(new DisplayableUpdateSystem());
-    world.setSystem(new DisplayableAnimationUpdateSystem());
+    world.setSystem(new AnimationProcessingSystem());
     world.setSystem(new RenderingSystem());
     world.setSystem(new ScreenFadingSystem());
 

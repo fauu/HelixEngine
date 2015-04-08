@@ -17,23 +17,22 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.Manager;
 import com.artemis.annotations.Wire;
-import com.artemis.managers.TagManager;
 import com.github.fauu.helix.component.DisplayableComponent;
-import com.github.fauu.helix.datum.DisplayableUpdateRequest;
-import com.github.fauu.helix.displayable.Displayable;
+import com.github.fauu.helix.displayable.ModelDisplayable;
+import com.github.fauu.helix.manager.AreaManager;
 
 public class DisplayableIntermediary extends Manager {
+
+  @Wire
+  private AreaManager areaManager;
 
   @Wire
   private ComponentMapper<DisplayableComponent> displayableMapper;
 
   public void setAreaDisplayableOpacity(float value) {
-    Entity area = world.getManager(TagManager.class).getEntity("area");
+    Entity area = areaManager.getArea();
 
-    DisplayableUpdateRequest request
-        = new DisplayableUpdateRequest(Displayable.UpdateType.OPACITY, value);
-
-    displayableMapper.get(area).requestUpdate(request);
+    ((ModelDisplayable) displayableMapper.get(area).get()).updateOpacity(value);
   }
 
 }

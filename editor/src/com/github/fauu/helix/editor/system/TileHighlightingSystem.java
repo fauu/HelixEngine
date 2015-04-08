@@ -26,9 +26,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.github.fauu.helix.component.*;
-import com.github.fauu.helix.datum.DisplayableUpdateRequest;
 import com.github.fauu.helix.datum.Tile;
-import com.github.fauu.helix.displayable.Displayable;
 import com.github.fauu.helix.editor.displayable.TileHighlightDisplayable;
 import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.util.IntVector2;
@@ -93,13 +91,12 @@ public class TileHighlightingSystem extends EntityProcessingSystem {
 
         if (Intersector.intersectRayBoundsFast(ray, boundingBox)) {
          if (tiles[y][x] != highlightedTile) {
-            displayableMapper
-                .get(highlight)
-                .requestUpdate(
-                    new DisplayableUpdateRequest(Displayable.UpdateType.POSITION,
-                        new Vector3(x, y, 0)));
+           // FIXME
+//            ModelDisplayable highlightDisplayable
+//                = (ModelDisplayable) displayableMapper.get(highlight).get();
+//            highlightDisplayable.updateTranslation(new Vector3(x, y, 0));
 
-            highlight.edit().create(VisibilityComponent.class);
+//            highlight.edit().create(VisibilityComponent.class);
 
             highlightedTile = tiles[y][x];
           }

@@ -28,10 +28,8 @@ import com.github.fauu.helix.component.DimensionsComponent;
 import com.github.fauu.helix.component.DisplayableComponent;
 import com.github.fauu.helix.component.TilesComponent;
 import com.github.fauu.helix.component.VisibilityComponent;
-import com.github.fauu.helix.datum.DisplayableUpdateRequest;
 import com.github.fauu.helix.datum.Tile;
 import com.github.fauu.helix.datum.TileAreaPassage;
-import com.github.fauu.helix.displayable.Displayable;
 import com.github.fauu.helix.editor.HelixEditor;
 import com.github.fauu.helix.editor.displayable.TilePermissionsGridDisplayable;
 import com.github.fauu.helix.editor.event.AreaLoadedEvent;
@@ -148,11 +146,10 @@ public class TilePermissionsEditingSystem extends EntityProcessingSystem {
 
             Entity grid = tagManager.getEntity("tilePermissionsGrid");
 
-            displayableMapper
-                .get(grid)
-                .requestUpdate(
-                    new DisplayableUpdateRequest(Displayable.UpdateType.TILES_PARTIAL,
-                                                 updatedTilesWithIndex));
+            TilePermissionsGridDisplayable gridDisplayable
+                = (TilePermissionsGridDisplayable)
+                    displayableMapper.get(grid).get();
+            gridDisplayable.updateTiles(updatedTilesWithIndex);
 
             lastUpdatedTile = tile;
 
