@@ -32,6 +32,8 @@ public abstract class DecalDisplayable extends Displayable {
 
   protected static final Vector3 DEFAULT_SHADOW_DISPLACEMENT;
 
+  protected Vector3 position;
+
   protected Decal mainDecal;
 
   protected Decal shadowDecal;
@@ -41,32 +43,26 @@ public abstract class DecalDisplayable extends Displayable {
   static {
     DEFAULT_DIMENSIONS = new Vector2(1.95f, 1.95f);
     DEFAULT_ROTATION = 45;
-    DEFAULT_DISPLACEMENT = new Vector3(0.52f, 0.5f, 1.01f);
+    DEFAULT_DISPLACEMENT = new Vector3(.52f, .5f, 1.01f);
 
     DEFAULT_SHADOW_DIMENSIONS = new Vector2(1, .8f);
-    DEFAULT_SHADOW_DISPLACEMENT = new Vector3(.55f, .17f, .05f);
+    DEFAULT_SHADOW_DISPLACEMENT = new Vector3(.03f, -.33f, -.96f);
   }
 
-  public DecalDisplayable(IntVector3 position) {
+  public DecalDisplayable(Vector3 position) {
     decals = new Decal[2];
+
+    this.position = position;
   }
 
   public Decal[] getDecals() {
     return decals;
   }
 
-  public Decal getMainDecal() {
-    return mainDecal;
-  }
-
   public void setMainDecal(Decal decal) {
     mainDecal = decal;
 
     decals[0] = mainDecal;
-  }
-
-  public Decal getShadowDecal() {
-    return shadowDecal;
   }
 
   public void setShadowDecal(Decal decal) {
@@ -82,9 +78,21 @@ public abstract class DecalDisplayable extends Displayable {
 
   public abstract void orientate(Direction direction);
 
-  public void translate(Vector3 translation) {
+  public void move(Vector3 translation) {
     mainDecal.translate(translation);
     shadowDecal.translate(translation);
+
+    position.add(translation);
+  }
+
+  private void moveTo(Vector3 position) {
+    Vector3 translation = position.sub(this.position);
+
+    move(translation);
+  }
+
+  public void updatePosition(IntVector3 entityPosition) {
+    moveTo(entityPosition.toVector3().add(DEFAULT_DISPLACEMENT));
   }
 
 }

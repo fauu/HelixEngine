@@ -31,10 +31,10 @@ public class CharacterDisplayable extends DecalDisplayable {
 
   protected AnimationSet animations;
 
-  public CharacterDisplayable(IntVector3 ownerPosition,
+  public CharacterDisplayable(IntVector3 logicalPosition,
                               String animationSetName,
                               TextureRegion shadowTexture) {
-    super(ownerPosition);
+    super(logicalPosition.toVector3().add(DEFAULT_DISPLACEMENT));
 
     animations = new AnimationSet(animationSetName);
 
@@ -45,15 +45,14 @@ public class CharacterDisplayable extends DecalDisplayable {
                                          true);
 
     decal.setKeepSize(true);
-    decal.setPosition(ownerPosition.toVector3());
-    decal.translate(DEFAULT_DISPLACEMENT);
+    decal.setPosition(position);
     decal.rotateX(DEFAULT_ROTATION);
 
     setMainDecal(decal);
 
     Decal shadow = new Decal();
 
-    shadow.setPosition(ownerPosition.toVector3());
+    shadow.setPosition(position);
     shadow.translate(DEFAULT_SHADOW_DISPLACEMENT);
     shadow.setDimensions(DEFAULT_SHADOW_DIMENSIONS.x,
                          DEFAULT_SHADOW_DIMENSIONS.y);

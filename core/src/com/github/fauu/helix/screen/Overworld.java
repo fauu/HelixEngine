@@ -39,10 +39,8 @@ public class Overworld implements Screen {
   public Overworld() {
     assetManager = new AssetManager();
 
-    camera = new HelixCamera(30, new Vector3(0, -13, 17), .1f, 35);
+    camera = new HelixCamera(30, new Vector3(16, 16, 0), .1f, 35);
 
-    camera.translate(16 + 0.5f, 16 + 0.6f, 0);
-    
     WorldConfiguration worldConfiguration 
         = new WorldConfiguration().register(assetManager)
                                   .register(camera);
@@ -67,7 +65,7 @@ public class Overworld implements Screen {
     world.getManager(AreaManager.class).load("area1");
 
     world.getManager(WeatherMan.class)
-         .setType(WeatherMan.WeatherType.OVERCAST);
+         .setType(WeatherMan.WeatherType.NONE);
   }
 
   @Override

@@ -38,7 +38,7 @@ public class CameraClientsUpdateSystem extends EntityProcessingSystem {
 
   @Override
   protected void process(Entity e) {
-    Vector3 positionDelta = camera.getPositionDelta();
+    Vector3 positionDelta = camera.getTargetPositionDelta();
 
     ParticleEffect effect = particleEffectMapper.get(e).get();
     effect.update(-40 * positionDelta.x,

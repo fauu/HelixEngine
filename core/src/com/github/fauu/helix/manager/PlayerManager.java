@@ -53,8 +53,8 @@ public class PlayerManager extends Manager {
                   .add(new PositionComponent(playerPosition))
                   .add(new DisplayableComponent(
                       new CharacterDisplayable(playerPosition,
-                          "player",
-                          shadowTexture)))
+                                               "player",
+                                               shadowTexture)))
                   .add(new VisibilityComponent())
                   .getEntity();
   }

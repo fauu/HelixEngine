@@ -202,15 +202,9 @@ public class PlayerMovementSystem extends VoidEntitySystem {
             IntVector3 exitPosition = new IntVector3(passage.getTargetCoords());
 
             positionMapper.get(player).set(exitPosition);
-
-            Vector3 translation
-                = exitPosition.toVector3()
-                              .sub(passageCoords.x, passageCoords.y, 0);
-
-            displayable.translate(translation);
-
+            displayable.updatePosition(exitPosition);
             // TODO: Camera stuff out of here?
-            camera.translate(translation);
+            camera.updateTargetPosition(exitPosition);
 
             moveOutOfAreaPassage(passage, direction);
           }
@@ -271,11 +265,11 @@ public class PlayerMovementSystem extends VoidEntitySystem {
     exitMove.setDirection(direction);
     exitMove.setSpeed(movementSpeedMapper.get(player).get());
     Timer.schedule(new Timer.Task() {
-      @Override
-      public void run() {
-        queue.push(exitMove);
-      }
-    }, exitAnimationWaitTime);
+          @Override
+          public void run() {
+            queue.push(exitMove);
+          }
+        }, exitAnimationWaitTime);
   }
 
   private void advanceMove() {
@@ -311,11 +305,8 @@ public class PlayerMovementSystem extends VoidEntitySystem {
       Vector3 translation
           = currentMove.getVector().cpy().scl(delta * currentMove.getSpeed());
 
-      displayable.translate(translation);
-
-      // TODO: Camera stuff out of here
-      translation.y += translation.z * (-13 / 17);
-      camera.translate(translation);
+      displayable.move(translation);
+      camera.translateTargetPosition(translation);
 
       currentMove.setElapsed(currentMove.getElapsed() + delta);
     } else {
