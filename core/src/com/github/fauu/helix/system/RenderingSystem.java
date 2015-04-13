@@ -39,8 +39,8 @@ import com.github.fauu.helix.displayable.ModelDisplayable;
 import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.graphics.HelixRenderableSorter;
 import com.github.fauu.helix.graphics.ParticleEffect;
+import com.github.fauu.helix.graphics.postprocessing.Bloom;
 import com.github.fauu.helix.manager.LocalAmbienceManager;
-import com.github.fauu.helix.postprocessing.Bloom;
 
 import java.util.Iterator;
 

@@ -1,4 +1,4 @@
-package com.github.fauu.helix.postprocessing;
+package com.github.fauu.helix.graphics.postprocessing;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;

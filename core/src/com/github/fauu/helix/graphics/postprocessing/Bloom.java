@@ -1,4 +1,4 @@
-package com.github.fauu.helix.postprocessing;
+package com.github.fauu.helix.graphics.postprocessing;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -54,10 +54,10 @@ public class Bloom {
   private int h;
   private boolean blending = true;
   private boolean capturing = false;
-  private float r = 0.53f;
-  private float g = 0.8f;
-  private float b = 0.92f;
-  private float a = 1f;
+  private float r = 0;
+  private float g = 0;
+  private float b = 0;
+  private float a = 0;
   private boolean disposeFBO = true;
 
   /**

@@ -16,7 +16,7 @@ package com.github.fauu.helix.datum;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.github.fauu.helix.graphics.ParticleEffect;
-import com.github.fauu.helix.postprocessing.Bloom;
+import com.github.fauu.helix.graphics.postprocessing.Bloom;
 
 public class Ambience {
 
@@ -38,7 +38,6 @@ public class Ambience {
     bloom = new Bloom();
     bloom.setBloomIntesity(.8f);
     bloom.setOriginalIntesity(1);
-    bloom.setClearColor(0, 0, 0, 0);
 
     particleEffect = null;
   }

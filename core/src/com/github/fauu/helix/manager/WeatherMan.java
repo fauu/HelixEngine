@@ -19,7 +19,7 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.github.fauu.helix.datum.Ambience;
 import com.github.fauu.helix.graphics.ParticleEffect;
-import com.github.fauu.helix.postprocessing.Bloom;
+import com.github.fauu.helix.graphics.postprocessing.Bloom;
 
 // TODO: Think of a more elegant way to handle this
 public class WeatherMan extends Manager {
