@@ -91,6 +91,8 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
   private LinkedList<Move> queue;
 
+  private Move lastMove;
+
   private Entity player;
 
   private DecalDisplayable displayable;
@@ -170,21 +172,69 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
     Tile currentTile = Tile.get(tiles, position.toIntVector2());
     Tile targetTile = Tile.get(tiles, targetCoords);
+    switch (targetTile.getPermissions()) {
+      case OBSTACLE:
+        break;
+      case PASSAGE:
+        moveThroughAreaPassage(targetTile.getAreaPassage(),
+                               targetCoords,
+                               direction);
+        break;
+      case RAMP:
+        moveOnRamp(currentTile,
+                   findRampEnd(tiles, targetCoords, direction),
+                   direction);
+        break;
+      default:
+        Move move = new Move();
 
-    if (targetTile.getPermissions() == TilePermission.OBSTACLE) {
-      ;
-    } else if (targetTile.getPermissions() == TilePermission.PASSAGE) {
-      moveThroughAreaPassage(targetTile.getAreaPassage(),
-                             targetCoords,
-                             direction);
-    } else {
-      Move move = new Move();
+        move.setDirection(direction);
+        if (currentTile.getPermissions() == TilePermission.RAMP) {
+          float moveVectorZSgn = direction == lastMove.getDirection() ? 1 : -1;
 
-      move.setDirection(direction);
-      move.setSpeed(movementSpeedMapper.get(player).get());
+          move.setVectorZ(moveVectorZSgn * lastMove.getVector().z);
+        }
+        move.setSpeed(movementSpeedMapper.get(player).get());
 
-      queue.push(move);
+        queue.push(move);
     }
+  }
+
+  private void moveOnRamp(Tile currentTile,
+                          Tile rampEnd,
+                          Direction direction) {
+    float moveVectorZ;
+    if (currentTile.getPermissions() == TilePermission.RAMP) {
+      moveVectorZ = lastMove.getVector().z;
+    } else {
+      int currentElevation = currentTile.getPermissions().getElevation();
+      int finalElevation = rampEnd.getPermissions().getElevation();
+
+      moveVectorZ = currentElevation < finalElevation ? .5f : -.5f;
+    }
+
+    Move move = new Move();
+
+    move.setDirection(direction);
+    move.setVectorZ(moveVectorZ);
+    move.setSpeed(movementSpeedMapper.get(player).get());
+
+    queue.push(move);
+  }
+
+  private Tile findRampEnd(Tile[][] tiles,
+                           IntVector2 startCoords,
+                           Direction direction) {
+    IntVector2 coords = startCoords.cpy();
+
+    Tile end;
+    do {
+      end = Tile.get(tiles, coords);
+
+      coords.add(direction.getVector());
+    } while (end.getPermissions() == TilePermission.RAMP);
+
+    return end;
   }
 
   private void moveThroughAreaPassage(final TileAreaPassage passage,
@@ -310,6 +360,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
       currentMove.setElapsed(currentMove.getElapsed() + delta);
     } else {
+      lastMove = currentMove;
       currentMove = null;
     }
   }

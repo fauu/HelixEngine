@@ -47,6 +47,12 @@ public class IntVector2 {
     return this;
   }
 
+  public IntVector2 sub(IntVector2 other) {
+    set(x - other.x, y - other.y);
+
+    return this;
+  }
+
   public IntVector2 cpy() {
     return new IntVector2(x, y);
   }

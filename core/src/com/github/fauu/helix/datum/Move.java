@@ -43,6 +43,10 @@ public class Move {
     return vector;
   }
 
+  public void setVectorZ (float value) {
+    vector.z = value;
+  }
+
   public float getSpeed() {
     return speed;
   }

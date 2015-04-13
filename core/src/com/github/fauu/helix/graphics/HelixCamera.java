@@ -58,7 +58,7 @@ public class HelixCamera extends PerspectiveCamera {
   }
 
   public void translateTargetPosition(float x, float y, float z) {
-    super.translate(x, y + z * POSITION_Y_TO_Z_RATIO, z);
+    super.translate(x, y, z);
 
     targetPosition.add(x, y, z);
     targetPositionDelta.set(x, y, z);
