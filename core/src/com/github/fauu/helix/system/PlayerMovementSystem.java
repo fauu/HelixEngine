@@ -22,10 +22,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Timer;
+import com.github.fauu.helix.AreaType;
 import com.github.fauu.helix.Direction;
 import com.github.fauu.helix.PassageAction;
 import com.github.fauu.helix.TilePermission;
 import com.github.fauu.helix.component.*;
+import com.github.fauu.helix.datum.Ambience;
 import com.github.fauu.helix.datum.Move;
 import com.github.fauu.helix.datum.Tile;
 import com.github.fauu.helix.datum.TileAreaPassage;
@@ -34,7 +36,9 @@ import com.github.fauu.helix.displayable.ModelDisplayable;
 import com.github.fauu.helix.graphics.AnimationType;
 import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.manager.AreaManager;
+import com.github.fauu.helix.manager.LocalAmbienceManager;
 import com.github.fauu.helix.manager.PlayerManager;
+import com.github.fauu.helix.manager.WeatherMan;
 import com.github.fauu.helix.util.IntVector2;
 import com.github.fauu.helix.util.IntVector3;
 import com.google.common.collect.Range;
@@ -45,6 +49,8 @@ import java.util.Map;
 
 public class PlayerMovementSystem extends VoidEntitySystem {
 
+  private static final float PASSAGE_BLACKOUT_DURATION = .5f;
+
   @Wire
   private AreaManager areaManager;
 
@@ -53,6 +59,9 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
   @Wire
   private PlayerManager playerManager;
+
+  @Wire
+  private ComponentMapper<AreaTypeComponent> areaTypeMapper;
 
   @Wire
   private ComponentMapper<DimensionsComponent> dimensionsMapper;
@@ -249,6 +258,16 @@ public class PlayerMovementSystem extends VoidEntitySystem {
             areaManager.unloadCurrent();
             areaManager.load(passage.getTargetAreaName());
 
+            // TODO: Get this out of here
+            if (areaTypeMapper.get(areaManager.getArea()).get() ==
+                AreaType.OUTDOOR) {
+              world.getManager(LocalAmbienceManager.class)
+                   .setAmbience(world.getManager(WeatherMan.class).getWeather());
+            } else {
+              world.getManager(LocalAmbienceManager.class)
+                   .setAmbience(new Ambience());
+            }
+
             IntVector3 exitPosition = new IntVector3(passage.getTargetCoords());
 
             positionMapper.get(player).set(exitPosition);
@@ -258,7 +277,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
             moveOutOfAreaPassage(passage, direction);
           }
-        }, entryDuration);
+        }, entryDuration + PASSAGE_BLACKOUT_DURATION);
   }
 
   private float moveIntoAreaPassage(IntVector2 passageCoords,
@@ -285,7 +304,7 @@ public class PlayerMovementSystem extends VoidEntitySystem {
             queue.push(entryMove);
 
             world.getSystem(ScreenFadingSystem.class)
-                 .fade(ScreenFadingSystem.FadeType.FADE_OUT, .3f);
+                .fade(ScreenFadingSystem.FadeType.FADE_OUT, .2f);
 
             enabled = true;
           }
@@ -308,15 +327,15 @@ public class PlayerMovementSystem extends VoidEntitySystem {
 
     areaDisplayable.animateIfAnimationExists(exitAnimationId);
 
-    world.getSystem(ScreenFadingSystem.class)
-        .fade(ScreenFadingSystem.FadeType.FADE_IN, .3f);
-
     final Move exitMove = new Move();
     exitMove.setDirection(direction);
     exitMove.setSpeed(movementSpeedMapper.get(player).get());
     Timer.schedule(new Timer.Task() {
           @Override
           public void run() {
+            world.getSystem(ScreenFadingSystem.class)
+                .fade(ScreenFadingSystem.FadeType.FADE_IN, .2f);
+
             queue.push(exitMove);
           }
         }, exitAnimationWaitTime);

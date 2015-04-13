@@ -13,6 +13,8 @@
 
 package com.github.fauu.helix.json.wrapper;
 
+import com.github.fauu.helix.AreaType;
+
 import java.util.ArrayList;
 
 public class AreaWrapper {
@@ -20,6 +22,8 @@ public class AreaWrapper {
   public int width;
 
   public int length;
+
+  public AreaType type;
   
   public ArrayList<TileWrapper> tiles;
 

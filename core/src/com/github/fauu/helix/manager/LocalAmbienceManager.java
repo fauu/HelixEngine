@@ -11,27 +11,26 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.component;
+package com.github.fauu.helix.manager;
 
-import com.artemis.Component;
-import com.badlogic.gdx.graphics.g3d.Environment;
+import com.artemis.Manager;
+import com.github.fauu.helix.datum.Ambience;
 
-public class EnvironmentComponent extends Component {
+public class LocalAmbienceManager extends Manager {
 
-  private Environment environment;
+  private Ambience ambience;
 
-  public EnvironmentComponent() { }
-
-  public EnvironmentComponent(Environment environment) {
-    set(environment);
+  @Override
+  public void initialize() {
+    ambience = new Ambience();
   }
 
-  public Environment get() {
-    return environment;
+  public Ambience getAmbience() {
+    return ambience;
   }
 
-  public void set(Environment environment) {
-    this.environment = environment;
+  public void setAmbience(Ambience ambience) {
+    this.ambience = ambience;
   }
 
 }

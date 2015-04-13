@@ -22,10 +22,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.math.Vector3;
 import com.github.fauu.helix.graphics.HelixCamera;
-import com.github.fauu.helix.manager.AreaManager;
-import com.github.fauu.helix.manager.PlayerManager;
-import com.github.fauu.helix.manager.TextureManager;
-import com.github.fauu.helix.manager.WeatherMan;
+import com.github.fauu.helix.manager.*;
 import com.github.fauu.helix.system.*;
 
 public class Overworld implements Screen {
@@ -59,13 +56,16 @@ public class Overworld implements Screen {
     world.setManager(new TagManager());
     world.setManager(new AreaManager());
     world.setManager(new PlayerManager());
+    world.setManager(new LocalAmbienceManager());
     world.setManager(new WeatherMan());
     world.initialize();
 
-    world.getManager(AreaManager.class).load("area1");
-
     world.getManager(WeatherMan.class)
-         .setType(WeatherMan.WeatherType.NONE);
+         .setToType(WeatherMan.WeatherType.RAINSTORM);
+    world.getManager(AreaManager.class).load("area1");
+    // Temporary
+    world.getManager(LocalAmbienceManager.class)
+         .setAmbience(world.getManager(WeatherMan.class).getWeather());
   }
 
   @Override

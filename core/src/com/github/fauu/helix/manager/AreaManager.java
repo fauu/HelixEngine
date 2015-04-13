@@ -27,6 +27,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
+import com.github.fauu.helix.AreaType;
 import com.github.fauu.helix.PassageAction;
 import com.github.fauu.helix.TilePermission;
 import com.github.fauu.helix.component.*;
@@ -41,6 +42,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class AreaManager extends Manager {
+
+  @Wire
+  private ComponentMapper<AreaTypeComponent> areaTypeMapper;
 
   @Wire
   private ComponentMapper<DimensionsComponent> dimensionsMapper;
@@ -59,6 +63,7 @@ public class AreaManager extends Manager {
 
   private Entity area;
 
+  // FIXME: Add area type
   public void create(String name, int width, int length) {
     Json json = new Json();
 
@@ -138,6 +143,7 @@ public class AreaManager extends Manager {
 
     Entity area = world.createEntity()
                        .edit()
+                       .add(new AreaTypeComponent(areaWrapper.type))
                        .add(new TilesComponent(tiles))
                        .add(new DimensionsComponent(
                            new IntVector2(areaWrapper.width,
@@ -151,6 +157,7 @@ public class AreaManager extends Manager {
     this.area = area;
   }
 
+  // FIXME: Add area type
   public void save() {
     Json json = new Json();
 
@@ -159,6 +166,8 @@ public class AreaManager extends Manager {
     FileHandle file = Gdx.files.internal("area/" + name + ".json");
 
     IntVector2 dimensions = dimensionsMapper.get(area).get();
+
+    AreaType type = areaTypeMapper.get(area).get();
 
     try {
       json.setWriter(new JsonWriter(new FileWriter(file.file())));
@@ -169,6 +178,7 @@ public class AreaManager extends Manager {
     json.writeObjectStart();
     json.writeValue("width", dimensions.x);
     json.writeValue("length", dimensions.y);
+    json.writeValue("type", type);
     json.writeArrayStart("tiles");
     Tile[][] tiles = tilesMapper.get(area).get();
     for (int y = 0; y < dimensions.y; y++) {

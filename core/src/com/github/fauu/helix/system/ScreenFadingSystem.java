@@ -47,6 +47,7 @@ public class ScreenFadingSystem extends VoidEntitySystem {
     }
 
     Gdx.gl.glEnable(GL20.GL_BLEND);
+    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
     shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
       shapeRenderer.setColor(0, 0, 0, fadeLevel / fadeDuration);

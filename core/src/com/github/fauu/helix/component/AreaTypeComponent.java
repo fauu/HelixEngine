@@ -14,24 +14,24 @@
 package com.github.fauu.helix.component;
 
 import com.artemis.Component;
-import com.github.fauu.helix.graphics.ParticleEffect;
+import com.github.fauu.helix.AreaType;
 
-public class ParticleEffectComponent extends Component {
+public class AreaTypeComponent extends Component {
 
-  private ParticleEffect effect;
+  private AreaType areaType;
 
-  public ParticleEffectComponent() { }
+  public AreaTypeComponent() { }
 
-  public ParticleEffectComponent(ParticleEffect effect) {
-    set(effect);
+  public AreaTypeComponent(AreaType areaType) {
+    this.areaType = areaType;
   }
 
-  public ParticleEffect get() {
-    return effect;
+  public AreaType get() {
+    return areaType;
   }
 
-  public void set(ParticleEffect effect) {
-    this.effect = effect;
+  public void set(AreaType areaType) {
+    this.areaType = areaType;
   }
 
 }

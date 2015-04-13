@@ -13,23 +13,28 @@
 
 package com.github.fauu.helix.manager;
 
-import com.artemis.Entity;
 import com.artemis.Manager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.github.fauu.helix.component.BloomComponent;
-import com.github.fauu.helix.component.EnvironmentComponent;
-import com.github.fauu.helix.component.ParticleEffectComponent;
+import com.github.fauu.helix.datum.Ambience;
 import com.github.fauu.helix.graphics.ParticleEffect;
 import com.github.fauu.helix.postprocessing.Bloom;
 
 // TODO: Think of a more elegant way to handle this
 public class WeatherMan extends Manager {
 
-  private Entity weather;
+  private Ambience weather;
 
-  public void setType(WeatherType type) {
+  public void initialize() {
+    setDefault();
+  }
+
+  public void setDefault() {
+    weather = new Ambience();
+  }
+
+  public void setToType(WeatherType type) {
     Environment environment = new Environment();
     Bloom bloom = null;
     ParticleEffect precipitationEffect = null;
@@ -75,25 +80,12 @@ public class WeatherMan extends Manager {
       default: throw new IllegalStateException();
     }
 
-    if (weather == null) {
-      weather = world.createEntity()
-                     .edit()
-                     .add(new EnvironmentComponent(environment))
-                     .getEntity();
-    }
-
-    if (bloom != null) {
-      bloom.setClearColor(0, 0, 0, 1);
-
-      weather.edit().add(new BloomComponent(bloom));
-    }
-
-    if (precipitationEffect != null) {
-      weather.edit().add(new ParticleEffectComponent(precipitationEffect));
-    }
+    weather.setEnvironment(environment);
+    weather.setBloom(bloom);
+    weather.setParticleEffect(precipitationEffect);
   }
 
-  public Entity getWeather() {
+  public Ambience getWeather() {
     return weather;
   }
 

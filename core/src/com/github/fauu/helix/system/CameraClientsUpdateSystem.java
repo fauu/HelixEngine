@@ -13,37 +13,35 @@
 
 package com.github.fauu.helix.system;
 
-import com.artemis.Aspect;
-import com.artemis.ComponentMapper;
-import com.artemis.Entity;
 import com.artemis.annotations.Wire;
-import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.systems.VoidEntitySystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
-import com.github.fauu.helix.component.ParticleEffectComponent;
 import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.graphics.ParticleEffect;
+import com.github.fauu.helix.manager.LocalAmbienceManager;
 
-public class CameraClientsUpdateSystem extends EntityProcessingSystem {
+public class CameraClientsUpdateSystem extends VoidEntitySystem {
 
   @Wire
-  private ComponentMapper<ParticleEffectComponent> particleEffectMapper;
+  private LocalAmbienceManager localAmbienceManager;
 
   @Wire
   private HelixCamera camera;
 
-  public CameraClientsUpdateSystem() {
-    super(Aspect.getAspectForAll(ParticleEffectComponent.class));
-  }
+  public CameraClientsUpdateSystem() { }
 
   @Override
-  protected void process(Entity e) {
+  protected void processSystem() {
     Vector3 positionDelta = camera.getTargetPositionDelta();
 
-    ParticleEffect effect = particleEffectMapper.get(e).get();
-    effect.update(-40 * positionDelta.x,
-                  -24 * positionDelta.y,
-                  Gdx.graphics.getDeltaTime());
+    ParticleEffect localAmbienceParticleEffect
+        = localAmbienceManager.getAmbience().getParticleEffect();
+    if (localAmbienceParticleEffect != null) {
+      localAmbienceParticleEffect.update(-40 * positionDelta.x,
+                                         -24 * positionDelta.y,
+                                         Gdx.graphics.getDeltaTime());
+    }
 
     camera.resetPositionDelta();
   }

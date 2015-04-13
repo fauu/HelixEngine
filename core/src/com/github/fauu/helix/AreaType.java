@@ -1,4 +1,4 @@
-/*
+package com.github.fauu.helix;/*
  * Copyright (C) 2014, 2015 Helix Engine Developers
  * (http://github.com/fauu/HelixEngine)
  *
@@ -11,27 +11,9 @@
  * Authored by: Piotr Grabowski <fau999@gmail.com>
  */
 
-package com.github.fauu.helix.component;
+public enum AreaType {
 
-import com.artemis.Component;
-import com.github.fauu.helix.postprocessing.Bloom;
-
-public class BloomComponent extends Component {
-
-  private Bloom bloom;
-
-  public BloomComponent() { }
-
-  public BloomComponent(Bloom bloom) {
-    set(bloom);
-  }
-
-  public Bloom get() {
-    return bloom;
-  }
-
-  public void set(Bloom bloom) {
-    this.bloom = bloom;
-  }
+  INDOOR,
+  OUTDOOR
 
 }
