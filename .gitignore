@@ -61,9 +61,3 @@ build/
 
 ## OS Specific
 .DS_Store
-
-## Helix
-android/assets/map-region/*
-android/assets/model/*
-android/assets/texture-set/*
-android/assets/tile-geometry/*

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 Helix Engine Developers 
+ * Copyright (C) 2014-2016 Helix Engine Developers 
  * (http://github.com/fauu/HelixEngine)
  *
  * This software is licensed under the GNU General Public License
@@ -61,7 +61,7 @@ public class Overworld implements Screen {
     world.initialize();
 
     world.getManager(WeatherMan.class)
-         .setToType(WeatherMan.WeatherType.RAINSTORM);
+         .setToType(WeatherMan.WeatherType.SUNNY);
     world.getManager(AreaManager.class).load("area1");
     // Temporary
     world.getManager(LocalAmbienceManager.class)

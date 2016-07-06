@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 Helix Engine Developers 
+ * Copyright (C) 2014-2016 Helix Engine Developers 
  * (http://github.com/fauu/HelixEngine)
  *
  * This software is licensed under the GNU General Public License
@@ -16,7 +16,8 @@ package com.github.fauu.helix.editor.ui;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport; 
+import com.badlogic.gdx.utils.Array;
 import com.github.fauu.helix.editor.HelixEditor;
 import com.github.fauu.helix.editor.ui.dialog.NewAreaDialog;
 import com.github.fauu.helix.editor.util.FileExtensionFilter;
@@ -68,8 +69,8 @@ public class UI {
     regionFileChooser.setFileFilter(new FileExtensionFilter("json"));
     regionFileChooser.setListener(new FileChooserAdapter() {
       @Override
-      public void selected(FileHandle file) {
-        HelixEditor.getInstance().loadAreaAction(file.nameWithoutExtension());
+      public void selected(Array<FileHandle> files) {
+        HelixEditor.getInstance().loadAreaAction(files.get(0).nameWithoutExtension());
       }
     });
 

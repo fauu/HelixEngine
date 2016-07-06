@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 Helix Engine Developers
+ * Copyright (C) 2014-2016 Helix Engine Developers
  * (http://github.com/fauu/HelixEngine)
  *
  * This software is licensed under the GNU General Public License

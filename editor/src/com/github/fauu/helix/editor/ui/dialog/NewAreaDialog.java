@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 Helix Engine Developers
+ * Copyright (C) 2014-2016 Helix Engine Developers
  * (http://github.com/fauu/HelixEngine)
  *
  * This software is licensed under the GNU General Public License
@@ -16,7 +16,7 @@ package com.github.fauu.helix.editor.ui.dialog;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.github.fauu.helix.editor.HelixEditor;
-import com.kotcrab.vis.ui.VisTable;
+import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import com.kotcrab.vis.ui.widget.VisTextField;

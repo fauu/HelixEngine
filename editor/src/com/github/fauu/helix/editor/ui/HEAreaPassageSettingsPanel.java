@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 Helix Engine Developers
+ * Copyright (C) 2014-2016 Helix Engine Developers
  * (http://github.com/fauu/HelixEngine)
  *
  * This software is licensed under the GNU General Public License
@@ -23,7 +23,7 @@ import com.github.fauu.helix.editor.event.TilePermissionListStateChangedEvent;
 import com.github.fauu.helix.editor.state.TilePassageAreaListState;
 import com.github.fauu.helix.util.IntVector2;
 import com.google.common.eventbus.Subscribe;
-import com.kotcrab.vis.ui.VisTable;
+import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisSelectBox;
 import com.kotcrab.vis.ui.widget.VisTextField;

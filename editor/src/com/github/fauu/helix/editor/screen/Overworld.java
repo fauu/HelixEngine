@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 Helix Engine Developers 
+ * Copyright (C) 2014-2016 Helix Engine Developers 
  * (http://github.com/fauu/HelixEngine)
  *
  * This software is licensed under the GNU General Public License
@@ -28,6 +28,7 @@ import com.github.fauu.helix.editor.system.TileHighlightingSystem;
 import com.github.fauu.helix.editor.system.TilePermissionsEditingSystem;
 import com.github.fauu.helix.graphics.HelixCamera;
 import com.github.fauu.helix.manager.AreaManager;
+import com.github.fauu.helix.manager.LocalAmbienceManager;
 import com.github.fauu.helix.manager.TextureManager;
 import com.github.fauu.helix.manager.WeatherMan;
 import com.github.fauu.helix.system.RenderingSystem;
@@ -60,6 +61,7 @@ public class Overworld implements Screen {
     world.setManager(new GroupManager());
     world.setManager(new AreaManager());
     world.setManager(new WeatherMan());
+    world.setManager(new LocalAmbienceManager());
     world.setManager(displayableIntermediary = new DisplayableIntermediary());
     world.setManager(cameraIntermediary = new CameraIntermediary());
 
