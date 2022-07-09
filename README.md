@@ -1,26 +1,40 @@
-#Helix Engine
-*Note: This is work in progress*
+# Helix Engine
 
-3D RPG engine inspired by early NDS Pokemon games
+A 3D RPG engine inspired by early NDS Pokémon games, built with [libGDX].
 
-![Game screenshot][screenshot]
+**[In-game video (YouTube)](https://www.youtube.com/watch?v=8ep3P-z82zQ)**
 
-* [In-game video](https://www.youtube.com/watch?v=8ep3P-z82zQ)
-* [Editor screenshot](https://i.imgur.com/XyffTXU.png)
+## RETIREMENT NOTICE
 
-##Built with
+The project has been retired in 2016.
+
+## Screenshots
+
+<p align="center">
+  <img title="In-game screenshot" src="media/ingame-screenshot.png">
+</p>
+
+<p align="center">
+  <img title="Editor screenshot" src="media/editor-screenshot.png">
+</p>
+
+## Technology
+
 * Java
-* [libGDX](https://libgdx.badlogicgames.com/) framework (engine core)
+* [libGDX] framework (engine core)
 * [artemis-odb](https://github.com/junkdog/artemis-odb) Entity-Component-System framework (engine core)
-* [VisUI](https://github.com/kotcrab/vis-editor/wiki/VisUI) UI library (editor UI)
+* [VisUI](https://github.com/kotcrab/vis-ui) UI library (editor UI)
 
-##Building
-Use [libGDX developer's guide](https://github.com/libgdx/libgdx/wiki) as a reference.
+## Building
 
-##Licensing
+Use [libGDX developer's guide](https://libgdx.com/wiki/) as reference.
+
+## Licensing
+
 See the [COPYING](https://github.com/fauu/HelixEngine/blob/master/COPYING) file.
 
-##Authors
+## Authors
+
 See the [AUTHORS](https://github.com/fauu/HelixEngine/blob/master/AUTHORS) file.
 
-[screenshot]: https://i.imgur.com/8CV2FX9.png 
+[libGDX]: https://libgdx.com/
